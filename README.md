@@ -63,13 +63,22 @@ pm2 save
 pm2 startup
 ```
 
-### Bước 5: Cấu hình Webhook và Admin
+### Bước 5: Cấu hình Webhook trên Zalo Bot Manager
 
-1. Thiết lập Nginx (hoặc công cụ như ngrok/localtunnel cho quá trình test) để public port `3000` ra ngoài Internet, gắn vào Webhook trên Zalo Bot Manager (kèm `WEBHOOK_SECRET_TOKEN`).
-2. Vào Zalo cá nhân, mở hộp thoại nhắn tin với Bot.
-3. Gõ lệnh `/setup`. Bot sẽ phản hồi xác nhận bạn là Admin.
-4. Gõ thử yêu cầu: `Ticket Bot Cần hỗ trợ tài khoản`. Bạn sẽ thấy tin nhắn được forward thẳng về máy bạn.
-5. Gõ lệnh `/report` để lấy file CSV các yêu cầu.
+Để Zalo gửi sự kiện về server của bạn, bạn cần thiết lập Webhook URL. Nếu bạn sử dụng **Cloudflare Tunnel** (ví dụ domain `api.minhhan.net`) kết nối thẳng vào cổng `3000` của server nội bộ mà không cần mở port mạng:
+
+1. Truy cập vào trang [Zalo Bot Manager](https://bot.zapps.me/) và chọn cấu hình Bot của bạn.
+2. Tìm đến phần cấu hình **Webhook**.
+3. Nhập **Webhook URL** theo định dạng: `https://api.minhhan.net/webhook` (Thay domain bằng tên miền của bạn và bắt buộc phải có `/webhook` ở cuối).
+4. Nhập **Secret Token**: `ticket-bot-secret` (Đảm bảo giá trị này khớp hoàn toàn với biến `WEBHOOK_SECRET_TOKEN` trong file `.env` của server).
+5. Lưu cấu hình và chắc chắn rằng Zalo Bot Manager báo thành công.
+
+### Bước 6: Khởi tạo quyền Admin
+
+1. Vào Zalo cá nhân, tìm và mở hộp thoại nhắn tin riêng với Bot của bạn.
+2. Gõ lệnh `/setup`. Bot sẽ phản hồi xác nhận bạn đã được gán làm Admin nhận thông báo hệ thống.
+3. Gõ thử một yêu cầu (có gọi tên Bot), ví dụ: `Ticket Bot Cần hỗ trợ reset tài khoản`. Bạn sẽ thấy tin nhắn yêu cầu được hệ thống tự động forward thẳng về máy bạn.
+4. Bất cứ lúc nào cần lấy dữ liệu báo cáo, gõ lệnh `/report` để Bot trả về file CSV tổng hợp các yêu cầu.
 
 ## Quản trị hệ thống
 Hệ thống sử dụng cơ sở dữ liệu nội bộ SQLite, file dữ liệu sẽ được sinh ra tại `data.sqlite`. Khi sao lưu server, bạn chỉ cần copy thư mục mã nguồn và file `data.sqlite` này.
