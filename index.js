@@ -94,11 +94,12 @@ app.post('/webhook', async (req, res) => {
   // Send 200 OK early to acknowledge receipt
   res.json({ message: "Success" });
 
-  // Zalo webhook structure (from official docs):
-  // { ok: true, result: { event_name: "...", message: { from: {...}, chat: {...}, text: "..." } } }
+  // Zalo webhook structure can vary:
+  // Sometimes: { ok: true, result: { message: {...} } }
+  // Sometimes: { message: { from: {...}, chat: {...}, text: "..." } }
   const result = payload?.result;
-  const eventName = result?.event_name;
-  const message = result?.message;
+  const eventName = result?.event_name || payload?.event_name;
+  const message = result?.message || payload?.message;
 
   console.log('Event name:', eventName);
 
