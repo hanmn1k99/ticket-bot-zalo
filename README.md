@@ -5,7 +5,7 @@ Bot nhận yêu cầu hỗ trợ qua Zalo và tự động chuyển tiếp về 
 ## Các tính năng chính
 
 - Nhận diện khi người dùng gọi tên Bot (hoặc `@Bot`) kèm yêu cầu.
-- Lệnh `/setup`: Gõ lệnh này trong Zalo riêng với bot để thiết lập bản thân làm Admin. Bot tự động lưu ID của bạn vào cơ sở dữ liệu SQLite.
+- Lệnh `/setup`: Gõ lệnh này trong Zalo riêng với bot để thiết lập bản thân làm Admin. Bot tự động lưu ID của bạn vào cơ sở dữ liệu JSON.
 - Lệnh `/report`: Admin gõ lệnh này, bot sẽ kết xuất dữ liệu yêu cầu ra file `.csv` và gửi đường dẫn tải về (tự hủy sau 24h).
 - Tự động nhắc nhở xuất dữ liệu vào 10:00 sáng ngày cuối cùng của tháng.
 - Tự động xóa dữ liệu yêu cầu cũ vào ngày mùng 1 hàng tháng (chỉ giữ lại dữ liệu của tháng trước theo quy định 1 tháng quay vòng).
@@ -48,7 +48,7 @@ Nội dung file `.env` cần có:
 ```env
 BOT_TOKEN=YOUR_BOT_TOKEN_HERE
 WEBHOOK_SECRET_TOKEN=ticket-bot-secret
-PORT=3000
+PORT=1092
 # BOT_NAME là tên chính xác của bot trên Zalo (ví dụ: Ticket Bot)
 BOT_NAME=Ticket Bot
 # PUBLIC_URL là domain public của bạn, dùng để tạo link tải file CSV
@@ -63,15 +63,19 @@ pm2 save
 pm2 startup
 ```
 
-### Bước 5: Cấu hình Webhook trên Zalo Bot Manager
+### Bước 5: Cấu hình Webhook cho Zalo Bot
 
-Để Zalo gửi sự kiện về server của bạn, bạn cần thiết lập Webhook URL. Nếu bạn sử dụng **Cloudflare Tunnel** (ví dụ domain `api.minhhan.net`) kết nối thẳng vào cổng `3000` của server nội bộ mà không cần mở port mạng:
+Để Zalo gửi sự kiện về server của bạn, bạn cần đăng ký Webhook URL thông qua API của Zalo. Nếu bạn sử dụng **Cloudflare Tunnel** (ví dụ domain `api.minhhan.net`) kết nối thẳng vào cổng `1092` của server nội bộ mà không cần mở port mạng:
 
-1. Truy cập vào trang [Zalo Bot Manager](https://bot.zapps.me/) và chọn cấu hình Bot của bạn.
-2. Tìm đến phần cấu hình **Webhook**.
-3. Nhập **Webhook URL** theo định dạng: `https://api.minhhan.net/webhook` (Thay domain bằng tên miền của bạn và bắt buộc phải có `/webhook` ở cuối).
-4. Nhập **Secret Token**: `ticket-bot-secret` (Đảm bảo giá trị này khớp hoàn toàn với biến `WEBHOOK_SECRET_TOKEN` trong file `.env` của server).
-5. Lưu cấu hình và chắc chắn rằng Zalo Bot Manager báo thành công.
+Bạn chạy lệnh sau trên terminal (thay thế token, domain và secret_token tương ứng với cấu hình của bạn):
+
+```bash
+curl -X POST "https://bot-api.zaloplatforms.com/bot<YOUR_BOT_TOKEN_HERE>/setWebhook" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://my-domain.com/webhook","secret_token":"ticket-bot-secret"}'
+```
+
+Đảm bảo giá trị `secret_token` khớp hoàn toàn với biến `WEBHOOK_SECRET_TOKEN` trong file `.env` của bạn. Nếu đăng ký thành công, Zalo sẽ trả về `{"ok":true...}`.
 
 ### Bước 6: Khởi tạo quyền Admin
 
@@ -81,4 +85,4 @@ pm2 startup
 4. Bất cứ lúc nào cần lấy dữ liệu báo cáo, gõ lệnh `/report` để Bot trả về file CSV tổng hợp các yêu cầu.
 
 ## Quản trị hệ thống
-Hệ thống sử dụng cơ sở dữ liệu nội bộ SQLite, file dữ liệu sẽ được sinh ra tại `data.sqlite`. Khi sao lưu server, bạn chỉ cần copy thư mục mã nguồn và file `data.sqlite` này.
+Hệ thống sử dụng cơ sở dữ liệu nội bộ JSON thuần, file dữ liệu sẽ được sinh ra tại `database.json`. Khi sao lưu server, bạn chỉ cần copy thư mục mã nguồn và file `database.json` này.
