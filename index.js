@@ -13,6 +13,19 @@ if (!fs.existsSync(publicDir)) {
 }
 
 const app = express();
+
+process.on('uncaughtException', (err) => {
+  console.error('CRASH Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('CRASH Unhandled Rejection:', err);
+});
+
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] Nhận Request: ${req.method} ${req.url}`);
+  next();
+});
+
 app.use(express.json());
 app.use('/download', express.static(publicDir));
 
