@@ -66,6 +66,12 @@ app.get('/', (req, res) => {
   res.send('Zalo Ticket Bot is running!');
 });
 
+// Zalo webhook verification (GET)
+app.get('/webhook', (req, res) => {
+  console.log('Zalo verification GET request received:', req.query);
+  res.status(200).json({ status: 'ok' });
+});
+
 // Webhook endpoint
 app.post('/webhook', async (req, res) => {
   const secretToken = req.headers["x-bot-api-secret-token"];
