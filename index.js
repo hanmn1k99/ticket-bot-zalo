@@ -169,7 +169,9 @@ app.post('/webhook', async (req, res) => {
     // Handle bot mention (Ticket request)
     if (text.includes(BOT_NAME) || text.includes('@Bot')) {
       // Remove bot name from text
-      let requestContent = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/g, '').trim();
+      let requestContent = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
+      // Remove trailing or leading @ symbol left behind
+      requestContent = requestContent.replace(/^@\s*/, '').trim();
       if (!requestContent) requestContent = "(Không có nội dung)";
 
       // Save to Database
