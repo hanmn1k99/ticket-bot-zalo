@@ -70,8 +70,17 @@ app.get('/', (req, res) => {
 app.post('/webhook', async (req, res) => {
   const secretToken = req.headers["x-bot-api-secret-token"];
   
+  // Log everything for debugging
+  console.log('=== WEBHOOK RECEIVED ===');
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  console.log('Secret Token Header:', secretToken);
+  console.log('Expected Token:', WEBHOOK_SECRET_TOKEN);
+  console.log('Token Match:', secretToken === WEBHOOK_SECRET_TOKEN);
+  console.log('========================');
+
   if (secretToken !== WEBHOOK_SECRET_TOKEN) {
-    console.warn("Unauthorized webhook attempt");
+    console.warn("Unauthorized webhook attempt - token mismatch");
     return res.status(403).json({ message: "Unauthorized" });
   }
 
@@ -79,14 +88,23 @@ app.post('/webhook', async (req, res) => {
   // Send 200 OK early to acknowledge receipt
   res.json({ message: "Success" });
 
-  if (payload.event_name === 'message.text.received' && payload.result && payload.result.message) {
-    const message = payload.result.message;
-    const text = message.text || '';
-    const sender = message.from || {};
-    const senderName = sender.display_name || 'Khách';
-    const senderId = sender.id;
-    const timestamp = parseInt(message.date) || Date.now();
+  console.log('Event name:', payload.event_name);
+
+  // Try to find message in different possible payload structures
+  const message = payload?.result?.message || payload?.message || payload?.data?.message;
+  const eventName = payload?.event_name || payload?.event;
+
+  if (message) {
+    const text = message.text || message.content || '';
+    const sender = message.from || message.sender || {};
+    const senderName = sender.display_name || sender.name || 'Khách';
+    const senderId = sender.id || sender.user_id;
+    const timestamp = parseInt(message.date || message.timestamp) || Date.now();
     const dateObj = new Date(timestamp);
+
+    console.log('Parsed text:', text);
+    console.log('Parsed senderId:', senderId);
+
     
     // Format date and time
     const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
