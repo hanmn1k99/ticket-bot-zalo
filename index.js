@@ -117,9 +117,12 @@ app.post('/webhook', async (req, res) => {
     console.log('Parsed senderId:', senderId);
     console.log('Parsed chatId:', chatId);
 
-    // Format date and time
-    const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    const dateStr = dateObj.toLocaleDateString('vi-VN');
+    // Format date and time (12h format and dd/mm/yyyy)
+    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    const dateStr = `${day}/${month}/${year}`;
 
 
     // Handle /install command
