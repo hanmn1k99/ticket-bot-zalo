@@ -1,13 +1,26 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const db = require('./database');
+const setupCronJobs = require('./cronjobs');
+
+// Create public folder for downloads
+const publicDir = path.join(__dirname, 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir);
+}
 
 const app = express();
 app.use(express.json());
+app.use('/download', express.static(publicDir));
 
 const PORT = process.env.PORT || 3000;
 const WEBHOOK_SECRET_TOKEN = process.env.WEBHOOK_SECRET_TOKEN;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+const BOT_NAME = process.env.BOT_NAME || '@Bot';
+const PUBLIC_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 // Helper to send message via Zalo API
 async function sendZaloMessage(chatId, text) {
@@ -31,6 +44,9 @@ async function sendZaloMessage(chatId, text) {
     console.error('Error sending message:', error);
   }
 }
+
+// Init cron jobs
+setupCronJobs(sendZaloMessage);
 
 // Default route
 app.get('/', (req, res) => {
@@ -56,37 +72,79 @@ app.post('/webhook', async (req, res) => {
     const sender = message.from || {};
     const senderName = sender.display_name || 'Khách';
     const senderId = sender.id;
-    const dateObj = new Date(parseInt(message.date) || Date.now());
+    const timestamp = parseInt(message.date) || Date.now();
+    const dateObj = new Date(timestamp);
     
     // Format date and time
     const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     const dateStr = dateObj.toLocaleDateString('vi-VN');
 
-    // Handle /getid command
-    if (text.trim() === '/getid') {
-      await sendZaloMessage(senderId, `ID của bạn là: ${senderId}\nHãy copy ID này và thêm vào file .env (ADMIN_CHAT_ID) trên server.`);
+    // Handle /setup command
+    if (text.trim() === '/setup') {
+      await db.setSetting('admin_chat_id', senderId);
+      await sendZaloMessage(senderId, "Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
       return;
     }
 
-    // Handle @Bot command (Ticket request)
-    if (text.includes('@Bot')) {
-      // Remove @Bot from the text
-      let requestContent = text.replace(/@Bot/g, '').trim();
+    // Handle /report command
+    if (text.trim() === '/report') {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(senderId, "Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const requests = await db.getAllRequests();
+      if (requests.length === 0) {
+        await sendZaloMessage(senderId, "Chưa có dữ liệu yêu cầu nào.");
+        return;
+      }
+
+      const { Parser } = require('json2csv');
+      const parser = new Parser({ fields: ['id', 'timestamp', 'date', 'sender_name', 'sender_id', 'content'] });
+      const formattedRequests = requests.map(r => ({
+         ...r,
+         date: new Date(r.timestamp).toLocaleString('vi-VN')
+      }));
+      const csv = parser.parse(formattedRequests);
+      
+      const fileName = `report_${crypto.randomBytes(4).toString('hex')}.csv`;
+      const filePath = path.join(publicDir, fileName);
+      // Add BOM for Excel UTF-8 compatibility
+      fs.writeFileSync(filePath, "\uFEFF" + csv, 'utf8');
+
+      const downloadLink = `${PUBLIC_URL}/download/${fileName}`;
+      await sendZaloMessage(senderId, `Báo cáo của bạn đã sẵn sàng. Nhấn vào link để tải về: ${downloadLink}`);
+      
+      // Auto delete file after 24 hours
+      setTimeout(() => {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }, 24 * 60 * 60 * 1000);
+      return;
+    }
+
+    // Handle bot mention (Ticket request)
+    if (text.includes(BOT_NAME) || text.includes('@Bot')) {
+      // Remove bot name from text
+      let requestContent = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/g, '').trim();
       if (!requestContent) requestContent = "(Không có nội dung)";
 
-      // Format the message
+      // Save to Database
+      await db.addRequest(timestamp, senderName, senderId, requestContent);
+
+      // Format the message to send to Admin
       const adminMessage = `Giờ: ${timeStr}\nNgày: ${dateStr}\nTên người yêu cầu: ${senderName}\nYêu cầu: ${requestContent}`;
       
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
-      console.log('------------------------');
 
-      if (ADMIN_CHAT_ID) {
-        await sendZaloMessage(ADMIN_CHAT_ID, adminMessage);
-        await sendZaloMessage(senderId, "Yêu cầu của bạn đã được ghi nhận và gửi đến Admin.");
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (adminId) {
+        await sendZaloMessage(adminId, adminMessage);
+        await sendZaloMessage(senderId, "Yêu cầu của bạn đã được ghi nhận và gửi đến bộ phận hỗ trợ.");
       } else {
         console.warn('ADMIN_CHAT_ID is not configured. Cannot forward message.');
-        await sendZaloMessage(senderId, "Yêu cầu đã được nhận nhưng Admin chưa cấu hình ID nhận tin nhắn.");
+        await sendZaloMessage(senderId, "Yêu cầu đã được nhận nhưng hệ thống chưa được cấu hình người nhận.");
       }
     }
   }
