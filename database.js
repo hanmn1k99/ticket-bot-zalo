@@ -1,80 +1,67 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 
-const dbPath = path.join(__dirname, 'data.sqlite');
-const db = new sqlite3.Database(dbPath);
+const dbPath = path.join(__dirname, 'data.json');
 
-// Initialize DB
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS settings (
-    key TEXT PRIMARY KEY,
-    value TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS requests (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp INTEGER,
-    sender_name TEXT,
-    sender_id TEXT,
-    content TEXT
-  )`);
-});
-
-// Settings API
-function getSetting(key) {
-  return new Promise((resolve, reject) => {
-    db.get('SELECT value FROM settings WHERE key = ?', [key], (err, row) => {
-      if (err) return reject(err);
-      resolve(row ? row.value : null);
-    });
-  });
+// Helper to read DB
+function readDB() {
+  if (!fs.existsSync(dbPath)) {
+    return { settings: {}, requests: [] };
+  }
+  try {
+    const data = fs.readFileSync(dbPath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error("Error reading database:", err);
+    return { settings: {}, requests: [] };
+  }
 }
 
-function setSetting(key, value) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
-      [key, value],
-      function (err) {
-        if (err) return reject(err);
-        resolve(this.changes);
-      }
-    );
-  });
+// Helper to write DB
+function writeDB(data) {
+  fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Settings API
+async function getSetting(key) {
+  const db = readDB();
+  return db.settings[key] || null;
+}
+
+async function setSetting(key, value) {
+  const db = readDB();
+  db.settings[key] = value;
+  writeDB(db);
 }
 
 // Requests API
-function addRequest(timestamp, senderName, senderId, content) {
-  return new Promise((resolve, reject) => {
-    db.run(
-      'INSERT INTO requests (timestamp, sender_name, sender_id, content) VALUES (?, ?, ?, ?)',
-      [timestamp, senderName, senderId, content],
-      function (err) {
-        if (err) return reject(err);
-        resolve(this.lastID);
-      }
-    );
+async function addRequest(timestamp, senderName, senderId, content) {
+  const db = readDB();
+  const newId = db.requests.length > 0 ? db.requests[db.requests.length - 1].id + 1 : 1;
+  db.requests.push({
+    id: newId,
+    timestamp,
+    sender_name: senderName,
+    sender_id: senderId,
+    content
   });
+  writeDB(db);
+  return newId;
 }
 
-function getAllRequests() {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM requests ORDER BY timestamp ASC', [], (err, rows) => {
-      if (err) return reject(err);
-      resolve(rows);
-    });
-  });
+async function getAllRequests() {
+  const db = readDB();
+  return db.requests.sort((a, b) => a.timestamp - b.timestamp);
 }
 
 // Delete requests older than specific timestamp
-function deleteRequestsOlderThan(timestamp) {
-  return new Promise((resolve, reject) => {
-    db.run('DELETE FROM requests WHERE timestamp < ?', [timestamp], function (err) {
-      if (err) return reject(err);
-      resolve(this.changes);
-    });
-  });
+async function deleteRequestsOlderThan(timestamp) {
+  const db = readDB();
+  const initialCount = db.requests.length;
+  db.requests = db.requests.filter(req => req.timestamp >= timestamp);
+  const deletedCount = initialCount - db.requests.length;
+  writeDB(db);
+  return deletedCount;
 }
 
 module.exports = {
