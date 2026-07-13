@@ -5,7 +5,8 @@ Bot nhận yêu cầu hỗ trợ qua Zalo và tự động chuyển tiếp về 
 ## Các tính năng chính
 
 - Nhận diện khi người dùng gọi tên Bot (hoặc `@Bot`) kèm yêu cầu.
-- Lệnh `/setup`: Gõ lệnh này trong Zalo riêng với bot để thiết lập bản thân làm Admin. Bot tự động lưu ID của bạn vào cơ sở dữ liệu JSON.
+- Lệnh `/install`: Gõ lệnh này trong Zalo riêng với bot để thiết lập bản thân làm Admin. Bot tự động lưu ID của bạn vào cơ sở dữ liệu JSON.
+- Lệnh `/uninstall`: Hủy quyền Admin, dừng nhận thông báo từ bot.
 - Lệnh `/report`: Admin gõ lệnh này, bot sẽ kết xuất dữ liệu yêu cầu ra file `.csv` và gửi đường dẫn tải về (tự hủy sau 24h).
 - Tự động nhắc nhở xuất dữ liệu vào 10:00 sáng ngày cuối cùng của tháng.
 - Tự động xóa dữ liệu yêu cầu cũ vào ngày mùng 1 hàng tháng (chỉ giữ lại dữ liệu của tháng trước theo quy định 1 tháng quay vòng).
@@ -80,9 +81,9 @@ curl -X POST "https://bot-api.zaloplatforms.com/bot<YOUR_BOT_TOKEN_HERE>/setWebh
 ### Bước 6: Khởi tạo quyền Admin
 
 1. Vào Zalo cá nhân, tìm và mở hộp thoại nhắn tin riêng với Bot của bạn.
-2. Gõ lệnh `/setup`. Bot sẽ phản hồi xác nhận bạn đã được gán làm Admin nhận thông báo hệ thống.
+2. Gõ lệnh `/install`. Bot sẽ phản hồi xác nhận bạn đã được gán làm Admin nhận thông báo hệ thống.
 3. Gõ thử một yêu cầu (có gọi tên Bot), ví dụ: `Ticket Bot Cần hỗ trợ reset tài khoản`. Bạn sẽ thấy tin nhắn yêu cầu được hệ thống tự động forward thẳng về máy bạn.
-4. Bất cứ lúc nào cần lấy dữ liệu báo cáo, gõ lệnh `/report` để Bot trả về file CSV tổng hợp các yêu cầu.
+4. Bất cứ lúc nào cần gỡ quyền, gõ lệnh `/uninstall`. Bất cứ lúc nào cần lấy báo cáo, gõ lệnh `/report`.
 
 ## Quản trị hệ thống
 Hệ thống sử dụng cơ sở dữ liệu nội bộ JSON thuần, file dữ liệu sẽ được sinh ra tại `database.json`. Khi sao lưu server, bạn chỉ cần copy thư mục mã nguồn và file `database.json` này.

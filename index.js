@@ -122,10 +122,17 @@ app.post('/webhook', async (req, res) => {
     const dateStr = dateObj.toLocaleDateString('vi-VN');
 
 
-    // Handle /setup command
-    if (text.trim() === '/setup') {
+    // Handle /install command
+    if (text.trim() === '/install') {
       await db.setSetting('admin_chat_id', senderId);
-      await sendZaloMessage(chatId, "Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
+      await sendZaloMessage(chatId, "✅ Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
+      return;
+    }
+
+    // Handle /uninstall command
+    if (text.trim() === '/uninstall') {
+      await db.setSetting('admin_chat_id', null);
+      await sendZaloMessage(chatId, "⚠️ Đã gỡ bỏ quyền Admin của bạn. Hệ thống sẽ không chuyển tiếp tin nhắn tới đây nữa.");
       return;
     }
 
@@ -178,7 +185,7 @@ app.post('/webhook', async (req, res) => {
       await db.addRequest(timestamp, senderName, senderId, requestContent);
 
       // Format the message to send to Admin
-      const adminMessage = `Giờ: ${timeStr}\nNgày: ${dateStr}\nTên người yêu cầu: ${senderName}\nYêu cầu: ${requestContent}`;
+      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI!\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;
       
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
