@@ -186,7 +186,7 @@ app.post('/webhook', async (req, res) => {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (adminId) {
         await sendZaloMessage(adminId, adminMessage);
-        await sendZaloMessage(chatId, `✅ Yêu cầu của Thầy/Cô đã được tiếp nhận, bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.\n\n🙏 Cảm ơn Thầy/Cô ${senderName} đã gửi yêu cầu! 🛠️`);
+        await sendZaloMessage(chatId, `✅ Yêu cầu của Thầy/Cô đã được tiếp nhận, bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.\n\nCảm ơn Thầy/Cô ${senderName} đã gửi yêu cầu! 😊 🛠️`);
       } else {
         console.warn('ADMIN_CHAT_ID is not configured. Cannot forward message.');
         await sendZaloMessage(chatId, "Yêu cầu đã được nhận nhưng hệ thống chưa được cấu hình người nhận.");
