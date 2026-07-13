@@ -94,32 +94,37 @@ app.post('/webhook', async (req, res) => {
   // Send 200 OK early to acknowledge receipt
   res.json({ message: "Success" });
 
-  console.log('Event name:', payload.event_name);
+  // Zalo webhook structure (from official docs):
+  // { ok: true, result: { event_name: "...", message: { from: {...}, chat: {...}, text: "..." } } }
+  const result = payload?.result;
+  const eventName = result?.event_name;
+  const message = result?.message;
 
-  // Try to find message in different possible payload structures
-  const message = payload?.result?.message || payload?.message || payload?.data?.message;
-  const eventName = payload?.event_name || payload?.event;
+  console.log('Event name:', eventName);
 
   if (message) {
-    const text = message.text || message.content || '';
-    const sender = message.from || message.sender || {};
-    const senderName = sender.display_name || sender.name || 'Khách';
-    const senderId = sender.id || sender.user_id;
-    const timestamp = parseInt(message.date || message.timestamp) || Date.now();
+    const text = message.text || '';
+    const sender = message.from || {};
+    const chat = message.chat || {};
+    const senderName = sender.display_name || 'Khách';
+    const senderId = sender.id;
+    const chatId = chat.id || senderId; // Use chat.id for replies (per Zalo docs)
+    const timestamp = parseInt(message.date) || Date.now();
     const dateObj = new Date(timestamp);
 
     console.log('Parsed text:', text);
     console.log('Parsed senderId:', senderId);
+    console.log('Parsed chatId:', chatId);
 
-    
     // Format date and time
     const timeStr = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     const dateStr = dateObj.toLocaleDateString('vi-VN');
 
+
     // Handle /setup command
     if (text.trim() === '/setup') {
       await db.setSetting('admin_chat_id', senderId);
-      await sendZaloMessage(senderId, "Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
+      await sendZaloMessage(chatId, "Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
       return;
     }
 
@@ -127,13 +132,13 @@ app.post('/webhook', async (req, res) => {
     if (text.trim() === '/report') {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (senderId !== adminId) {
-        await sendZaloMessage(senderId, "Bạn không có quyền thực hiện lệnh này.");
+        await sendZaloMessage(chatId, "Bạn không có quyền thực hiện lệnh này.");
         return;
       }
       
       const requests = await db.getAllRequests();
       if (requests.length === 0) {
-        await sendZaloMessage(senderId, "Chưa có dữ liệu yêu cầu nào.");
+        await sendZaloMessage(chatId, "Chưa có dữ liệu yêu cầu nào.");
         return;
       }
 
@@ -151,7 +156,7 @@ app.post('/webhook', async (req, res) => {
       fs.writeFileSync(filePath, "\uFEFF" + csv, 'utf8');
 
       const downloadLink = `${PUBLIC_URL}/download/${fileName}`;
-      await sendZaloMessage(senderId, `Báo cáo của bạn đã sẵn sàng. Nhấn vào link để tải về: ${downloadLink}`);
+      await sendZaloMessage(chatId, `Báo cáo của bạn đã sẵn sàng. Nhấn vào link để tải về: ${downloadLink}`);
       
       // Auto delete file after 24 hours
       setTimeout(() => {
@@ -178,10 +183,10 @@ app.post('/webhook', async (req, res) => {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (adminId) {
         await sendZaloMessage(adminId, adminMessage);
-        await sendZaloMessage(senderId, "Yêu cầu của bạn đã được ghi nhận và gửi đến bộ phận hỗ trợ.");
+        await sendZaloMessage(chatId, "Yêu cầu của bạn đã được ghi nhận và gửi đến bộ phận hỗ trợ.");
       } else {
         console.warn('ADMIN_CHAT_ID is not configured. Cannot forward message.');
-        await sendZaloMessage(senderId, "Yêu cầu đã được nhận nhưng hệ thống chưa được cấu hình người nhận.");
+        await sendZaloMessage(chatId, "Yêu cầu đã được nhận nhưng hệ thống chưa được cấu hình người nhận.");
       }
     }
   }
