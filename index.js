@@ -749,6 +749,28 @@ app.get('/report', checkAuth, async (req, res) => {
           // Khởi tạo lần đầu
           updateNameDropdown();
 
+          // Bộ đếm thời gian không hoạt động (Tự động đăng xuất sau 30 phút)
+          let idleMinutes = 0;
+          
+          // Tăng biến đếm mỗi phút
+          const idleInterval = setInterval(() => {
+              idleMinutes++;
+              if (idleMinutes >= 30) {
+                  window.location.href = '/logout';
+              }
+          }, 60000); // 1 phút
+
+          // Hàm reset bộ đếm khi có thao tác người dùng
+          function resetIdleTimer() {
+              idleMinutes = 0;
+          }
+
+          // Lắng nghe các sự kiện tương tác của người dùng
+          ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll'].forEach(evt => 
+              document.addEventListener(evt, resetIdleTimer, true)
+          );
+
+
           // Cơ chế đồng bộ thời gian thực (Real-time Polling)
           setInterval(async () => {
               try {
