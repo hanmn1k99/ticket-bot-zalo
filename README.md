@@ -5,6 +5,7 @@ Bot nhận yêu cầu hỗ trợ qua Zalo và tự động chuyển tiếp về 
 ## Các tính năng chính
 
 - Nhận diện khi người dùng gọi tên Bot (hoặc `@Bot`) kèm yêu cầu.
+- **Tích hợp AI thông minh**: Tự động trả lời các câu hỏi thường gặp (Mật khẩu Wifi, hướng dẫn cơ bản) bằng Google Gemini AI, giúp giảm tải cho IT. Các yêu cầu phức tạp (sửa chữa) vẫn được tự động forward thành Ticket.
 - Lệnh `/install`: Gõ lệnh này trong Zalo riêng với bot để thiết lập bản thân làm Admin. Bot tự động lưu ID của bạn vào cơ sở dữ liệu JSON.
 - Lệnh `/uninstall`: Hủy quyền Admin, dừng nhận thông báo từ bot.
 - Lệnh `/report`: Admin gõ lệnh này, bot sẽ kết xuất dữ liệu yêu cầu ra file `.csv` và gửi đường dẫn tải về (tự hủy sau 24h).
@@ -54,6 +55,8 @@ PORT=1092
 BOT_NAME=Ticket Bot
 # PUBLIC_URL là domain public của bạn, dùng để tạo link tải file CSV
 PUBLIC_URL=https://my-domain.com
+# GEMINI_API_KEY (Tuỳ chọn) dùng để kích hoạt tính năng AI trả lời tự động. Nhận tại: https://aistudio.google.com/
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ### Bước 4: Chạy Bot bằng PM2

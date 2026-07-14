@@ -5,6 +5,41 @@ const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./database');
 const setupCronJobs = require('./cronjobs');
+const { GoogleGenAI } = require('@google/genai');
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+let ai = null;
+if (GEMINI_API_KEY) {
+  ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+}
+
+async function analyzeWithAI(text) {
+  if (!ai) return { type: 'TICKET' };
+  
+  const systemPrompt = `Bạn là IT AI của trường học. Phân tích yêu cầu từ giáo viên: "${text}"
+Cơ sở dữ liệu FAQ (Trả lời tự động):
+- Mật khẩu wifi trường / wifi giáo viên / wifi bộ phận IT: gvmeyschool
+- Mật khẩu wifi khách: meyschool123
+Quy tắc xử lý:
+1. Nếu câu hỏi có trong FAQ (hỏi wifi...), hãy soạn một câu trả lời thân thiện (chỉ nội dung câu trả lời, không cần thêm gì khác). Bắt đầu bằng từ khóa: ANSWER| 
+Ví dụ: "ANSWER| Mật khẩu wifi dành cho giáo viên là gvmeyschool ạ."
+2. Nếu là yêu cầu sửa chữa, kiểm tra, xem giúp, cài máy, hoặc các sự cố khác không có trong FAQ: chỉ trả về duy nhất từ: TICKET`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: systemPrompt
+    });
+    const result = response.text.trim();
+    if (result.startsWith('ANSWER|')) {
+      return { type: 'ANSWER', answer: result.replace('ANSWER|', '').trim() };
+    }
+    return { type: 'TICKET' };
+  } catch (error) {
+    console.error('Lỗi gọi Gemini API:', error);
+    return { type: 'TICKET' };
+  }
+}
 
 // Create public folder for downloads
 const publicDir = path.join(__dirname, 'public');
@@ -184,7 +219,21 @@ app.post('/webhook', async (req, res) => {
       requestContent = requestContent.replace(/^@\s*/, '').trim();
       if (!requestContent) requestContent = "(Không có nội dung)";
 
-      // Save to Database
+      // Analyze with AI
+      const aiResult = await analyzeWithAI(requestContent);
+
+      if (aiResult.type === 'ANSWER') {
+        const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+        // Reply to user directly
+        await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n${aiResult.answer}`);
+        // Notify admin
+        if (adminId) {
+          await sendZaloMessage(adminId, `🤖 AI ĐÃ TỰ ĐỘNG XỬ LÝ\n------------------------------\n👤 Người hỏi: ${senderName}\n📌 Câu hỏi: ${requestContent}\n✅ Đã trả lời: ${aiResult.answer}`);
+        }
+        return; // Dừng, không tạo ticket
+      }
+
+      // Save to Database (Nếu là TICKET)
       await db.addRequest(timestamp, senderName, senderId, requestContent);
 
       // Format the message to send to Admin
