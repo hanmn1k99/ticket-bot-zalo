@@ -27,7 +27,7 @@ Ví dụ: "ANSWER| Mật khẩu wifi dành cho giáo viên là gvmeyschool ạ."
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-1.5-flash',
       contents: systemPrompt
     });
     const result = response.text.trim();
