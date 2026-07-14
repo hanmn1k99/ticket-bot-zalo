@@ -523,6 +523,9 @@ app.get('/report', async (req, res) => {
                   <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   </button>
+                  <button class="btn-secondary" onclick="cleanData()" title="Xóa toàn bộ báo cáo" style="color:#ef4444;">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
                   <button onclick="window.print()">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                       Xuất Báo Cáo
@@ -655,6 +658,32 @@ app.get('/report', async (req, res) => {
                   input.disabled = false;
               }
           }
+
+          // Hàm Xóa Toàn Bộ Dữ Liệu
+          async function cleanData() {
+              if (!confirm('Cảnh báo nguy hiểm: Hành động này sẽ xóa TOÀN BỘ dữ liệu báo cáo hiện tại và reset lại bộ đếm ID sự cố về #1.\\n\\nBạn có chắc chắn muốn xóa sạch hệ thống không?')) return;
+              
+              const btn = event.currentTarget;
+              const originalHTML = btn.innerHTML;
+              btn.innerHTML = '...';
+              btn.disabled = true;
+
+              try {
+                  const response = await fetch('/api/tickets/clean', { method: 'POST' });
+                  if (response.ok) {
+                      alert('✅ Đã dọn dẹp sạch sẽ toàn bộ dữ liệu!');
+                      window.location.reload();
+                  } else {
+                      alert('❌ Lỗi: Không thể xóa dữ liệu (Thiếu quyền).');
+                      btn.innerHTML = originalHTML;
+                      btn.disabled = false;
+                  }
+              } catch (err) {
+                  alert('❌ Lỗi kết nối máy chủ.');
+                  btn.innerHTML = originalHTML;
+                  btn.disabled = false;
+              }
+          }
       </script>
   </body>
   </html>`;
@@ -716,6 +745,36 @@ app.post('/api/tickets/resolve', async (req, res) => {
   } else {
     return res.status(500).json({ error: 'Lỗi ghi dữ liệu vào hệ thống.' });
   }
+});
+
+// ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
+app.post('/api/tickets/clean', async (req, res) => {
+  // Basic Auth
+  const authheader = req.headers.authorization;
+  if (!authheader) {
+    res.setHeader('WWW-Authenticate', 'Basic');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const auth = new Buffer.from(authheader.split(' ')[1], 'base64').toString().split(':');
+  const user = auth[0];
+  const pass = auth[1];
+
+  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
+    res.setHeader('WWW-Authenticate', 'Basic');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Chạy lệnh dọn dẹp
+  const count = await db.deleteAllRequests();
+  
+  // Gửi thông báo cho Admin qua Zalo
+  const adminId = await db.getSetting('admin_chat_id');
+  if (adminId) {
+    await sendZaloMessage(adminId, `🧹 [WEB DASHBOARD] Đã dọn dẹp hệ thống. Xóa thành công ${count} sự cố. Bộ đếm ID đã được reset về #1.`);
+  }
+
+  return res.json({ success: true, deletedCount: count });
 });
 
 // Webhook endpoint
