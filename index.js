@@ -299,7 +299,7 @@ app.get('/report', async (req, res) => {
               display: flex;
               gap: 15px;
               align-items: center;
-              flex-wrap: wrap;
+              flex-wrap: nowrap;
           }
           input[type="text"], select {
               padding: 10px 16px;
@@ -331,8 +331,13 @@ app.get('/report', async (req, res) => {
               gap: 8px;
               white-space: nowrap;
           }
-          button:hover {
-              background-color: var(--primary-hover);
+          button.btn-secondary {
+              background-color: #f1f5f9;
+              color: #475569;
+              border: 1px solid #cbd5e1;
+          }
+          button.btn-secondary:hover {
+              background-color: #e2e8f0;
           }
           .table-wrapper {
               background: var(--card-bg);
@@ -419,9 +424,12 @@ app.get('/report', async (req, res) => {
                       <option value="">-- Tất cả người báo --</option>
                   </select>
                   <input type="text" id="searchInput" placeholder="Tìm kiếm tự do...">
+                  <button class="btn-secondary" onclick="resetFilters()">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                  </button>
                   <button onclick="downloadPDF()">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                      Xuất PDF (A4)
+                      PDF
                   </button>
               </div>
           </div>
@@ -430,7 +438,7 @@ app.get('/report', async (req, res) => {
               <table id="reportTable">
                   <thead>
                       <tr>
-                          <th width="15%">Tên Zalo</th>
+                          <th width="15%">Người Yêu Cầu</th>
                           <th width="15%">Thời gian</th>
                           <th width="30%">Nội dung lỗi</th>
                           <th width="15%">Trạng thái</th>
@@ -505,6 +513,14 @@ app.get('/report', async (req, res) => {
           searchInput.addEventListener('keyup', filterData);
           nameFilter.addEventListener('change', filterData);
           statusFilter.addEventListener('change', filterData);
+
+          // Hàm Reset Bộ Lọc
+          function resetFilters() {
+              searchInput.value = '';
+              nameFilter.value = '';
+              statusFilter.value = '';
+              filterData();
+          }
 
           // Chức năng Xuất PDF khổ A4
           function downloadPDF() {
