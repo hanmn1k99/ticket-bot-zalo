@@ -607,11 +607,15 @@ app.post('/webhook', async (req, res) => {
 
     // Xử lý tin nhắn từ Admin (Reply ticket)
     const adminIdForReply = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-    if (senderId === adminIdForReply && !text.startsWith('/')) {
+    const isBotMentioned = text.includes(BOT_NAME) || text.includes('@Bot');
+    const quoteText = message?.quote?.text || '';
+    const isExplicitQuoteReply = /Mã Yêu Cầu: #(\d+)/.test(quoteText);
+
+    // Là Reply nếu: Gửi từ Admin, KHÔNG phải lệnh, VÀ (Có Quote hợp lệ HOẶC không có nhắc đến @Bot)
+    if (senderId === adminIdForReply && !text.startsWith('/') && (isExplicitQuoteReply || !isBotMentioned)) {
       let targetTicketId = null;
       
       // Thử tìm Mã Yêu Cầu trong Quote
-      const quoteText = message?.quote?.text || '';
       const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
       if (match) {
          targetTicketId = parseInt(match[1]);
