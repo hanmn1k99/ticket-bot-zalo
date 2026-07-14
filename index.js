@@ -247,13 +247,8 @@ app.post('/webhook', async (req, res) => {
       const aiResult = await analyzeWithAI(requestContent);
 
       if (aiResult.type === 'ANSWER') {
-        const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
         // Reply to user directly
         await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n${aiResult.answer}`);
-        // Notify admin
-        if (adminId) {
-          await sendZaloMessage(adminId, `🤖 AI ĐÃ TỰ ĐỘNG XỬ LÝ\n------------------------------\n👤 Người hỏi: ${senderName}\n📌 Câu hỏi: ${requestContent}\n✅ Đã trả lời: ${aiResult.answer}`);
-        }
         return; // Dừng, không tạo ticket
       }
 
