@@ -371,6 +371,19 @@ app.post('/webhook', async (req, res) => {
       return;
     }
 
+    // Handle /clean command
+    if (text.trim() === '/clean') {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const deletedCount = await db.deleteAllRequests();
+      await sendZaloMessage(chatId, `✅ Đã dọn dẹp thành công! ${deletedCount} dữ liệu báo lỗi đã được xóa khỏi hệ thống.`);
+      return;
+    }
+
     // Handle bot mention (Ticket request)
     if (text.includes(BOT_NAME) || text.includes('@Bot')) {
       // Remove bot name from text

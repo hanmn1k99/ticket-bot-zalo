@@ -90,6 +90,14 @@ async function getAllGroups() {
   return db.groups || [];
 }
 
+async function deleteAllRequests() {
+  const db = readDB();
+  const deletedCount = db.requests ? db.requests.length : 0;
+  db.requests = [];
+  writeDB(db);
+  return deletedCount;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -98,5 +106,6 @@ module.exports = {
   deleteRequestsOlderThan,
   addGroup,
   removeGroup,
-  getAllGroups
+  getAllGroups,
+  deleteAllRequests
 };
