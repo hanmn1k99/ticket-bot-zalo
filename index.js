@@ -301,7 +301,7 @@ app.get('/report', async (req, res) => {
               align-items: center;
               flex-wrap: wrap;
           }
-          input[type="text"] {
+          input[type="text"], select {
               padding: 10px 16px;
               border: 1px solid var(--border-color);
               border-radius: 8px;
@@ -309,8 +309,9 @@ app.get('/report', async (req, res) => {
               font-size: 14px;
               outline: none;
               transition: border-color 0.2s;
+              background-color: white;
           }
-          input[type="text"]:focus {
+          input[type="text"]:focus, select:focus {
               border-color: var(--primary);
               box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
           }
@@ -381,7 +382,10 @@ app.get('/report', async (req, res) => {
           <div class="header">
               <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
               <div class="controls">
-                  <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, nội dung...">
+                  <select id="nameFilter">
+                      <option value="">-- Tất cả người báo --</option>
+                  </select>
+                  <input type="text" id="searchInput" placeholder="Tìm kiếm tự do...">
                   <button onclick="downloadPDF()">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                       Xuất PDF (A4)
@@ -409,19 +413,42 @@ app.get('/report', async (req, res) => {
       </div>
 
       <script>
-          // Chức năng Lọc Dữ Liệu
+          // Khởi tạo các phần tử DOM
           const searchInput = document.getElementById('searchInput');
+          const nameFilter = document.getElementById('nameFilter');
           const table = document.getElementById('reportTable');
           const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           const emptyState = document.getElementById('emptyState');
 
-          searchInput.addEventListener('keyup', function() {
-              const filter = searchInput.value.toLowerCase();
+          // Tự động lấy danh sách tên Zalo (Cột đầu tiên) để đưa vào Select Dropdown
+          const uniqueNames = new Set();
+          for (let i = 0; i < rows.length; i++) {
+              const nameCell = rows[i].getElementsByTagName('td')[0];
+              if (nameCell) {
+                  uniqueNames.add(nameCell.textContent.trim());
+              }
+          }
+          uniqueNames.forEach(name => {
+              const option = document.createElement('option');
+              option.value = name.toLowerCase();
+              option.textContent = name;
+              nameFilter.appendChild(option);
+          });
+
+          // Hàm chạy Bộ lọc (kết hợp Tìm kiếm tự do + Chọn tên)
+          function filterData() {
+              const searchText = searchInput.value.toLowerCase();
+              const selectedName = nameFilter.value;
               let visibleCount = 0;
 
               for (let i = 0; i < rows.length; i++) {
                   const text = rows[i].textContent || rows[i].innerText;
-                  if (text.toLowerCase().indexOf(filter) > -1) {
+                  const nameCellText = rows[i].getElementsByTagName('td')[0].textContent.trim().toLowerCase();
+                  
+                  const matchesSearch = text.toLowerCase().indexOf(searchText) > -1;
+                  const matchesName = selectedName === "" || nameCellText === selectedName;
+
+                  if (matchesSearch && matchesName) {
                       rows[i].style.display = '';
                       visibleCount++;
                   } else {
@@ -436,7 +463,10 @@ app.get('/report', async (req, res) => {
                   table.style.display = 'table';
                   emptyState.style.display = 'none';
               }
-          });
+          }
+
+          searchInput.addEventListener('keyup', filterData);
+          nameFilter.addEventListener('change', filterData);
 
           // Chức năng Xuất PDF khổ A4
           function downloadPDF() {
