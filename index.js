@@ -732,12 +732,15 @@ app.post('/webhook', async (req, res) => {
             return;
          }
 
-         const updatedReq = await db.updateRequest(targetTicketId, text, Date.now());
+         // Xóa mã #ID khỏi nội dung trả lời nếu Admin có gõ vào
+         const cleanText = text.replace(/#\d+\s*/g, '').trim() || 'Hoàn thành';
+
+         const updatedReq = await db.updateRequest(targetTicketId, cleanText, Date.now());
          if (updatedReq) {
             await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
             // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
             const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
+            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${cleanText}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
             await sendZaloMessage(targetChat, userMsg);
          }
       } else {
