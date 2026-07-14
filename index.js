@@ -743,7 +743,7 @@ app.post('/webhook', async (req, res) => {
 
       if (aiResult.type === 'ANSWER') {
         // Reply to user directly
-        await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n@${senderName}\n${aiResult.answer}`);
+        await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n${aiResult.answer}`);
         return; // Dừng, không tạo ticket
       }
 
