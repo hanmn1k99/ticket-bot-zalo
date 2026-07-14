@@ -547,7 +547,7 @@ app.get('/report', async (req, res) => {
                           <th width="5%">STT</th>
                           <th width="15%">Người Yêu Cầu</th>
                           <th width="15%">Thời gian</th>
-                          <th width="25%">Nội dung lỗi</th>
+                          <th width="25%">Mô tả sự cố</th>
                           <th width="15%">Trạng thái</th>
                           <th width="25%">Phản hồi của IT</th>
                       </tr>
