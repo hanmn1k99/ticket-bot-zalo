@@ -5,16 +5,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./database');
 const setupCronJobs = require('./cronjobs');
-const { GoogleGenAI } = require('@google/genai');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-let ai = null;
-if (GEMINI_API_KEY) {
-  ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-}
+const AI_API_KEY = process.env.AI_API_KEY;
 
 async function analyzeWithAI(text) {
-  if (!ai) return { type: 'TICKET' };
+  if (!AI_API_KEY) return { type: 'TICKET' };
   
   const systemPrompt = `Bạn là trợ lý IT AI thân thiện của trường Meyschool. Giáo viên vừa gửi tin nhắn: "${text}"
 
@@ -32,17 +27,26 @@ Ví dụ câu hỏi chung: "ANSWER| Dạ Thầy/Cô cần em hỗ trợ gì ạ?
 Lưu ý: Trả lời ngắn gọn, thân thiện, có emoji. KHÔNG bao giờ trả lời bằng tiếng Anh.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: systemPrompt
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: systemPrompt }],
+        max_tokens: 256
+      })
     });
-    const result = response.text.trim();
+    const data = await response.json();
+    const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
     if (result.startsWith('ANSWER|')) {
       return { type: 'ANSWER', answer: result.replace('ANSWER|', '').trim() };
     }
     return { type: 'TICKET' };
   } catch (error) {
-    console.error('Lỗi gọi Gemini API:', error);
+    console.error('Lỗi gọi AI API:', error);
     return { type: 'TICKET' };
   }
 }
