@@ -245,10 +245,9 @@ app.get('/report', async (req, res) => {
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="[nội dung đã xử lý]" style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
+              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
               <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
            </div>
-           <span class="print-only-text" style="display:none; color:#94a3b8; font-style:italic;">Chưa xử lý</span>
          `;
      }
 
@@ -495,15 +494,8 @@ app.get('/report', async (req, res) => {
               table { width: 100%; min-width: auto; }
               th, td { padding: 8px; font-size: 11px; }
               
-              /* Ẩn bớt các cột hoặc định dạng lại nếu cần */
+              /* Ẩn bớt các form nhập liệu khi in */
               td div[id^="actionBox_"] { display: none !important; }
-              
-              /* Chỉ hiển thị chữ Chưa xử lý khi in nếu nó nằm trong class print-only-text */
-              .print-only-text { display: inline !important; }
-          }
-              
-              /* Ẩn form action, hiển thị text cho bản in */
-              [id^="actionBox_"] + span { display: inline !important; }
           }
       </style>
   </head>
