@@ -236,8 +236,8 @@ app.get('/report', async (req, res) => {
      const time = d.toLocaleTimeString('en-US', { hour12: false });
      
      const statusBadge = r.status === 'Đã xong' 
-       ? '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🟢 Đã xong</span>'
-       : `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🔴 Đang chờ</span>`;
+       ? '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>'
+       : `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
        
      let adminReplyCell = '';
      if (r.status === 'Đã xong') {
