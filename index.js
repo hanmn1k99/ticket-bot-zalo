@@ -239,6 +239,7 @@ app.get('/report', async (req, res) => {
        
      return `
       <tr>
+        <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
@@ -438,9 +439,10 @@ app.get('/report', async (req, res) => {
               <table id="reportTable">
                   <thead>
                       <tr>
+                          <th width="5%">STT</th>
                           <th width="15%">Người Yêu Cầu</th>
                           <th width="15%">Thời gian</th>
-                          <th width="30%">Nội dung lỗi</th>
+                          <th width="25%">Nội dung lỗi</th>
                           <th width="15%">Trạng thái</th>
                           <th width="25%">Phản hồi của IT</th>
                       </tr>
@@ -462,10 +464,10 @@ app.get('/report', async (req, res) => {
           const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           const emptyState = document.getElementById('emptyState');
 
-          // Tự động lấy danh sách tên Zalo (Cột đầu tiên) để đưa vào Select Dropdown
+          // Tự động lấy danh sách tên Zalo (Cột số 2 -> index 1) để đưa vào Select Dropdown
           const uniqueNames = new Set();
           for (let i = 0; i < rows.length; i++) {
-              const nameCell = rows[i].getElementsByTagName('td')[0];
+              const nameCell = rows[i].getElementsByTagName('td')[1];
               if (nameCell) {
                   uniqueNames.add(nameCell.textContent.trim());
               }
@@ -486,8 +488,8 @@ app.get('/report', async (req, res) => {
 
               for (let i = 0; i < rows.length; i++) {
                   const text = rows[i].textContent || rows[i].innerText;
-                  const nameCellText = rows[i].getElementsByTagName('td')[0].textContent.trim().toLowerCase();
-                  const statusCellText = rows[i].getElementsByTagName('td')[3].textContent.trim().toLowerCase();
+                  const nameCellText = rows[i].getElementsByTagName('td')[1].textContent.trim().toLowerCase();
+                  const statusCellText = rows[i].getElementsByTagName('td')[4].textContent.trim().toLowerCase();
                   
                   const matchesSearch = text.toLowerCase().indexOf(searchText) > -1;
                   const matchesName = selectedName === "" || nameCellText === selectedName;
