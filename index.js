@@ -22,12 +22,6 @@ async function analyzeWithAI(text, senderName, senderId) {
     faqContent = "- Chưa có dữ liệu FAQ.";
   }
 
-  const systemPrompt = `Bạn là Trợ lý IT Ảo (phần mềm AI) của trường Meyschool. Giáo viên vừa gửi tin nhắn: "${text}"
-
-Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
-${faqContent}
-(Lưu ý 1: Nếu FAQ ghi mạng wifi nào đó "không có mật khẩu", điều đó có nghĩa là mạng đó LÀ MẠNG MỞ, KHÔNG YÊU CẦU NHẬP PASS, chứ không phải là nhà trường không có mạng wifi đó).
-(Lưu ý 2: NẾU người dùng hỏi về Wifi, HÃY CHỦ ĐỘNG CUNG CẤP ĐẦY ĐỦ cả Tên mạng (SSID) và Mật khẩu (nếu có) để tiện cho người dùng, đừng chỉ trả lời mỗi tên mạng).
 
 Quy tắc định vị bản thân (RẤT QUAN TRỌNG):
 - Bạn LÀ MỘT TRỢ LÝ ẢO (AI), KHÔNG PHẢI CON NGƯỜI. Bạn không có cơ thể vật lý, không biết đi lại, không thể cầm nắm, ăn uống hay làm các việc ngoài đời thực (như đi mua thuốc, lấy đồ, chạy đi sửa máy).
@@ -46,7 +40,8 @@ Quy tắc ngôn ngữ:
 
 Quy tắc phân loại (RẤT QUAN TRỌNG - KHÔNG ĐƯỢC BỎ LỠ TICKET CỦA ADMIN):
 1. TICKET - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT (máy tính, mạng wifi, phần cứng, máy in, camera, phần mềm...).
-- Các dấu hiệu nhận biết: "coi dùm máy", "xem giúp mạng", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "bị đơ", "không in được"...
+- Các dấu hiệu nhận biết: "coi dùm máy", "xem giúp mạng", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "mất wifi", "bị đơ", "không in được"...
+- ĐẶC BIỆT LƯU Ý VỀ WIFI: Nếu người dùng kêu "mất wifi", "không có wifi", "wifi hỏng", "không kết nối được wifi" -> CHẮC CHẮN LÀ TICKET (Báo lỗi). CHỈ phân loại là ANSWER khi người dùng thực sự hỏi "Mật khẩu wifi là gì?", "Cho xin pass wifi".
 - LƯU Ý ĐẶC BIỆT: KHÔNG TẠO TICKET đối với các nhờ vả cá nhân, sai vặt không liên quan đến sửa chữa kỹ thuật (ví dụ: "mua dùm cây thước", "lấy dùm ly nước", "gọi thầy Thái"). Những câu này phân loại là ANSWER để từ chối khéo léo.
 - Khi quyết định là TICKET, CHỈ TRẢ VỀ DUY NHẤT 1 CHỮ LÀ "TICKET". Tuyệt đối không thêm bất cứ từ nào khác, không hứa hẹn, không an ủi.
 
@@ -636,18 +631,65 @@ app.get('/report', async (req, res) => {
               }
           }
 
-          // Chức năng Xuất PDF khổ A4
+          // Chức năng Xuất PDF khổ A4 Landscape (Bản đầy đủ)
           function downloadPDF() {
-              const element = document.getElementById('pdf-content');
+              // Trích xuất và nhân bản bảng gốc
+              const cloneTable = document.getElementById('reportTable').cloneNode(true);
+              
+              // Xóa bỏ form nhập liệu, thay bằng chữ "Chưa xử lý" để PDF nhìn sạch sẽ
+              const actionBoxes = cloneTable.querySelectorAll('[id^="actionBox_"]');
+              actionBoxes.forEach(box => {
+                  box.innerHTML = '<i style="color:#94a3b8">Chưa xử lý</i>';
+              });
+
+              // Tạo một container ảo (không thêm vào body) để định dạng bản in
+              const container = document.createElement('div');
+              container.style.padding = '30px';
+              container.style.background = 'white';
+              container.style.width = '1120px'; // Ép width to để không dính responsive mobile
+              container.style.fontFamily = 'Inter, sans-serif';
+
+              // Tiêu đề PDF
+              const title = document.createElement('h2');
+              title.innerText = 'BÁO CÁO SỰ CỐ IT THÁNG ${monthStr}';
+              title.style.textAlign = 'center';
+              title.style.marginBottom = '30px';
+              container.appendChild(title);
+
+              // Căn chỉnh CSS inline cho bảng
+              cloneTable.style.width = '100%';
+              cloneTable.style.borderCollapse = 'collapse';
+              
+              const ths = cloneTable.querySelectorAll('th');
+              ths.forEach(th => {
+                  th.style.border = '1px solid #cbd5e1';
+                  th.style.padding = '12px';
+                  th.style.backgroundColor = '#f1f5f9';
+                  th.style.color = '#475569';
+                  th.style.fontSize = '14px';
+                  th.style.textAlign = 'left';
+              });
+
+              const tds = cloneTable.querySelectorAll('td');
+              tds.forEach(td => {
+                  td.style.border = '1px solid #cbd5e1';
+                  td.style.padding = '12px';
+                  td.style.fontSize = '13px';
+                  td.style.color = '#1e293b';
+              });
+
+              container.appendChild(cloneTable);
+
               const dateStr = new Date().toLocaleDateString('vi-VN').replace(/\\//g, '-');
               const opt = {
                   margin:       10,
                   filename:     'BaoCao_IT_' + dateStr + '.pdf',
                   image:        { type: 'jpeg', quality: 0.98 },
-                  html2canvas:  { scale: 2, useCORS: true },
-                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                  html2canvas:  { scale: 2, useCORS: true, windowWidth: 1200 },
+                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // Xoay ngang giấy A4 để bảng không bị hẹp
               };
-              html2pdf().set(opt).from(element).save();
+              
+              html2pdf().set(opt).from(container).save();
           }
       </script>
   </body>
