@@ -407,18 +407,76 @@ app.get('/report', async (req, res) => {
               .controls {
                   width: 100%;
                   display: grid;
-                  grid-template-columns: 1fr 1fr;
+                  grid-template-columns: 1fr;
                   gap: 10px;
               }
               input[type="text"], select {
-                  max-width: none;
-              }
-              .controls button {
-                  grid-column: span 2;
-                  justify-content: center;
+                  max-width: 100%;
+                  width: 100%;
               }
               #pdf-content {
-                  padding: 10px;
+                  padding: 5px;
+                  background: transparent;
+              }
+              .table-wrapper {
+                  box-shadow: none;
+                  background: transparent;
+                  overflow-x: hidden;
+              }
+              table { min-width: 100%; }
+              table, thead, tbody, th, td, tr { 
+                  display: block; 
+              }
+              thead tr { 
+                  display: none; 
+              }
+              tr { 
+                  background: var(--card-bg);
+                  margin-bottom: 15px; 
+                  border-radius: 12px; 
+                  padding: 10px; 
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  border: 1px solid var(--border-color);
+              }
+              td { 
+                  border: none;
+                  border-bottom: 1px solid #f1f5f9; 
+                  position: relative;
+                  padding: 12px 10px 12px 130px; 
+                  text-align: right;
+              }
+              td:last-child { border-bottom: 0; }
+              td::before { 
+                  position: absolute;
+                  top: 12px;
+                  left: 10px;
+                  width: 110px; 
+                  white-space: nowrap;
+                  font-weight: 600;
+                  color: var(--text-muted);
+                  text-transform: uppercase;
+                  font-size: 11px;
+                  text-align: left;
+              }
+              td:nth-of-type(1)::before { content: "STT"; }
+              td:nth-of-type(2)::before { content: "Người Yêu Cầu"; }
+              td:nth-of-type(3)::before { content: "Thời gian"; }
+              td:nth-of-type(4)::before { content: "Nội dung lỗi"; }
+              td:nth-of-type(5)::before { content: "Trạng thái"; }
+              td:nth-of-type(6)::before { content: "Phản hồi"; }
+
+              /* Input Box for Action */
+              td div[id^="actionBox_"] { 
+                  flex-direction: column; 
+                  gap: 10px;
+              }
+              td div[id^="actionBox_"] input { 
+                  width: 100%; 
+                  max-width: 100%;
+              }
+              td div[id^="actionBox_"] button {
+                  width: 100%;
+                  justify-content: center;
               }
           }
       </style>
