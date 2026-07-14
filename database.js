@@ -64,10 +64,39 @@ async function deleteRequestsOlderThan(timestamp) {
   return deletedCount;
 }
 
+// Groups API
+async function addGroup(groupId) {
+  const db = readDB();
+  if (!db.groups) db.groups = [];
+  if (!db.groups.includes(groupId)) {
+    db.groups.push(groupId);
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
+async function removeGroup(groupId) {
+  const db = readDB();
+  if (!db.groups) return false;
+  const initialLength = db.groups.length;
+  db.groups = db.groups.filter(id => id !== groupId);
+  writeDB(db);
+  return initialLength !== db.groups.length;
+}
+
+async function getAllGroups() {
+  const db = readDB();
+  return db.groups || [];
+}
+
 module.exports = {
   getSetting,
   setSetting,
   addRequest,
   getAllRequests,
-  deleteRequestsOlderThan
+  deleteRequestsOlderThan,
+  addGroup,
+  removeGroup,
+  getAllGroups
 };

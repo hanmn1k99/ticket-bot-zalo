@@ -271,6 +271,54 @@ app.post('/webhook', async (req, res) => {
     const year = dateObj.getFullYear();
     const dateStr = `${day}/${month}/${year}`;
 
+    // Tự động nhận diện Group (nếu chat.id khác sender.id hoặc có event là group)
+    if (chatId !== senderId || eventName === 'group_send_text') {
+      await db.addGroup(chatId);
+    }
+
+    // Handle /addgroup
+    if (text.trim() === '/addgroup') {
+      await db.addGroup(chatId);
+      await sendZaloMessage(chatId, "✅ Đã đăng ký nhóm này vào danh sách nhận thông báo (Broadcast).");
+      return;
+    }
+
+    // Handle /removegroup
+    if (text.trim() === '/removegroup') {
+      await db.removeGroup(chatId);
+      await sendZaloMessage(chatId, "⚠️ Đã gỡ nhóm này khỏi danh sách nhận thông báo.");
+      return;
+    }
+
+    // Handle /thongbao
+    if (text.startsWith('/thongbao ')) {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+
+      const broadcastMsg = text.replace('/thongbao ', '').trim();
+      if (!broadcastMsg) {
+        await sendZaloMessage(chatId, "⚠️ Vui lòng nhập nội dung thông báo. VD: /thongbao Hôm nay bảo trì mạng");
+        return;
+      }
+
+      const groups = await db.getAllGroups();
+      if (groups.length === 0) {
+        await sendZaloMessage(chatId, "⚠️ Không có nhóm nào trong danh sách để gửi thông báo.");
+        return;
+      }
+
+      let successCount = 0;
+      for (const groupId of groups) {
+        const res = await sendZaloMessage(groupId, "📢 THÔNG BÁO TỪ IT:\n\n" + broadcastMsg);
+        if (res && res.error === 0) successCount++;
+      }
+
+      await sendZaloMessage(chatId, `✅ Đã gửi thông báo đến ${successCount}/${groups.length} nhóm.`);
+      return;
+    }
 
     // Handle /install command
     if (text.trim() === '/install') {
