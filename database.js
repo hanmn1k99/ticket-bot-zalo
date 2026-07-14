@@ -66,6 +66,11 @@ async function updateRequest(id, adminReply, completedAt) {
   return null;
 }
 
+async function getRequest(id) {
+  const db = readDB();
+  return db.requests.find(r => r.id === id) || null;
+}
+
 async function getLatestPendingRequest() {
   const db = readDB();
   const pendingRequests = db.requests.filter(r => r.status === 'Đang xử lý');
@@ -137,6 +142,7 @@ module.exports = {
   getSetting,
   setSetting,
   addRequest,
+  getRequest,
   updateRequest,
   getLatestPendingRequest,
   getAllRequests,

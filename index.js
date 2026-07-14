@@ -704,6 +704,18 @@ app.post('/webhook', async (req, res) => {
       }
 
       if (targetTicketId) {
+         // Kiểm tra trạng thái trước
+         const existingReq = await db.getRequest(targetTicketId);
+         if (!existingReq) {
+            await sendZaloMessage(chatId, `❌ Không tìm thấy yêu cầu #${targetTicketId}.`);
+            return;
+         }
+         
+         if (existingReq.status === 'Đã xong') {
+            await sendZaloMessage(chatId, `⚠️ CẢNH BÁO: Sự cố #${targetTicketId} đã được đánh dấu hoàn thành trước đó rồi. Thao tác bị hủy bỏ.`);
+            return;
+         }
+
          const updatedReq = await db.updateRequest(targetTicketId, text, Date.now());
          if (updatedReq) {
             await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
@@ -711,8 +723,6 @@ app.post('/webhook', async (req, res) => {
             const targetChat = updatedReq.chat_id || updatedReq.sender_id;
             const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
             await sendZaloMessage(targetChat, userMsg);
-         } else {
-            await sendZaloMessage(chatId, `❌ Không tìm thấy yêu cầu #${targetTicketId} để cập nhật.`);
          }
       } else {
          await sendZaloMessage(chatId, `⚠️ Không có yêu cầu nào đang chờ xử lý, hoặc hệ thống không nhận diện được bạn đang trả lời cho sự cố nào.`);
