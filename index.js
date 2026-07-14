@@ -272,8 +272,6 @@ app.get('/report', async (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Phần mềm quản trị hệ thống - minhhan.net</title>
       <link rel="icon" href="/assets/favicon.png">
-      <!-- Nhúng thư viện html2pdf từ CDN -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
           :root {
@@ -482,6 +480,33 @@ app.get('/report', async (req, res) => {
                   justify-content: center;
               }
           }
+
+          /* Định dạng khi in (Print) */
+          @media print {
+              body { background: white; padding: 0; }
+              .container { max-width: 100%; width: 100%; margin: 0; }
+              .controls { display: none !important; }
+              .table-wrapper { 
+                  box-shadow: none; 
+                  border: none;
+                  overflow: visible !important;
+              }
+              table { width: 100%; min-width: auto; }
+              th, td { padding: 8px; font-size: 11px; }
+              
+              /* Ẩn bớt các cột hoặc định dạng lại nếu cần */
+              td div[id^="actionBox_"] { display: none !important; }
+              td::after { 
+                  content: "Chưa xử lý"; 
+                  font-style: italic; 
+                  color: #94a3b8; 
+                  display: block; 
+              }
+              td:has(div[id^="actionBox_"])::after { display: block; }
+              
+              /* Ẩn form action, hiển thị text cho bản in */
+              [id^="actionBox_"] + span { display: inline !important; }
+          }
       </style>
   </head>
   <body>
@@ -635,79 +660,6 @@ app.get('/report', async (req, res) => {
                   btn.disabled = false;
                   input.disabled = false;
               }
-          }
-
-          // Chức năng Xuất PDF khổ A4 Landscape (Bản đầy đủ)
-          function downloadPDF() {
-              // Trích xuất và nhân bản bảng gốc
-              const cloneTable = document.getElementById('reportTable').cloneNode(true);
-              
-              // Xóa bỏ form nhập liệu, thay bằng chữ "Chưa xử lý" để PDF nhìn sạch sẽ
-              const actionBoxes = cloneTable.querySelectorAll('[id^="actionBox_"]');
-              actionBoxes.forEach(box => {
-                  box.innerHTML = '<i style="color:#94a3b8">Chưa xử lý</i>';
-              });
-
-              // Tạo một container 
-              const container = document.createElement('div');
-              container.style.padding = '30px';
-              container.style.background = 'white';
-              container.style.width = '1120px'; // Ép width to để không dính responsive mobile
-              container.style.fontFamily = 'Inter, sans-serif';
-              
-              // BẮT BUỘC: Đưa vào DOM để html2canvas tính toán chính xác CSS/Kích thước
-              container.style.position = 'absolute';
-              container.style.top = '0';
-              container.style.left = '0';
-              container.style.zIndex = '-9999';
-              document.body.appendChild(container);
-
-              // Tiêu đề PDF
-              const title = document.createElement('h2');
-              const currentMonth = new Date().getMonth() + 1;
-              title.innerText = 'BÁO CÁO SỰ CỐ IT THÁNG ' + currentMonth;
-              title.style.textAlign = 'center';
-              title.style.marginBottom = '30px';
-              container.appendChild(title);
-
-              // Căn chỉnh CSS inline cho bảng
-              cloneTable.style.width = '100%';
-              cloneTable.style.borderCollapse = 'collapse';
-              
-              const ths = cloneTable.querySelectorAll('th');
-              ths.forEach(th => {
-                  th.style.border = '1px solid #cbd5e1';
-                  th.style.padding = '12px';
-                  th.style.backgroundColor = '#f1f5f9';
-                  th.style.color = '#475569';
-                  th.style.fontSize = '14px';
-                  th.style.textAlign = 'left';
-              });
-
-              const tds = cloneTable.querySelectorAll('td');
-              tds.forEach(td => {
-                  td.style.border = '1px solid #cbd5e1';
-                  td.style.padding = '12px';
-                  td.style.fontSize = '13px';
-                  td.style.color = '#1e293b';
-              });
-
-              container.appendChild(cloneTable);
-
-              const dateStr = new Date().toLocaleDateString('vi-VN').replace(/\\//g, '-');
-              const opt = {
-                  margin:       10,
-                  filename:     'BaoCao_IT_' + dateStr + '.pdf',
-                  image:        { type: 'jpeg', quality: 1 },
-                  html2canvas:  { scale: 2, useCORS: true, windowWidth: 1200 },
-                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' },
-                  pagebreak:    { mode: 'css', avoid: 'tr' } // Ngăn cắt đôi dòng giữa 2 trang
-              };
-              
-              html2pdf().set(opt).from(container).save().then(() => {
-                  // Xóa đi sau khi tải xong
-                  document.body.removeChild(container);
-              });
           }
       </script>
   </body>
