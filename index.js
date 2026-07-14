@@ -8,7 +8,7 @@ const setupCronJobs = require('./cronjobs');
 
 const AI_API_KEY = process.env.AI_API_KEY;
 
-async function analyzeWithAI(text) {
+async function analyzeWithAI(text, senderName) {
   if (!AI_API_KEY) return { type: 'TICKET' };
   
   // Đọc nội dung file faq.txt
@@ -23,6 +23,10 @@ async function analyzeWithAI(text) {
 
 Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
 ${faqContent}
+
+Quy tắc xưng hô:
+- Tên của người nhắn là: "${senderName}". Hãy suy đoán giới tính dựa vào tên tiếng Việt này. Nếu tên có vẻ là Nam, hãy gọi là "Thầy". Nếu tên có vẻ là Nữ, hãy gọi là "Cô". Nếu không chắc chắn, gọi là "Thầy/Cô". 
+- Bạn LUÔN LUÔN phải xưng là "Em". Tuyệt đối không xưng "Tôi" hay "Mình" hay "AI".
 
 Quy tắc phân loại (RẤT QUAN TRỌNG):
 1. TICKET - CHỈ TRẢ VỀ CHỮ "TICKET" (không thêm bất cứ chữ nào khác) NẾU tin nhắn là yêu cầu bộ phận IT đến tận nơi hoặc can thiệp kỹ thuật (ví dụ: "sửa máy in", "mạng bị chập", "cài lại win", "kiểm tra camera", "máy tính hư", "cho người lên phòng 102 xem giúp").
@@ -244,7 +248,7 @@ app.post('/webhook', async (req, res) => {
       if (!requestContent) requestContent = "(Không có nội dung)";
 
       // Analyze with AI
-      const aiResult = await analyzeWithAI(requestContent);
+      const aiResult = await analyzeWithAI(requestContent, senderName);
 
       if (aiResult.type === 'ANSWER') {
         // Reply to user directly
