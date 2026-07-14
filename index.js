@@ -215,20 +215,9 @@ app.get('/', (req, res) => {
   res.send('Zalo Ticket Bot is running!');
 });
 
-// Dynamic HTML Report Route
-app.get('/report', async (req, res) => {
-  // Basic Auth
-  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
-
-  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
-    res.set('WWW-Authenticate', 'Basic realm="401"');
-    return res.status(401).send('Yêu cầu đăng nhập. Username: minhhan');
-  }
-
+async function renderTableRows() {
   const requests = await db.getAllRequests();
-  
-  const formattedRequests = requests.map(r => {
+  return requests.map(r => {
      const d = new Date(r.timestamp);
      const day = String(d.getDate()).padStart(2, '0');
      const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -261,6 +250,20 @@ app.get('/report', async (req, res) => {
         <td id="replyCell_${r.id}">${adminReplyCell}</td>
       </tr>`;
   }).join('');
+}
+
+// Dynamic HTML Report Route
+app.get('/report', async (req, res) => {
+  // Basic Auth
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Yêu cầu đăng nhập. Username: minhhan');
+  }
+
+  const formattedRequests = await renderTableRows();
 
   const monthStr = new Date().getMonth() + 1;
   
@@ -559,35 +562,50 @@ app.get('/report', async (req, res) => {
           const nameFilter = document.getElementById('nameFilter');
           const statusFilter = document.getElementById('statusFilter');
           const table = document.getElementById('reportTable');
-          const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           const emptyState = document.getElementById('emptyState');
 
-          // Tự động lấy danh sách tên Zalo (Cột số 2 -> index 1) để đưa vào Select Dropdown
-          const uniqueNames = new Set();
-          for (let i = 0; i < rows.length; i++) {
-              const nameCell = rows[i].getElementsByTagName('td')[1];
-              if (nameCell) {
-                  uniqueNames.add(nameCell.textContent.trim());
-              }
+          function getRows() {
+              return table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           }
-          uniqueNames.forEach(name => {
-              const option = document.createElement('option');
-              option.value = name.toLowerCase();
-              option.textContent = name;
-              nameFilter.appendChild(option);
-          });
+
+          // Cập nhật danh sách người yêu cầu vào dropdown
+          function updateNameDropdown() {
+              const rows = getRows();
+              const uniqueNames = new Set();
+              for (let i = 0; i < rows.length; i++) {
+                  const nameCell = rows[i].getElementsByTagName('td')[1];
+                  if (nameCell) {
+                      uniqueNames.add(nameCell.textContent.trim());
+                  }
+              }
+              
+              const currentValue = nameFilter.value;
+              nameFilter.innerHTML = '<option value="">-- Tất cả người báo --</option>';
+              uniqueNames.forEach(name => {
+                  const option = document.createElement('option');
+                  option.value = name.toLowerCase();
+                  option.textContent = name;
+                  if (option.value === currentValue) option.selected = true;
+                  nameFilter.appendChild(option);
+              });
+          }
 
           // Hàm chạy Bộ lọc (kết hợp Tìm kiếm tự do + Chọn tên + Chọn trạng thái)
           function filterData() {
               const searchText = searchInput.value.toLowerCase();
               const selectedName = nameFilter.value;
               const selectedStatus = statusFilter.value;
+              const rows = getRows();
               let visibleCount = 0;
 
               for (let i = 0; i < rows.length; i++) {
                   const text = rows[i].textContent || rows[i].innerText;
-                  const nameCellText = rows[i].getElementsByTagName('td')[1].textContent.trim().toLowerCase();
-                  const statusCellText = rows[i].getElementsByTagName('td')[4].textContent.trim().toLowerCase();
+                  const nameCell = rows[i].getElementsByTagName('td')[1];
+                  const statusCell = rows[i].getElementsByTagName('td')[4];
+                  if (!nameCell || !statusCell) continue;
+
+                  const nameCellText = nameCell.textContent.trim().toLowerCase();
+                  const statusCellText = statusCell.textContent.trim().toLowerCase();
                   
                   const matchesSearch = text.toLowerCase().indexOf(searchText) > -1;
                   const matchesName = selectedName === "" || nameCellText === selectedName;
@@ -611,9 +629,34 @@ app.get('/report', async (req, res) => {
           }
 
           searchInput.addEventListener('keyup', filterData);
-          searchInput.addEventListener('keyup', filterData);
           nameFilter.addEventListener('change', filterData);
           statusFilter.addEventListener('change', filterData);
+
+          // Khởi tạo lần đầu
+          updateNameDropdown();
+
+          // Cơ chế đồng bộ thời gian thực (Real-time Polling)
+          setInterval(async () => {
+              try {
+                  const activeEl = document.activeElement;
+                  // Bỏ qua update nếu Admin đang gõ phím vào ô reply
+                  if (activeEl && activeEl.tagName === 'INPUT' && activeEl.id.startsWith('replyInput_')) {
+                      return;
+                  }
+                  
+                  const res = await fetch('/api/tickets/rows');
+                  if (res.ok) {
+                      const data = await res.json();
+                      if (data.success) {
+                          table.getElementsByTagName('tbody')[0].innerHTML = data.html;
+                          updateNameDropdown();
+                          filterData();
+                      }
+                  }
+              } catch (e) {
+                  // Ignore
+              }
+          }, 10000); // 10 giây update 1 lần
 
           // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
           async function resolveTicket(ticketId) {
@@ -775,6 +818,21 @@ app.post('/api/tickets/clean', async (req, res) => {
   }
 
   return res.json({ success: true, deletedCount: count });
+});
+
+// ENDPOINT: API Lấy dữ liệu bảng Real-time
+app.get('/api/tickets/rows', async (req, res) => {
+  // Basic Auth verification
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+  if (!b64auth) return res.status(401).json({ error: 'Unauthorized' });
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+  
+  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const html = await renderTableRows();
+  return res.json({ success: true, html: html });
 });
 
 // Webhook endpoint
