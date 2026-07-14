@@ -43,10 +43,35 @@ async function addRequest(timestamp, senderName, senderId, content) {
     timestamp,
     sender_name: senderName,
     sender_id: senderId,
-    content
+    content,
+    status: 'Đang xử lý',
+    admin_reply: null,
+    completed_at: null
   });
   writeDB(db);
   return newId;
+}
+
+async function updateRequest(id, adminReply, completedAt) {
+  const db = readDB();
+  const index = db.requests.findIndex(r => r.id === id);
+  if (index !== -1) {
+    db.requests[index].status = 'Đã xong';
+    db.requests[index].admin_reply = adminReply;
+    db.requests[index].completed_at = completedAt;
+    writeDB(db);
+    return db.requests[index];
+  }
+  return null;
+}
+
+async function getLatestPendingRequest() {
+  const db = readDB();
+  const pendingRequests = db.requests.filter(r => r.status === 'Đang xử lý');
+  if (pendingRequests.length > 0) {
+    return pendingRequests[pendingRequests.length - 1]; // Lấy phần tử cuối (mới nhất)
+  }
+  return null;
 }
 
 async function getAllRequests() {
@@ -102,10 +127,11 @@ module.exports = {
   getSetting,
   setSetting,
   addRequest,
+  updateRequest,
+  getLatestPendingRequest,
   getAllRequests,
-  deleteRequestsOlderThan,
+  deleteAllRequests,
   addGroup,
   removeGroup,
-  getAllGroups,
-  deleteAllRequests
+  getAllGroups
 };

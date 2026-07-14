@@ -233,12 +233,17 @@ app.get('/report', async (req, res) => {
      const year = d.getFullYear();
      const time = d.toLocaleTimeString('en-US', { hour12: false });
      
+     const statusBadge = r.status === 'Đã xong' 
+       ? '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🟢 Đã xong</span>'
+       : '<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🔴 Đang chờ</span>';
+       
      return `
       <tr>
         <td>${r.sender_name}</td>
-        <td>${day}/${month}/${year}</td>
-        <td>${time}</td>
+        <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
+        <td>${statusBadge}</td>
+        <td>${r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Chưa xử lý</i>'}</td>
       </tr>`;
   }).join('');
 
@@ -388,10 +393,11 @@ app.get('/report', async (req, res) => {
               <table id="reportTable">
                   <thead>
                       <tr>
-                          <th width="20%">Tên Zalo</th>
-                          <th width="15%">Ngày</th>
-                          <th width="15%">Giờ</th>
-                          <th width="50%">Nội dung lỗi</th>
+                          <th width="15%">Tên Zalo</th>
+                          <th width="15%">Thời gian</th>
+                          <th width="30%">Nội dung lỗi</th>
+                          <th width="15%">Trạng thái</th>
+                          <th width="25%">Phản hồi của IT</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -599,6 +605,40 @@ app.post('/webhook', async (req, res) => {
       return;
     }
 
+    // Xử lý tin nhắn từ Admin (Reply ticket)
+    const adminIdForReply = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+    if (senderId === adminIdForReply && !text.startsWith('/')) {
+      let targetTicketId = null;
+      
+      // Thử tìm Mã Yêu Cầu trong Quote
+      const quoteText = message?.quote?.text || '';
+      const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
+      if (match) {
+         targetTicketId = parseInt(match[1]);
+      } else {
+         // Nếu không có quote, lấy ticket mới nhất đang chờ
+         const latestPending = await db.getLatestPendingRequest();
+         if (latestPending) {
+           targetTicketId = latestPending.id;
+         }
+      }
+
+      if (targetTicketId) {
+         const updatedReq = await db.updateRequest(targetTicketId, text, Date.now());
+         if (updatedReq) {
+            await sendZaloMessage(chatId, `✅ Đã đánh dấu hoàn thành sự cố #${targetTicketId} và thông báo cho người dùng.`);
+            // Thông báo cho người dùng gốc
+            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung bạn báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn bạn đã phản hồi!`;
+            await sendZaloMessage(updatedReq.sender_id, userMsg);
+         } else {
+            await sendZaloMessage(chatId, `❌ Không tìm thấy yêu cầu #${targetTicketId} để cập nhật.`);
+         }
+      } else {
+         await sendZaloMessage(chatId, `⚠️ Không có yêu cầu nào đang chờ xử lý, hoặc hệ thống không nhận diện được bạn đang trả lời cho sự cố nào.`);
+      }
+      return;
+    }
+
     // Handle bot mention (Ticket request)
     if (text.includes(BOT_NAME) || text.includes('@Bot')) {
       // Remove bot name from text
@@ -617,17 +657,17 @@ app.post('/webhook', async (req, res) => {
       }
 
       // Save to Database (Nếu là TICKET)
-      await db.addRequest(timestamp, senderName, senderId, requestContent);
+      const newId = await db.addRequest(timestamp, senderName, senderId, requestContent);
 
       // Format the message to send to Admin
-      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI!\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;
+      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #${newId}]\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;
       
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
 
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (adminId) {
-        const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!\n------------------------------\n👤 Người gửi: Thầy/Cô ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.\n😊 Xin cảm ơn Thầy/Cô!`;
+        const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!\n------------------------------\nMã Sự Cố: #${newId}\n👤 Người gửi: Thầy/Cô ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.\n😊 Xin cảm ơn Thầy/Cô!`;
         await sendZaloMessage(adminId, adminMessage);
         await sendZaloMessage(chatId, userMessage);
       } else {
