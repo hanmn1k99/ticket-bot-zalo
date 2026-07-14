@@ -58,6 +58,30 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
   const uId = senderId || 'default';
   let history = userContexts.get(uId) || [];
   
+  // KIỂM TRA BỘ LỌC TỪ KHÓA CỨNG (HARDCODE FILTER)
+  const lowerText = text.toLowerCase();
+  
+  // 1. Kiểm tra Blacklist
+  try {
+    const blacklist = fs.readFileSync(path.join(__dirname, 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
+    for (const word of blacklist) {
+      if (lowerText.includes(word)) {
+        return { type: 'ANSWER', answer: '🙏 Xin lỗi Thầy/Cô, em không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.' };
+      }
+    }
+  } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
+
+  // 2. Kiểm tra Ticket Keywords
+  try {
+    const ticketKeywords = fs.readFileSync(path.join(__dirname, 'ticket_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
+    for (const word of ticketKeywords) {
+      if (lowerText.includes(word)) {
+        userContexts.delete(uId); // Xóa lịch sử khi tạo ticket
+        return { type: 'TICKET' };
+      }
+    }
+  } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
+
   // Đẩy câu hỏi hiện tại vào lịch sử
   history.push({ role: 'user', content: text });
 
