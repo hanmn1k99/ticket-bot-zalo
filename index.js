@@ -630,10 +630,11 @@ app.post('/webhook', async (req, res) => {
       if (targetTicketId) {
          const updatedReq = await db.updateRequest(targetTicketId, text, Date.now());
          if (updatedReq) {
-            await sendZaloMessage(chatId, `✅ Đã đánh dấu hoàn thành sự cố #${targetTicketId} và thông báo cho người dùng.`);
-            // Thông báo cho người dùng gốc
-            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung bạn báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn bạn đã phản hồi!`;
-            await sendZaloMessage(updatedReq.sender_id, userMsg);
+            await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
+            // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
+            const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\n👤 Người báo: @${updatedReq.sender_name}\nMã Sự Cố: #${targetTicketId}\nNội dung bạn báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn bạn đã phản hồi!`;
+            await sendZaloMessage(targetChat, userMsg);
          } else {
             await sendZaloMessage(chatId, `❌ Không tìm thấy yêu cầu #${targetTicketId} để cập nhật.`);
          }
@@ -656,12 +657,12 @@ app.post('/webhook', async (req, res) => {
 
       if (aiResult.type === 'ANSWER') {
         // Reply to user directly
-        await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n${aiResult.answer}`);
+        await sendZaloMessage(chatId, `🤖 AI Trợ lý IT:\n\n@${senderName}\n${aiResult.answer}`);
         return; // Dừng, không tạo ticket
       }
 
       // Save to Database (Nếu là TICKET)
-      const newId = await db.addRequest(timestamp, senderName, senderId, requestContent);
+      const newId = await db.addRequest(timestamp, senderName, senderId, chatId, requestContent);
 
       // Format the message to send to Admin
       const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #${newId}]\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;

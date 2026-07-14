@@ -35,7 +35,7 @@ async function setSetting(key, value) {
 }
 
 // Requests API
-async function addRequest(timestamp, senderName, senderId, content) {
+async function addRequest(timestamp, senderName, senderId, chatId, content) {
   const db = readDB();
   const newId = db.requests.length > 0 ? db.requests[db.requests.length - 1].id + 1 : 1;
   db.requests.push({
@@ -43,6 +43,7 @@ async function addRequest(timestamp, senderName, senderId, content) {
     timestamp,
     sender_name: senderName,
     sender_id: senderId,
+    chat_id: chatId,
     content,
     status: 'Đang xử lý',
     admin_reply: null,
