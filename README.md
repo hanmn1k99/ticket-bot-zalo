@@ -72,6 +72,10 @@ PUBLIC_URL=https://my-domain.com
 
 # API Key cho AI (Dùng Groq hoặc bất kỳ hệ thống tương thích OpenAI nào)
 AI_API_KEY=your_groq_or_openai_api_key
+
+# Tài khoản và Mật khẩu đăng nhập Web Dashboard
+ADMIN_USERNAME=minhhan
+ADMIN_PASSWORD=Hannguyen@113
 ```
 
 ### Bước 4: Chạy Bot bằng PM2
