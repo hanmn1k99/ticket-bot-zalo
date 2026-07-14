@@ -11,18 +11,21 @@ Bot Zalo chuyên nghiệp biến Zalo OA thành hệ thống **Tổng đài Hỗ
 - Nếu người dùng báo lỗi kỹ thuật (VD: "Máy chiếu bị hỏng"), AI tự động kết thúc phiên chat, lưu lại lịch sử, gán **Mã Yêu Cầu (Ticket ID)** và chuyển tiếp cảnh báo tức thời cho Admin IT.
 
 ### 2. Quy trình Xử lý Sự Cố (Ticket Lifecycle)
-- **Tự động nhận diện:** Nhận biết các lỗi thông qua file từ khóa cấu hình cứng (`ticket_keywords.txt`) với tỷ lệ chính xác 100%.
+- **Tự động nhận diện:** Nhận biết các lỗi thông qua file từ khóa cấu hình cứng (`ticket_keywords.txt`) và AI Prompt với tỷ lệ chính xác 100%. (Đã phân biệt rõ "Mất wifi" và "Xin pass wifi").
 - **Chuyển tiếp báo động:** Gửi ngay thông báo `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #X]` cho Admin.
-- **Xác nhận 1 chạm (One-tap resolve):** Admin chỉ cần dùng tính năng **"Trả lời" (Quote)** tin nhắn báo động trên Zalo và gõ "Đã sửa xong", hệ thống sẽ lập tức:
-  - Đánh dấu sự cố là **Đã hoàn thành**.
-  - Tự động nhắn tin Zalo báo lại cho người bị sự cố gốc để họ an tâm.
-  - Cập nhật lịch sử xử lý vào Bảng báo cáo.
+- **Xác nhận linh hoạt (4 Cách chốt sự cố):**
+  1. **Nhắn trực tiếp mã:** Gõ `#ID nội dung` (VD: `#12 Đã thay mực`).
+  2. **Quote (Trả lời):** Bấm Quote tin nhắn báo động trên Zalo và gõ nội dung (VD: "Đã sửa xong").
+  3. **Trả lời nhanh:** Nhắn "Xong" (Bot tự động gán cho sự cố mới nhất).
+  4. **Web Dashboard:** Đóng trực tiếp trên giao diện trình duyệt web.
+- **Đồng bộ tự động:** Hệ thống tự động báo kết quả Zalo về cho người bị lỗi và lưu vào Bảng báo cáo.
 
-### 3. Báo Cáo Trực Tuyến Động (Dynamic Web Route)
-- **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`.
-- **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (`minhhan`) và mật khẩu (`Hannguyen@113`) mới vào xem được.
-- **Bộ Lọc Thông Minh (Live Search):** Gõ tìm kiếm ngay trên bảng để thu hẹp kết quả trong tíc tắc.
-- **Xuất PDF Khổ A4:** Chuyển đổi bảng dữ liệu thành file PDF ngay trên trình duyệt mà không cần cài thêm thư viện phức tạp.
+### 3. Bảng Điều Khiển Tương Tác (Interactive Web Dashboard)
+- **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`, thiết kế Responsive (Dạng thẻ Card cho Mobile, tối đa 1400px cho Desktop).
+- **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web. Mọi thay đổi sẽ lập tức đồng bộ ngược lại với Zalo Bot.
+- **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (`minhhan`) và mật khẩu (`Hannguyen@113`) mới vào xem và thao tác được.
+- **Bộ Lọc Thông Minh:** Bộ lọc theo trạng thái, chọn Tên người yêu cầu, tìm kiếm văn bản tự do, và nút Tải lại trang (Reload) tiện lợi.
+- **Xuất PDF Khổ A4 (Landscape):** Tự động dàn trang, xuất toàn bộ dữ liệu bảng ra file PDF xoay ngang hoàn chỉnh (không bị xén mất thông tin như ảnh chụp màn hình).
 
 ### 4. Hệ Thống Phát Thanh (Broadcast)
 - **Quản lý Nhóm:** Bot tự động nhận diện các group chat. Hoặc Admin dùng lệnh `/addgroup`, `/removegroup`.
@@ -91,6 +94,13 @@ curl -X POST "https://bot-api.zaloplatforms.com/bot<YOUR_BOT_TOKEN_HERE>/setWebh
 3. Để hủy quyền Admin: `/uninstall`.
 4. Để mở Báo Cáo Web: `/report`.
 5. Để xóa sạch Database thủ công: `/clean`.
+
+### Bước 7: Thêm Logo và Favicon cho Trang Web
+Hệ thống hỗ trợ thay đổi Logo và Favicon tùy chỉnh. Bạn chỉ cần:
+1. Tạo thư mục tên là `assets` nằm cùng cấp với file `index.js`.
+2. Upload file favicon (Tên bắt buộc: `favicon.png`, khuyên dùng 64x64px).
+3. Upload file logo (Tên bắt buộc: `logo.png`, khuyên dùng hình chữ nhật ngang, cao khoảng 80-100px, nền trong suốt).
+Hệ thống sẽ tự động hiển thị trên giao diện Web Dashboard mà không cần khởi động lại.
 
 ---
 *Phát triển và thiết kế bởi Đội ngũ AI Agentic*
