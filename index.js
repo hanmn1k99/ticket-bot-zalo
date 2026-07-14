@@ -115,21 +115,26 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
 
     const data = await response.json();
     const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
-    if (result.startsWith('ANSWER|')) {
-      const answerText = result.replace('ANSWER|', '').trim();
-      
-      // Lưu lại câu trả lời vào lịch sử
-      history.push({ role: 'assistant', content: answerText });
-      // Giữ tối đa 10 tin nhắn gần nhất (5 lượt)
-      if (history.length > 10) history = history.slice(history.length - 10);
-      userContexts.set(uId, history);
-
-      return { type: 'ANSWER', answer: answerText };
+    
+    // Nếu AI trả về TICKET
+    if (result === 'TICKET' || result.includes('TICKET')) {
+      userContexts.delete(uId);
+      return { type: 'TICKET' };
     }
     
-    // Nếu kết quả là TICKET, xóa lịch sử để bắt đầu lại sau khi sửa xong
-    userContexts.delete(uId);
-    return { type: 'TICKET' };
+    // Còn lại mặc định là ANSWER (kể cả khi AI quên ghi chữ ANSWER|)
+    let answerText = result;
+    if (result.startsWith('ANSWER|')) {
+      answerText = result.replace('ANSWER|', '').trim();
+    }
+    
+    // Lưu lại câu trả lời vào lịch sử
+    history.push({ role: 'assistant', content: answerText });
+    // Giữ tối đa 10 tin nhắn gần nhất (5 lượt)
+    if (history.length > 10) history = history.slice(history.length - 10);
+    userContexts.set(uId, history);
+
+    return { type: 'ANSWER', answer: answerText };
   } catch (error) {
     console.error('Lỗi gọi AI API (Network):', error);
     userContexts.delete(uId);
