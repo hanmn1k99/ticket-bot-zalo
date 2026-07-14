@@ -11,11 +11,18 @@ const AI_API_KEY = process.env.AI_API_KEY;
 async function analyzeWithAI(text) {
   if (!AI_API_KEY) return { type: 'TICKET' };
   
+  // Đọc nội dung file faq.txt
+  let faqContent = "";
+  try {
+    faqContent = fs.readFileSync(path.join(__dirname, 'faq.txt'), 'utf8');
+  } catch (err) {
+    faqContent = "- Chưa có dữ liệu FAQ.";
+  }
+
   const systemPrompt = `Bạn là trợ lý IT AI thân thiện của trường Meyschool. Giáo viên vừa gửi tin nhắn: "${text}"
 
-Cơ sở dữ liệu FAQ:
-- Mật khẩu wifi giáo viên / wifi trường / wifi IT: gvmeyschool
-- Mật khẩu wifi khách: meyschool123
+Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
+${faqContent}
 
 Quy tắc phân loại (RẤT QUAN TRỌNG):
 1. TICKET - CHỈ khi tin nhắn rõ ràng là yêu cầu sửa chữa, bảo trì, kiểm tra thiết bị, cài đặt máy, hoặc sự cố kỹ thuật cần người IT đến tận nơi xử lý (ví dụ: "sửa máy in", "mạng bị chập", "cài lại win", "kiểm tra camera", "máy tính không lên nguồn"). Chỉ trả về đúng 1 từ: TICKET
