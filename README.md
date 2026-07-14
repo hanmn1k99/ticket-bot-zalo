@@ -24,7 +24,8 @@ Bot Zalo chuyên nghiệp biến Zalo OA thành hệ thống **Tổng đài Hỗ
 - **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`, thiết kế Responsive (Dạng thẻ Card cho Mobile, tối đa 1400px cho Desktop).
 - **Cập nhật Thời gian thực (Real-time):** Tự động đồng bộ dữ liệu (long-polling) mỗi 10 giây. Không cần tải lại trang (F5), mọi sự cố mới nhất sẽ tự động cập nhật lên màn hình mà vẫn giữ nguyên bộ lọc đang dùng.
 - **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web.
-- **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (được cấu hình an toàn trong file `.env`) mới vào xem và thao tác được.
+- **Bảo mật bằng Form Đăng Nhập & JWT:** Thay vì dùng Basic Auth mặc định của trình duyệt, hệ thống sở hữu trang đăng nhập HTML tùy chỉnh (`/login`) với cơ chế bảo mật JWT Token lưu trong Cookie. Hỗ trợ tính năng tự động Đăng Xuất sau 30 phút treo máy không thao tác.
+- **Giao diện Tối/Sáng (Dark/Light Mode):** Hỗ trợ chuyển đổi chế độ nền tối/sáng bảo vệ mắt, tự động đồng bộ trên cả trang Đăng nhập và Bảng điều khiển (lưu qua LocalStorage).
 - **Xóa toàn bộ dữ liệu:** Tích hợp nút bấm dọn dẹp hệ thống 1-click trên Web. Tự động đưa bộ đếm ID sự cố (Ticket ID) về lại số #1.
 - **In Báo Cáo Chuyên Nghiệp:** Sử dụng tính năng in gốc của trình duyệt (`window.print`) kết hợp bộ luật CSS `@media print` tĩnh giúp bản in dạng PDF đạt chuẩn khổ ngang (Landscape), giữ nguyên màu sắc trạng thái và tự động tàng hình các form nhập liệu dư thừa.
 
@@ -76,6 +77,9 @@ AI_API_KEY=your_groq_or_openai_api_key
 # Tài khoản và Mật khẩu đăng nhập Web Dashboard
 ADMIN_USERNAME=your-username
 ADMIN_PASSWORD=your-password
+
+# Chuỗi bí mật dùng để mã hóa Cookie bảo vệ trang Web (Nhập ngẫu nhiên một chuỗi thật dài)
+JWT_SECRET=your_super_secret_jwt_key_here
 ```
 
 ### Bước 4: Chạy Bot bằng PM2
