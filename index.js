@@ -376,6 +376,11 @@ app.get('/report', checkAuth, async (req, res) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Phần mềm quản trị hệ thống - minhhan.net</title>
+      <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      </script>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <style>
@@ -388,6 +393,23 @@ app.get('/report', checkAuth, async (req, res) => {
               --text-main: #1e293b;
               --text-muted: #64748b;
               --border-color: #e2e8f0;
+              --table-header-bg: #f1f5f9;
+              --table-hover-bg: #f8fafc;
+              --btn-secondary-bg: #f1f5f9;
+              --btn-secondary-text: #475569;
+              --btn-secondary-border: #cbd5e1;
+          }
+          [data-theme="dark"] {
+              --bg-color: #0f172a;
+              --card-bg: #1e293b;
+              --text-main: #f8fafc;
+              --text-muted: #94a3b8;
+              --border-color: #334155;
+              --table-header-bg: #334155;
+              --table-hover-bg: #0f172a;
+              --btn-secondary-bg: #1e293b;
+              --btn-secondary-text: #cbd5e1;
+              --btn-secondary-border: #475569;
           }
           body { 
               font-family: 'Inter', sans-serif; 
@@ -412,7 +434,7 @@ app.get('/report', checkAuth, async (req, res) => {
               margin: 0; 
               font-size: 24px;
               font-weight: 700;
-              color: #0f172a;
+              color: var(--text-main);
               text-transform: uppercase;
           }
           .controls {
@@ -430,7 +452,8 @@ app.get('/report', checkAuth, async (req, res) => {
               font-size: 14px;
               outline: none;
               transition: border-color 0.2s;
-              background-color: white;
+              background-color: var(--card-bg);
+              color: var(--text-main);
           }
           input[type="text"]:focus, select:focus {
               border-color: var(--primary);
@@ -452,12 +475,12 @@ app.get('/report', checkAuth, async (req, res) => {
               white-space: nowrap;
           }
           button.btn-secondary {
-              background-color: #f1f5f9;
-              color: #475569;
-              border: 1px solid #cbd5e1;
+              background-color: var(--btn-secondary-bg);
+              color: var(--btn-secondary-text);
+              border: 1px solid var(--btn-secondary-border);
           }
           button.btn-secondary:hover {
-              background-color: #e2e8f0;
+              background-color: var(--border-color);
           }
           .table-wrapper {
               background: var(--card-bg);
@@ -477,7 +500,7 @@ app.get('/report', checkAuth, async (req, res) => {
               border-bottom: 1px solid var(--border-color); 
           }
           th { 
-              background-color: #f1f5f9; 
+              background-color: var(--table-header-bg); 
               color: var(--text-muted);
               font-weight: 600;
               font-size: 13px;
@@ -491,7 +514,7 @@ app.get('/report', checkAuth, async (req, res) => {
               border-bottom: none;
           }
           tr:hover td { 
-              background-color: #f8fafc; 
+              background-color: var(--table-hover-bg); 
           }
           .empty-state {
               text-align: center;
@@ -502,7 +525,7 @@ app.get('/report', checkAuth, async (req, res) => {
           /* Chỉ định vùng để in PDF */
           #pdf-content {
               padding: 20px;
-              background: white;
+              background: var(--card-bg);
           }
           
           /* Responsive (Giao diện Mobile) */
@@ -634,6 +657,9 @@ app.get('/report', checkAuth, async (req, res) => {
                       <option value="">-- Tất cả người báo --</option>
                   </select>
                   <input type="text" id="searchInput" placeholder="Tìm kiếm tự do...">
+                  <button class="btn-secondary" onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                  </button>
                   <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   </button>
@@ -671,6 +697,16 @@ app.get('/report', checkAuth, async (req, res) => {
       </div>
 
       <script>
+          function toggleDarkMode() {
+              const current = document.documentElement.getAttribute('data-theme');
+              if (current === 'dark') {
+                  document.documentElement.setAttribute('data-theme', 'light');
+                  localStorage.setItem('theme', 'light');
+              } else {
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                  localStorage.setItem('theme', 'dark');
+              }
+          }
           // Khởi tạo các phần tử DOM
           const searchInput = document.getElementById('searchInput');
           const nameFilter = document.getElementById('nameFilter');
