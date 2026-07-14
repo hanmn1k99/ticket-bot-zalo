@@ -12,9 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "@google/genai": "^2.11.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "json2csv": "^6.0.0-alpha.2",
+    "jsonwebtoken": "^9.0.3",
     "node-cron": "^4.6.0"
   }
 }

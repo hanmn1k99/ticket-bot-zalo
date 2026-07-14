@@ -5,8 +5,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./database');
 const setupCronJobs = require('./cronjobs');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const AI_API_KEY = process.env.AI_API_KEY;
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_please_change_in_env';
 
 // Bộ nhớ ngữ cảnh hội thoại cho từng user (lưu trên RAM)
 const userContexts = new Map();
@@ -175,6 +178,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use(cookieParser());
 app.use('/download', express.static(publicDir));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -252,17 +256,115 @@ async function renderTableRows() {
   }).join('');
 }
 
-// Dynamic HTML Report Route
-app.get('/report', async (req, res) => {
-  // Basic Auth
-  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
-
-  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
-    res.set('WWW-Authenticate', 'Basic realm="401"');
-    return res.status(401).send('Yêu cầu đăng nhập quản trị. Username: minhhan');
+// Auth Middleware
+function checkAuth(req, res, next) {
+  const token = req.cookies.auth_token;
+  if (!token) {
+    if (req.path === '/report') return res.redirect('/login');
+    return res.status(401).json({ error: 'Unauthorized' });
   }
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (err) {
+    if (req.path === '/report') return res.redirect('/login');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+}
 
+// Giao diện Đăng Nhập
+app.get('/login', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Đăng nhập - Phần mềm quản trị</title>
+      <link rel="icon" type="image/png" href="/assets/favicon.png?v=\${Date.now()}">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
+        .login-card img { max-width: 150px; margin-bottom: 20px; border-radius: 8px; }
+        .login-card h2 { margin-top: 0; color: #1e293b; font-size: 24px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 14px; font-weight: 500; color: #475569; margin-bottom: 8px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .input-group input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .error { color: #ef4444; font-size: 14px; margin-bottom: 16px; display: none; }
+      </style>
+    </head>
+    <body>
+      <div class="login-card">
+        <img src="/assets/logo.png" alt="Logo" onerror="this.style.display='none'">
+        <h2>Đăng Nhập Quản Trị</h2>
+        <div class="error" id="errorMsg">Tài khoản hoặc mật khẩu không đúng!</div>
+        <form id="loginForm" onsubmit="doLogin(event)">
+          <div class="input-group">
+            <label>Tên đăng nhập</label>
+            <input type="text" id="username" required>
+          </div>
+          <div class="input-group">
+            <label>Mật khẩu</label>
+            <input type="password" id="password" required>
+          </div>
+          <button type="submit" class="btn">Đăng Nhập</button>
+        </form>
+      </div>
+      <script>
+        async function doLogin(e) {
+          e.preventDefault();
+          const btn = document.querySelector('.btn');
+          btn.textContent = 'Đang đăng nhập...';
+          btn.disabled = true;
+          const u = document.getElementById('username').value;
+          const p = document.getElementById('password').value;
+          
+          const res = await fetch('/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: u, password: p})
+          });
+          
+          if (res.ok) {
+            window.location.href = '/report';
+          } else {
+            document.getElementById('errorMsg').style.display = 'block';
+            btn.textContent = 'Đăng Nhập';
+            btn.disabled = false;
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// Xử lý Đăng nhập
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
+  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
+  
+  if (username === expectedUser && password === expectedPass) {
+    const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '7d' });
+    res.cookie('auth_token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    return res.json({ success: true });
+  }
+  res.status(401).json({ error: 'Invalid credentials' });
+});
+
+// Xử lý Đăng xuất
+app.get('/logout', (req, res) => {
+  res.clearCookie('auth_token');
+  res.redirect('/login');
+});
+
+// Dynamic HTML Report Route
+app.get('/report', checkAuth, async (req, res) => {
   const formattedRequests = await renderTableRows();
 
   const monthStr = new Date().getMonth() + 1;
@@ -530,6 +632,9 @@ app.get('/report', async (req, res) => {
                   <button class="btn-secondary" onclick="cleanData()" title="Xóa toàn bộ báo cáo" style="color:#ef4444;">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
+                  <button class="btn-secondary" onclick="window.location.href='/logout'" title="Đăng xuất" style="color:#475569;">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                  </button>
                   <button onclick="window.print()">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                       Xuất Báo Cáo
@@ -742,23 +847,7 @@ app.get('/webhook', (req, res) => {
 });
 
 // ENDPOINT: API Đóng Ticket từ Web Dashboard
-app.post('/api/tickets/resolve', async (req, res) => {
-  // Basic Auth
-  const authheader = req.headers.authorization;
-  if (!authheader) {
-    res.setHeader('WWW-Authenticate', 'Basic');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const auth = new Buffer.from(authheader.split(' ')[1], 'base64').toString().split(':');
-  const user = auth[0];
-  const pass = auth[1];
-
-  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
-    res.setHeader('WWW-Authenticate', 'Basic');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
   const { id, replyText } = req.body;
   if (!id || !replyText) {
     return res.status(400).json({ error: 'Thiếu thông tin (ID hoặc Nội dung phản hồi).' });
@@ -792,23 +881,7 @@ app.post('/api/tickets/resolve', async (req, res) => {
 });
 
 // ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
-app.post('/api/tickets/clean', async (req, res) => {
-  // Basic Auth
-  const authheader = req.headers.authorization;
-  if (!authheader) {
-    res.setHeader('WWW-Authenticate', 'Basic');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const auth = new Buffer.from(authheader.split(' ')[1], 'base64').toString().split(':');
-  const user = auth[0];
-  const pass = auth[1];
-
-  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
-    res.setHeader('WWW-Authenticate', 'Basic');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+app.post('/api/tickets/clean', checkAuth, async (req, res) => {
   // Chạy lệnh dọn dẹp
   const count = await db.deleteAllRequests();
   
@@ -822,16 +895,7 @@ app.post('/api/tickets/clean', async (req, res) => {
 });
 
 // ENDPOINT: API Lấy dữ liệu bảng Real-time
-app.get('/api/tickets/rows', async (req, res) => {
-  // Basic Auth verification
-  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
-  if (!b64auth) return res.status(401).json({ error: 'Unauthorized' });
-  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
-  
-  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+app.get('/api/tickets/rows', checkAuth, async (req, res) => {
   const html = await renderTableRows();
   return res.json({ success: true, html: html });
 });
