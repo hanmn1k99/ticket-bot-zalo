@@ -235,16 +235,28 @@ app.get('/report', async (req, res) => {
      
      const statusBadge = r.status === 'Đã xong' 
        ? '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🟢 Đã xong</span>'
-       : '<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🔴 Đang chờ</span>';
+       : `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🔴 Đang chờ</span>`;
        
+     let adminReplyCell = '';
+     if (r.status === 'Đã xong') {
+         adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
+     } else {
+         adminReplyCell = `
+           <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
+              <input type="text" id="replyInput_${r.id}" placeholder="Gõ phản hồi IT..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
+              <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
+           </div>
+         `;
+     }
+
      return `
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
-        <td>${statusBadge}</td>
-        <td>${r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Chưa xử lý</i>'}</td>
+        <td id="statusCell_${r.id}">${statusBadge}</td>
+        <td id="replyCell_${r.id}">${adminReplyCell}</td>
       </tr>`;
   }).join('');
 
@@ -524,6 +536,50 @@ app.get('/report', async (req, res) => {
               filterData();
           }
 
+          // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
+          async function resolveTicket(ticketId) {
+              const input = document.getElementById('replyInput_' + ticketId);
+              const replyText = input.value.trim();
+              if (!replyText) {
+                  alert('Vui lòng nhập nội dung phản hồi trước khi Đóng sự cố!');
+                  input.focus();
+                  return;
+              }
+
+              const btn = input.nextElementSibling;
+              const originalBtnText = btn.textContent;
+              btn.textContent = 'Đang xử lý...';
+              btn.disabled = true;
+              input.disabled = true;
+
+              try {
+                  const response = await fetch('/api/tickets/resolve', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ id: ticketId, replyText: replyText })
+                  });
+
+                  const data = await response.json();
+                  if (response.ok && data.success) {
+                      // Cập nhật giao diện mà không cần tải trang
+                      document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🟢 Đã xong</span>';
+                      document.getElementById('replyCell_' + ticketId).innerHTML = replyText;
+                  } else {
+                      alert('Lỗi: ' + (data.error || 'Không thể đóng sự cố.'));
+                      btn.textContent = originalBtnText;
+                      btn.disabled = false;
+                      input.disabled = false;
+                  }
+              } catch (err) {
+                  alert('Lỗi kết nối tới máy chủ.');
+                  btn.textContent = originalBtnText;
+                  btn.disabled = false;
+                  input.disabled = false;
+              }
+          }
+
           // Chức năng Xuất PDF khổ A4
           function downloadPDF() {
               const element = document.getElementById('pdf-content');
@@ -548,6 +604,56 @@ app.get('/report', async (req, res) => {
 app.get('/webhook', (req, res) => {
   console.log('Zalo verification GET request received:', req.query);
   res.status(200).json({ status: 'ok' });
+});
+
+// ENDPOINT: API Đóng Ticket từ Web Dashboard
+app.post('/api/tickets/resolve', async (req, res) => {
+  // Basic Auth
+  const authheader = req.headers.authorization;
+  if (!authheader) {
+    res.setHeader('WWW-Authenticate', 'Basic');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const auth = new Buffer.from(authheader.split(' ')[1], 'base64').toString().split(':');
+  const user = auth[0];
+  const pass = auth[1];
+
+  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
+    res.setHeader('WWW-Authenticate', 'Basic');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { id, replyText } = req.body;
+  if (!id || !replyText) {
+    return res.status(400).json({ error: 'Thiếu thông tin (ID hoặc Nội dung phản hồi).' });
+  }
+
+  const existingReq = await db.getRequest(id);
+  if (!existingReq) {
+    return res.status(404).json({ error: `Không tìm thấy sự cố #${id}.` });
+  }
+  if (existingReq.status === 'Đã xong') {
+    return res.status(400).json({ error: `Sự cố #${id} đã được đánh dấu hoàn thành trước đó.` });
+  }
+
+  const updatedReq = await db.updateRequest(id, replyText, Date.now());
+  if (updatedReq) {
+    // Thông báo về nhóm/người dùng gốc
+    const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${id}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${replyText}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
+    await sendZaloMessage(targetChat, userMsg);
+    
+    // Thông báo cho Admin (Tuỳ chọn để Admin biết Webhook đã chạy)
+    const adminId = await db.getSetting('admin_chat_id');
+    if (adminId) {
+      await sendZaloMessage(adminId, `🌐 Hệ thống vừa ghi nhận sự cố #${id} đã được đóng trực tiếp qua Web Dashboard.`);
+    }
+
+    return res.json({ success: true });
+  } else {
+    return res.status(500).json({ error: 'Lỗi ghi dữ liệu vào hệ thống.' });
+  }
 });
 
 // Webhook endpoint
