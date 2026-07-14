@@ -648,16 +648,24 @@ app.get('/report', async (req, res) => {
                   box.innerHTML = '<i style="color:#94a3b8">Chưa xử lý</i>';
               });
 
-              // Tạo một container ảo (không thêm vào body) để định dạng bản in
+              // Tạo một container 
               const container = document.createElement('div');
               container.style.padding = '30px';
               container.style.background = 'white';
               container.style.width = '1120px'; // Ép width to để không dính responsive mobile
               container.style.fontFamily = 'Inter, sans-serif';
+              
+              // BẮT BUỘC: Đưa vào DOM để html2canvas tính toán chính xác CSS/Kích thước
+              container.style.position = 'absolute';
+              container.style.top = '0';
+              container.style.left = '0';
+              container.style.zIndex = '-9999';
+              document.body.appendChild(container);
 
               // Tiêu đề PDF
               const title = document.createElement('h2');
-              title.innerText = 'BÁO CÁO SỰ CỐ IT THÁNG ${monthStr}';
+              const currentMonth = new Date().getMonth() + 1;
+              title.innerText = 'BÁO CÁO SỰ CỐ IT THÁNG ' + currentMonth;
               title.style.textAlign = 'center';
               title.style.marginBottom = '30px';
               container.appendChild(title);
@@ -690,12 +698,16 @@ app.get('/report', async (req, res) => {
               const opt = {
                   margin:       10,
                   filename:     'BaoCao_IT_' + dateStr + '.pdf',
-                  image:        { type: 'jpeg', quality: 0.98 },
+                  image:        { type: 'jpeg', quality: 1 },
                   html2canvas:  { scale: 2, useCORS: true, windowWidth: 1200 },
-                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' } // Xoay ngang giấy A4 để bảng không bị hẹp
+                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' },
+                  pagebreak:    { mode: 'css', avoid: 'tr' } // Ngăn cắt đôi dòng giữa 2 trang
               };
               
-              html2pdf().set(opt).from(container).save();
+              html2pdf().set(opt).from(container).save().then(() => {
+                  // Xóa đi sau khi tải xong
+                  document.body.removeChild(container);
+              });
           }
       </script>
   </body>
