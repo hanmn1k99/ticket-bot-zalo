@@ -513,13 +513,19 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               .controls {
                   width: 100%;
-                  display: grid;
-                  grid-template-columns: 1fr;
+                  display: flex;
+                  flex-wrap: wrap;
                   gap: 10px;
               }
               input[type="text"], select {
                   max-width: 100%;
                   width: 100%;
+                  flex: 1 1 100%;
+              }
+              .controls button {
+                  flex: 1;
+                  justify-content: center;
+                  padding: 12px 10px;
               }
               #pdf-content {
                   padding: 5px;
