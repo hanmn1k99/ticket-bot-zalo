@@ -22,10 +22,11 @@ Bot Zalo chuyên nghiệp biến Zalo OA thành hệ thống **Tổng đài Hỗ
 
 ### 3. Bảng Điều Khiển Tương Tác (Interactive Web Dashboard)
 - **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`, thiết kế Responsive (Dạng thẻ Card cho Mobile, tối đa 1400px cho Desktop).
-- **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web. Mọi thay đổi sẽ lập tức đồng bộ ngược lại với Zalo Bot.
+- **Cập nhật Thời gian thực (Real-time):** Tự động đồng bộ dữ liệu (long-polling) mỗi 10 giây. Không cần tải lại trang (F5), mọi sự cố mới nhất sẽ tự động cập nhật lên màn hình mà vẫn giữ nguyên bộ lọc đang dùng.
+- **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web.
 - **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (`minhhan`) và mật khẩu (`Hannguyen@113`) mới vào xem và thao tác được.
-- **Bộ Lọc Thông Minh:** Bộ lọc theo trạng thái, chọn Tên người yêu cầu, tìm kiếm văn bản tự do, và nút Tải lại trang (Reload) tiện lợi.
-- **Xuất PDF Khổ A4 (Landscape):** Tự động dàn trang, xuất toàn bộ dữ liệu bảng ra file PDF xoay ngang hoàn chỉnh (không bị xén mất thông tin như ảnh chụp màn hình).
+- **Xóa toàn bộ dữ liệu:** Tích hợp nút bấm dọn dẹp hệ thống 1-click trên Web. Tự động đưa bộ đếm ID sự cố (Ticket ID) về lại số #1.
+- **In Báo Cáo Chuyên Nghiệp:** Sử dụng tính năng in gốc của trình duyệt (`window.print`) kết hợp bộ luật CSS `@media print` tĩnh giúp bản in dạng PDF đạt chuẩn khổ ngang (Landscape), giữ nguyên màu sắc trạng thái và tự động tàng hình các form nhập liệu dư thừa.
 
 ### 4. Hệ Thống Phát Thanh (Broadcast)
 - **Quản lý Nhóm:** Bot tự động nhận diện các group chat. Hoặc Admin dùng lệnh `/addgroup`, `/removegroup`.
