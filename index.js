@@ -248,6 +248,7 @@ app.get('/report', async (req, res) => {
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="[nội dung đã xử lý]" style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
               <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
            </div>
+           <span class="print-only-text" style="display:none; color:#94a3b8; font-style:italic;">Chưa xử lý</span>
          `;
      }
 
@@ -496,13 +497,10 @@ app.get('/report', async (req, res) => {
               
               /* Ẩn bớt các cột hoặc định dạng lại nếu cần */
               td div[id^="actionBox_"] { display: none !important; }
-              td::after { 
-                  content: "Chưa xử lý"; 
-                  font-style: italic; 
-                  color: #94a3b8; 
-                  display: block; 
-              }
-              td:has(div[id^="actionBox_"])::after { display: block; }
+              
+              /* Chỉ hiển thị chữ Chưa xử lý khi in nếu nó nằm trong class print-only-text */
+              .print-only-text { display: inline !important; }
+          }
               
               /* Ẩn form action, hiển thị text cho bản in */
               [id^="actionBox_"] + span { display: inline !important; }
@@ -530,8 +528,8 @@ app.get('/report', async (req, res) => {
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   </button>
                   <button onclick="window.print()">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                      PDF
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                      Xuất Báo Cáo
                   </button>
               </div>
           </div>
