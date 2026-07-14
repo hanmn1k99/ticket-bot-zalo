@@ -1024,7 +1024,7 @@ app.post('/webhook', async (req, res) => {
       }
       
       const reportLink = `${PUBLIC_URL}/report`;
-      await sendZaloMessage(chatId, `✅ Báo cáo trực tuyến của bạn đã sẵn sàng tại:\n${reportLink}\n\n(Tài khoản: minhhan / Mật khẩu: Hannguyen@113)`);
+      await sendZaloMessage(chatId, `✅ Báo cáo trực tuyến của bạn đã sẵn sàng tại:\n${reportLink}`);
       return;
     }
 
