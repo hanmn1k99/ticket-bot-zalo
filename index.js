@@ -483,6 +483,10 @@ app.get('/report', async (req, res) => {
 
           /* Định dạng khi in (Print) */
           @media print {
+              * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+              }
               body { background: white; padding: 0; }
               .container { max-width: 100%; width: 100%; margin: 0; }
               .controls { display: none !important; }
