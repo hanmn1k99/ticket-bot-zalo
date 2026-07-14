@@ -55,7 +55,7 @@ Lúc này BẮT BUỘC bắt đầu bằng chữ: ANSWER|
 Ví dụ: "ANSWER| Dạ Thầy Nghĩa cần em hỗ trợ lỗi máy tính gì ạ? 😊"
 Ví dụ: "ANSWER| Dạ căn bậc 2 của 178 là khoảng 13.34 ạ."
 
-Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc và tuyệt đối KHÔNG bao giờ trả lời bằng tiếng Anh trừ khi được yêu cầu.`;
+Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc. HÃY PHẢN HỒI BẰNG ĐÚNG NGÔN NGỮ MÀ NGƯỜI DÙNG SỬ DỤNG (Nếu người dùng hỏi bằng tiếng Anh, hãy trả lời bằng tiếng Anh).`;
 
   // Lấy lịch sử hội thoại của user này
   const uId = senderId || 'default';
