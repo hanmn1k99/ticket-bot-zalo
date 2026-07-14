@@ -74,8 +74,8 @@ PUBLIC_URL=https://my-domain.com
 AI_API_KEY=your_groq_or_openai_api_key
 
 # Tài khoản và Mật khẩu đăng nhập Web Dashboard
-ADMIN_USERNAME=minhhan
-ADMIN_PASSWORD=Hannguyen@113
+ADMIN_USERNAME=your-username
+ADMIN_PASSWORD=your-password
 ```
 
 ### Bước 4: Chạy Bot bằng PM2
