@@ -305,7 +305,8 @@ app.get('/report', async (req, res) => {
               padding: 10px 16px;
               border: 1px solid var(--border-color);
               border-radius: 8px;
-              width: 250px;
+              width: 100%;
+              max-width: 200px;
               font-size: 14px;
               outline: none;
               transition: border-color 0.2s;
@@ -328,6 +329,7 @@ app.get('/report', async (req, res) => {
               display: flex;
               align-items: center;
               gap: 8px;
+              white-space: nowrap;
           }
           button:hover {
               background-color: var(--primary-hover);
@@ -336,11 +338,13 @@ app.get('/report', async (req, res) => {
               background: var(--card-bg);
               border-radius: 12px;
               box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-              overflow: hidden;
+              overflow-x: auto;
+              -webkit-overflow-scrolling: touch;
           }
           table { 
               width: 100%; 
               border-collapse: collapse; 
+              min-width: 800px;
           }
           th, td { 
               padding: 16px; 
@@ -375,6 +379,30 @@ app.get('/report', async (req, res) => {
               padding: 20px;
               background: white;
           }
+          
+          /* Responsive (Giao diện Mobile) */
+          @media screen and (max-width: 768px) {
+              .header {
+                  flex-direction: column;
+                  align-items: flex-start;
+              }
+              .controls {
+                  width: 100%;
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 10px;
+              }
+              input[type="text"], select {
+                  max-width: none;
+              }
+              .controls button {
+                  grid-column: span 2;
+                  justify-content: center;
+              }
+              #pdf-content {
+                  padding: 10px;
+              }
+          }
       </style>
   </head>
   <body>
@@ -382,6 +410,11 @@ app.get('/report', async (req, res) => {
           <div class="header">
               <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
               <div class="controls">
+                  <select id="statusFilter">
+                      <option value="">-- Tất cả trạng thái --</option>
+                      <option value="đã xong">🟢 Đã xong</option>
+                      <option value="đang chờ">🔴 Đang chờ</option>
+                  </select>
                   <select id="nameFilter">
                       <option value="">-- Tất cả người báo --</option>
                   </select>
@@ -416,6 +449,7 @@ app.get('/report', async (req, res) => {
           // Khởi tạo các phần tử DOM
           const searchInput = document.getElementById('searchInput');
           const nameFilter = document.getElementById('nameFilter');
+          const statusFilter = document.getElementById('statusFilter');
           const table = document.getElementById('reportTable');
           const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           const emptyState = document.getElementById('emptyState');
@@ -435,20 +469,23 @@ app.get('/report', async (req, res) => {
               nameFilter.appendChild(option);
           });
 
-          // Hàm chạy Bộ lọc (kết hợp Tìm kiếm tự do + Chọn tên)
+          // Hàm chạy Bộ lọc (kết hợp Tìm kiếm tự do + Chọn tên + Chọn trạng thái)
           function filterData() {
               const searchText = searchInput.value.toLowerCase();
               const selectedName = nameFilter.value;
+              const selectedStatus = statusFilter.value;
               let visibleCount = 0;
 
               for (let i = 0; i < rows.length; i++) {
                   const text = rows[i].textContent || rows[i].innerText;
                   const nameCellText = rows[i].getElementsByTagName('td')[0].textContent.trim().toLowerCase();
+                  const statusCellText = rows[i].getElementsByTagName('td')[3].textContent.trim().toLowerCase();
                   
                   const matchesSearch = text.toLowerCase().indexOf(searchText) > -1;
                   const matchesName = selectedName === "" || nameCellText === selectedName;
+                  const matchesStatus = selectedStatus === "" || statusCellText.includes(selectedStatus);
 
-                  if (matchesSearch && matchesName) {
+                  if (matchesSearch && matchesName && matchesStatus) {
                       rows[i].style.display = '';
                       visibleCount++;
                   } else {
@@ -467,6 +504,7 @@ app.get('/report', async (req, res) => {
 
           searchInput.addEventListener('keyup', filterData);
           nameFilter.addEventListener('change', filterData);
+          statusFilter.addEventListener('change', filterData);
 
           // Chức năng Xuất PDF khổ A4
           function downloadPDF() {
