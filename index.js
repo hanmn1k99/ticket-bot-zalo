@@ -348,8 +348,6 @@ app.post('/webhook', async (req, res) => {
         return;
       }
 
-      const { Parser } = require('json2csv');
-      const parser = new Parser({ fields: ['Tên Zalo', 'Ngày', 'Giờ', 'Nội dung'] });
       const formattedRequests = requests.map(r => {
          const d = new Date(r.timestamp);
          const day = String(d.getDate()).padStart(2, '0');
@@ -357,19 +355,52 @@ app.post('/webhook', async (req, res) => {
          const year = d.getFullYear();
          const time = d.toLocaleTimeString('en-US', { hour12: false });
          
-         return {
-           'Tên Zalo': r.sender_name,
-           'Ngày': `${day}/${month}/${year}`,
-           'Giờ': time,
-           'Nội dung': r.content
-         };
-      });
-      const csv = parser.parse(formattedRequests);
+         return `
+          <tr>
+            <td>${r.sender_name}</td>
+            <td>${day}/${month}/${year}</td>
+            <td>${time}</td>
+            <td>${r.content}</td>
+          </tr>`;
+      }).join('');
+
+      const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Báo Cáo Sự Cố IT</title>
+          <style>
+              body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; }
+              h2 { color: #333; text-align: center; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+              th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
+              th { background-color: #007bff; color: #ffffff; }
+              tr:hover { background-color: #f5f5f5; }
+          </style>
+      </head>
+      <body>
+          <h2>📊 Báo Cáo Yêu Cầu Hỗ Trợ IT</h2>
+          <table>
+              <thead>
+                  <tr>
+                      <th>Tên Zalo</th>
+                      <th>Ngày</th>
+                      <th>Giờ</th>
+                      <th>Nội dung lỗi</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  ${formattedRequests}
+              </tbody>
+          </table>
+      </body>
+      </html>`;
       
-      const fileName = `report_${crypto.randomBytes(4).toString('hex')}.csv`;
+      const fileName = `report_${crypto.randomBytes(4).toString('hex')}.html`;
       const filePath = path.join(publicDir, fileName);
-      // Add BOM for Excel UTF-8 compatibility
-      fs.writeFileSync(filePath, "\uFEFF" + csv, 'utf8');
+      fs.writeFileSync(filePath, htmlContent, 'utf8');
 
       const downloadLink = `${PUBLIC_URL}/download/${fileName}`;
       await sendZaloMessage(chatId, `Báo cáo của bạn đã sẵn sàng. Nhấn vào link để tải về: ${downloadLink}`);
