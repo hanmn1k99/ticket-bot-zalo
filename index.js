@@ -372,7 +372,7 @@ app.post('/webhook', async (req, res) => {
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Báo Cáo Sự Cố IT</title>
+          <title>Báo Cáo AI BOT Tháng ${monthStr}</title>
           <!-- Nhúng thư viện html2pdf từ CDN -->
           <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
           <style>
