@@ -27,14 +27,14 @@ Ví dụ câu hỏi chung: "ANSWER| Dạ Thầy/Cô cần em hỗ trợ gì ạ?
 Lưu ý: Trả lời ngắn gọn, thân thiện, có emoji. KHÔNG bao giờ trả lời bằng tiếng Anh.`;
 
   try {
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${AI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: systemPrompt }],
         max_tokens: 256
       })
