@@ -24,7 +24,7 @@ Bot Zalo chuyên nghiệp biến Zalo OA thành hệ thống **Tổng đài Hỗ
 - **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`, thiết kế Responsive (Dạng thẻ Card cho Mobile, tối đa 1400px cho Desktop).
 - **Cập nhật Thời gian thực (Real-time):** Tự động đồng bộ dữ liệu (long-polling) mỗi 10 giây. Không cần tải lại trang (F5), mọi sự cố mới nhất sẽ tự động cập nhật lên màn hình mà vẫn giữ nguyên bộ lọc đang dùng.
 - **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web.
-- **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (`minhhan`) và mật khẩu (`Hannguyen@113`) mới vào xem và thao tác được.
+- **Bảo mật Basic Auth:** Chỉ những ai có tài khoản (được cấu hình an toàn trong file `.env`) mới vào xem và thao tác được.
 - **Xóa toàn bộ dữ liệu:** Tích hợp nút bấm dọn dẹp hệ thống 1-click trên Web. Tự động đưa bộ đếm ID sự cố (Ticket ID) về lại số #1.
 - **In Báo Cáo Chuyên Nghiệp:** Sử dụng tính năng in gốc của trình duyệt (`window.print`) kết hợp bộ luật CSS `@media print` tĩnh giúp bản in dạng PDF đạt chuẩn khổ ngang (Landscape), giữ nguyên màu sắc trạng thái và tự động tàng hình các form nhập liệu dư thừa.
 
@@ -67,7 +67,7 @@ PORT=1092
 # Tên chính xác của bot (Ví dụ: Ticket Bot) để nhận diện người gọi
 BOT_NAME=Ticket Bot
 
-# Domain public của bạn (Ví dụ dùng Cloudflare Tunnels: https://api.minhhan.net)
+# Domain public của bạn (Ví dụ dùng Cloudflare Tunnels: https://api.yourdomain.com)
 PUBLIC_URL=https://my-domain.com
 
 # API Key cho AI (Dùng Groq hoặc bất kỳ hệ thống tương thích OpenAI nào)
