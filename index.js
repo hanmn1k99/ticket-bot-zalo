@@ -610,16 +610,24 @@ app.post('/webhook', async (req, res) => {
     const isBotMentioned = text.includes(BOT_NAME) || text.includes('@Bot');
     const quoteText = message?.quote?.text || '';
     const isExplicitQuoteReply = /Mã Yêu Cầu: #(\d+)/.test(quoteText);
+    const textTicketMatch = text.match(/#(\d+)/);
+    const hasTextTicketId = textTicketMatch !== null;
 
-    // Là Reply nếu: Gửi từ Admin, KHÔNG phải lệnh, VÀ (Có Quote hợp lệ HOẶC không có nhắc đến @Bot)
-    if (senderId === adminIdForReply && !text.startsWith('/') && (isExplicitQuoteReply || !isBotMentioned)) {
+    // Là Reply nếu: Gửi từ Admin, KHÔNG phải lệnh, VÀ (Có Quote hợp lệ HOẶC có gõ #ID HOẶC không có nhắc đến @Bot)
+    if (senderId === adminIdForReply && !text.startsWith('/') && (isExplicitQuoteReply || hasTextTicketId || !isBotMentioned)) {
       let targetTicketId = null;
       
-      // Thử tìm Mã Yêu Cầu trong Quote
-      const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
-      if (match) {
-         targetTicketId = parseInt(match[1]);
-      } else {
+      // Ưu tiên 1: Gõ trực tiếp #ID trong tin nhắn
+      if (hasTextTicketId) {
+         targetTicketId = parseInt(textTicketMatch[1]);
+      } 
+      // Ưu tiên 2: Tìm Mã Yêu Cầu trong Quote
+      else if (isExplicitQuoteReply) {
+         const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
+         if (match) targetTicketId = parseInt(match[1]);
+      } 
+      // Ưu tiên 3: Lấy ticket mới nhất đang chờ
+      else {
          // Nếu không có quote, lấy ticket mới nhất đang chờ
          const latestPending = await db.getLatestPendingRequest();
          if (latestPending) {
