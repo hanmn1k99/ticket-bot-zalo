@@ -213,6 +213,245 @@ app.get('/', (req, res) => {
   res.send('Zalo Ticket Bot is running!');
 });
 
+// Dynamic HTML Report Route
+app.get('/report', async (req, res) => {
+  // Basic Auth
+  const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+  const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Yêu cầu đăng nhập. Username: minhhan');
+  }
+
+  const requests = await db.getAllRequests();
+  
+  const formattedRequests = requests.map(r => {
+     const d = new Date(r.timestamp);
+     const day = String(d.getDate()).padStart(2, '0');
+     const month = String(d.getMonth() + 1).padStart(2, '0');
+     const year = d.getFullYear();
+     const time = d.toLocaleTimeString('en-US', { hour12: false });
+     
+     return `
+      <tr>
+        <td>${r.sender_name}</td>
+        <td>${day}/${month}/${year}</td>
+        <td>${time}</td>
+        <td>${r.content}</td>
+      </tr>`;
+  }).join('');
+
+  const monthStr = new Date().getMonth() + 1;
+  
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html lang="vi">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Báo Cáo AI BOT Tháng ${monthStr}</title>
+      <!-- Nhúng thư viện html2pdf từ CDN -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+      <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+          :root {
+              --primary: #2563eb;
+              --primary-hover: #1d4ed8;
+              --bg-color: #f8fafc;
+              --card-bg: #ffffff;
+              --text-main: #1e293b;
+              --text-muted: #64748b;
+              --border-color: #e2e8f0;
+          }
+          body { 
+              font-family: 'Inter', sans-serif; 
+              padding: 30px; 
+              background-color: var(--bg-color);
+              color: var(--text-main);
+              margin: 0;
+          }
+          .container {
+              max-width: 1000px;
+              margin: 0 auto;
+          }
+          .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 25px;
+              flex-wrap: wrap;
+              gap: 15px;
+          }
+          h2 { 
+              margin: 0; 
+              font-size: 24px;
+              font-weight: 700;
+              color: #0f172a;
+              text-transform: uppercase;
+          }
+          .controls {
+              display: flex;
+              gap: 15px;
+              align-items: center;
+              flex-wrap: wrap;
+          }
+          input[type="text"] {
+              padding: 10px 16px;
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              width: 250px;
+              font-size: 14px;
+              outline: none;
+              transition: border-color 0.2s;
+          }
+          input[type="text"]:focus {
+              border-color: var(--primary);
+              box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+          }
+          button {
+              background-color: var(--primary);
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 8px;
+              font-weight: 600;
+              font-size: 14px;
+              cursor: pointer;
+              transition: background-color 0.2s;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+          }
+          button:hover {
+              background-color: var(--primary-hover);
+          }
+          .table-wrapper {
+              background: var(--card-bg);
+              border-radius: 12px;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+              overflow: hidden;
+          }
+          table { 
+              width: 100%; 
+              border-collapse: collapse; 
+          }
+          th, td { 
+              padding: 16px; 
+              text-align: left; 
+              border-bottom: 1px solid var(--border-color); 
+          }
+          th { 
+              background-color: #f1f5f9; 
+              color: var(--text-muted);
+              font-weight: 600;
+              font-size: 13px;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+          }
+          td {
+              font-size: 14px;
+          }
+          tr:last-child td {
+              border-bottom: none;
+          }
+          tr:hover td { 
+              background-color: #f8fafc; 
+          }
+          .empty-state {
+              text-align: center;
+              padding: 40px;
+              color: var(--text-muted);
+              display: none;
+          }
+          /* Chỉ định vùng để in PDF */
+          #pdf-content {
+              padding: 20px;
+              background: white;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
+              <div class="controls">
+                  <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, nội dung...">
+                  <button onclick="downloadPDF()">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                      Xuất PDF (A4)
+                  </button>
+              </div>
+          </div>
+
+          <div class="table-wrapper" id="pdf-content">
+              <table id="reportTable">
+                  <thead>
+                      <tr>
+                          <th width="20%">Tên Zalo</th>
+                          <th width="15%">Ngày</th>
+                          <th width="15%">Giờ</th>
+                          <th width="50%">Nội dung lỗi</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${formattedRequests}
+                  </tbody>
+              </table>
+              <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
+          </div>
+      </div>
+
+      <script>
+          // Chức năng Lọc Dữ Liệu
+          const searchInput = document.getElementById('searchInput');
+          const table = document.getElementById('reportTable');
+          const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+          const emptyState = document.getElementById('emptyState');
+
+          searchInput.addEventListener('keyup', function() {
+              const filter = searchInput.value.toLowerCase();
+              let visibleCount = 0;
+
+              for (let i = 0; i < rows.length; i++) {
+                  const text = rows[i].textContent || rows[i].innerText;
+                  if (text.toLowerCase().indexOf(filter) > -1) {
+                      rows[i].style.display = '';
+                      visibleCount++;
+                  } else {
+                      rows[i].style.display = 'none';
+                  }
+              }
+
+              if (visibleCount === 0) {
+                  table.style.display = 'none';
+                  emptyState.style.display = 'block';
+              } else {
+                  table.style.display = 'table';
+                  emptyState.style.display = 'none';
+              }
+          });
+
+          // Chức năng Xuất PDF khổ A4
+          function downloadPDF() {
+              const element = document.getElementById('pdf-content');
+              const dateStr = new Date().toLocaleDateString('vi-VN').replace(/\\//g, '-');
+              const opt = {
+                  margin:       10,
+                  filename:     'BaoCao_IT_' + dateStr + '.pdf',
+                  image:        { type: 'jpeg', quality: 0.98 },
+                  html2canvas:  { scale: 2, useCORS: true },
+                  jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+              };
+              html2pdf().set(opt).from(element).save();
+          }
+      </script>
+  </body>
+  </html>`;
+  
+  res.send(htmlContent);
+});
+
 // Zalo webhook verification (GET)
 app.get('/webhook', (req, res) => {
   console.log('Zalo verification GET request received:', req.query);
@@ -338,257 +577,12 @@ app.post('/webhook', async (req, res) => {
     if (text.trim() === '/report') {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (senderId !== adminId) {
-        await sendZaloMessage(chatId, "Bạn không có quyền thực hiện lệnh này.");
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
       
-      const requests = await db.getAllRequests();
-      if (requests.length === 0) {
-        await sendZaloMessage(chatId, "Chưa có dữ liệu yêu cầu nào.");
-        return;
-      }
-
-      const formattedRequests = requests.map(r => {
-         const d = new Date(r.timestamp);
-         const day = String(d.getDate()).padStart(2, '0');
-         const month = String(d.getMonth() + 1).padStart(2, '0');
-         const year = d.getFullYear();
-         const time = d.toLocaleTimeString('en-US', { hour12: false });
-         
-         return `
-          <tr>
-            <td>${r.sender_name}</td>
-            <td>${day}/${month}/${year}</td>
-            <td>${time}</td>
-            <td>${r.content}</td>
-          </tr>`;
-      }).join('');
-
-      const monthStr = new Date().getMonth() + 1;
-      
-      const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="vi">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Báo Cáo AI BOT Tháng ${monthStr}</title>
-          <!-- Nhúng thư viện html2pdf từ CDN -->
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-          <style>
-              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-              :root {
-                  --primary: #2563eb;
-                  --primary-hover: #1d4ed8;
-                  --bg-color: #f8fafc;
-                  --card-bg: #ffffff;
-                  --text-main: #1e293b;
-                  --text-muted: #64748b;
-                  --border-color: #e2e8f0;
-              }
-              body { 
-                  font-family: 'Inter', sans-serif; 
-                  padding: 30px; 
-                  background-color: var(--bg-color);
-                  color: var(--text-main);
-                  margin: 0;
-              }
-              .container {
-                  max-width: 1000px;
-                  margin: 0 auto;
-              }
-              .header {
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  margin-bottom: 25px;
-                  flex-wrap: wrap;
-                  gap: 15px;
-              }
-              h2 { 
-                  margin: 0; 
-                  font-size: 24px;
-                  font-weight: 700;
-                  color: #0f172a;
-                  text-transform: uppercase;
-              }
-              .controls {
-                  display: flex;
-                  gap: 15px;
-                  align-items: center;
-                  flex-wrap: wrap;
-              }
-              input[type="text"] {
-                  padding: 10px 16px;
-                  border: 1px solid var(--border-color);
-                  border-radius: 8px;
-                  width: 250px;
-                  font-size: 14px;
-                  outline: none;
-                  transition: border-color 0.2s;
-              }
-              input[type="text"]:focus {
-                  border-color: var(--primary);
-                  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-              }
-              button {
-                  background-color: var(--primary);
-                  color: white;
-                  border: none;
-                  padding: 10px 20px;
-                  border-radius: 8px;
-                  font-weight: 600;
-                  font-size: 14px;
-                  cursor: pointer;
-                  transition: background-color 0.2s;
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-              }
-              button:hover {
-                  background-color: var(--primary-hover);
-              }
-              .table-wrapper {
-                  background: var(--card-bg);
-                  border-radius: 12px;
-                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-                  overflow: hidden;
-              }
-              table { 
-                  width: 100%; 
-                  border-collapse: collapse; 
-              }
-              th, td { 
-                  padding: 16px; 
-                  text-align: left; 
-                  border-bottom: 1px solid var(--border-color); 
-              }
-              th { 
-                  background-color: #f1f5f9; 
-                  color: var(--text-muted);
-                  font-weight: 600;
-                  font-size: 13px;
-                  text-transform: uppercase;
-                  letter-spacing: 0.05em;
-              }
-              td {
-                  font-size: 14px;
-              }
-              tr:last-child td {
-                  border-bottom: none;
-              }
-              tr:hover td { 
-                  background-color: #f8fafc; 
-              }
-              .empty-state {
-                  text-align: center;
-                  padding: 40px;
-                  color: var(--text-muted);
-                  display: none;
-              }
-              /* Chỉ định vùng để in PDF */
-              #pdf-content {
-                  padding: 20px;
-                  background: white;
-              }
-          </style>
-      </head>
-      <body>
-          <div class="container">
-              <div class="header">
-                  <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
-                  <div class="controls">
-                      <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, nội dung...">
-                      <button onclick="downloadPDF()">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                          Xuất PDF (A4)
-                      </button>
-                  </div>
-              </div>
-
-              <div class="table-wrapper" id="pdf-content">
-                  <table id="reportTable">
-                      <thead>
-                          <tr>
-                              <th width="20%">Tên Zalo</th>
-                              <th width="15%">Ngày</th>
-                              <th width="15%">Giờ</th>
-                              <th width="50%">Nội dung lỗi</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          ${formattedRequests}
-                      </tbody>
-                  </table>
-                  <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
-              </div>
-          </div>
-
-          <script>
-              // Chức năng Lọc Dữ Liệu
-              const searchInput = document.getElementById('searchInput');
-              const table = document.getElementById('reportTable');
-              const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-              const emptyState = document.getElementById('emptyState');
-
-              searchInput.addEventListener('keyup', function() {
-                  const filter = searchInput.value.toLowerCase();
-                  let visibleCount = 0;
-
-                  for (let i = 0; i < rows.length; i++) {
-                      const text = rows[i].textContent || rows[i].innerText;
-                      if (text.toLowerCase().indexOf(filter) > -1) {
-                          rows[i].style.display = '';
-                          visibleCount++;
-                      } else {
-                          rows[i].style.display = 'none';
-                      }
-                  }
-
-                  if (visibleCount === 0) {
-                      table.style.display = 'none';
-                      emptyState.style.display = 'block';
-                  } else {
-                      table.style.display = 'table';
-                      emptyState.style.display = 'none';
-                  }
-              });
-
-              // Chức năng Xuất PDF khổ A4
-              function downloadPDF() {
-                  // Hiển thị lại toàn bộ dòng để xuất PDF đẹp nhất
-                  // (hoặc chỉ xuất những dòng đang filter tùy nhu cầu. Hiện tại sẽ xuất đúng những gì đang thấy trên màn hình).
-                  const element = document.getElementById('pdf-content');
-                  
-                  // Lấy ngày hiện tại để đặt tên file
-                  const dateStr = new Date().toLocaleDateString('vi-VN').replace(/\\//g, '-');
-                  
-                  const opt = {
-                      margin:       10,
-                      filename:     'BaoCao_IT_' + dateStr + '.pdf',
-                      image:        { type: 'jpeg', quality: 0.98 },
-                      html2canvas:  { scale: 2, useCORS: true },
-                      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                  };
-
-                  // Gọi html2pdf
-                  html2pdf().set(opt).from(element).save();
-              }
-          </script>
-      </body>
-      </html>`;
-      
-      const fileName = `report_${crypto.randomBytes(4).toString('hex')}.html`;
-      const filePath = path.join(publicDir, fileName);
-      fs.writeFileSync(filePath, htmlContent, 'utf8');
-
-      const downloadLink = `${PUBLIC_URL}/download/${fileName}`;
-      await sendZaloMessage(chatId, `Báo cáo của bạn đã sẵn sàng. Nhấn vào link để tải về: ${downloadLink}`);
-      
-      // Auto delete file after 24 hours
-      setTimeout(() => {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      }, 24 * 60 * 60 * 1000);
+      const reportLink = `${PUBLIC_URL}/report`;
+      await sendZaloMessage(chatId, `✅ Báo cáo trực tuyến của bạn đã sẵn sàng tại:\n${reportLink}\n\n(Tài khoản: minhhan / Mật khẩu: Hannguyen@113)`);
       return;
     }
 
