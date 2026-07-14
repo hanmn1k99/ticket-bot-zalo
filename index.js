@@ -33,7 +33,7 @@ Lưu ý: Trả lời ngắn gọn, thân thiện, có emoji. KHÔNG bao giờ tr
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents: systemPrompt
     });
     const result = response.text.trim();
