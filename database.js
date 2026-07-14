@@ -124,6 +124,15 @@ async function deleteAllRequests() {
   return deletedCount;
 }
 
+async function deleteRequestsOlderThan(timestamp) {
+  const db = readDB();
+  if (!db.requests) return 0;
+  const initialLength = db.requests.length;
+  db.requests = db.requests.filter(r => r.timestamp >= timestamp);
+  writeDB(db);
+  return initialLength - db.requests.length;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -132,6 +141,7 @@ module.exports = {
   getLatestPendingRequest,
   getAllRequests,
   deleteAllRequests,
+  deleteRequestsOlderThan,
   addGroup,
   removeGroup,
   getAllGroups

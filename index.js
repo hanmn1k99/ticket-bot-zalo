@@ -633,7 +633,7 @@ app.post('/webhook', async (req, res) => {
             await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
             // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
             const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\n👤 Người báo: @${updatedReq.sender_name}\nMã Sự Cố: #${targetTicketId}\nNội dung bạn báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn bạn đã phản hồi!`;
+            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${text}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
             await sendZaloMessage(targetChat, userMsg);
          } else {
             await sendZaloMessage(chatId, `❌ Không tìm thấy yêu cầu #${targetTicketId} để cập nhật.`);
