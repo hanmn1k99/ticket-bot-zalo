@@ -281,16 +281,35 @@ app.get('/login', (req, res) => {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Đăng nhập - Phần mềm quản trị</title>
+      <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      </script>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=\${Date.now()}">
       <style>
+          :root {
+              --bg-color: #f1f5f9;
+              --card-bg: #ffffff;
+              --text-main: #1e293b;
+              --border-color: #cbd5e1;
+              --input-bg: #ffffff;
+          }
+          [data-theme="dark"] {
+              --bg-color: #0f172a;
+              --card-bg: #1e293b;
+              --text-main: #f8fafc;
+              --border-color: #334155;
+              --input-bg: #1e293b;
+          }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-color); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-card { background: var(--card-bg); padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
         .login-card img { max-width: 250px; margin-bottom: 20px; border-radius: 8px; }
-        .login-card h2 { margin-top: 0; color: #1e293b; font-size: 24px; }
+        .login-card h2 { margin-top: 0; color: var(--text-main); font-size: 24px; }
         .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 14px; font-weight: 500; color: #475569; margin-bottom: 8px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .input-group label { display: block; font-size: 14px; font-weight: 500; color: var(--text-main); margin-bottom: 8px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; outline: none; box-sizing: border-box; background: var(--input-bg); color: var(--text-main); }
         .input-group input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .btn:hover { background: #2563eb; }
