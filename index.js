@@ -364,6 +364,8 @@ app.post('/webhook', async (req, res) => {
           </tr>`;
       }).join('');
 
+      const monthStr = new Date().getMonth() + 1;
+      
       const htmlContent = `
       <!DOCTYPE html>
       <html lang="vi">
@@ -408,6 +410,7 @@ app.post('/webhook', async (req, res) => {
                   font-size: 24px;
                   font-weight: 700;
                   color: #0f172a;
+                  text-transform: uppercase;
               }
               .controls {
                   display: flex;
@@ -493,7 +496,7 @@ app.post('/webhook', async (req, res) => {
       <body>
           <div class="container">
               <div class="header">
-                  <h2>📊 Báo Cáo Sự Cố IT</h2>
+                  <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
                   <div class="controls">
                       <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, nội dung...">
                       <button onclick="downloadPDF()">
