@@ -8,7 +8,10 @@ const setupCronJobs = require('./cronjobs');
 
 const AI_API_KEY = process.env.AI_API_KEY;
 
-async function analyzeWithAI(text, senderName) {
+// Bộ nhớ ngữ cảnh hội thoại cho từng user (lưu trên RAM)
+const userContexts = new Map();
+
+async function analyzeWithAI(text, senderName, senderId) {
   if (!AI_API_KEY) return { type: 'TICKET' };
   
   // Đọc nội dung file faq.txt
@@ -39,6 +42,19 @@ Ví dụ: "ANSWER| Mật khẩu wifi dành cho giáo viên là gvmeyschool ạ."
 
 Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc và tuyệt đối KHÔNG bao giờ trả lời bằng tiếng Anh trừ khi được yêu cầu.`;
 
+  // Lấy lịch sử hội thoại của user này
+  const uId = senderId || 'default';
+  let history = userContexts.get(uId) || [];
+  
+  // Đẩy câu hỏi hiện tại vào lịch sử
+  history.push({ role: 'user', content: text });
+
+  // Xây dựng mảng messages gửi cho Groq
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    ...history
+  ];
+
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -48,7 +64,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: systemPrompt }],
+        messages: messages,
         max_tokens: 256
       })
     });
@@ -56,17 +72,30 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     if (!response.ok) {
       const errText = await response.text();
       console.error('DeepSeek API Error HTTP', response.status, ':', errText);
+      userContexts.delete(uId);
       return { type: 'TICKET' };
     }
 
     const data = await response.json();
     const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
     if (result.startsWith('ANSWER|')) {
-      return { type: 'ANSWER', answer: result.replace('ANSWER|', '').trim() };
+      const answerText = result.replace('ANSWER|', '').trim();
+      
+      // Lưu lại câu trả lời vào lịch sử
+      history.push({ role: 'assistant', content: answerText });
+      // Giữ tối đa 10 tin nhắn gần nhất (5 lượt)
+      if (history.length > 10) history = history.slice(history.length - 10);
+      userContexts.set(uId, history);
+
+      return { type: 'ANSWER', answer: answerText };
     }
+    
+    // Nếu kết quả là TICKET, xóa lịch sử để bắt đầu lại sau khi sửa xong
+    userContexts.delete(uId);
     return { type: 'TICKET' };
   } catch (error) {
     console.error('Lỗi gọi AI API (Network):', error);
+    userContexts.delete(uId);
     return { type: 'TICKET' };
   }
 }
@@ -250,7 +279,7 @@ app.post('/webhook', async (req, res) => {
       if (!requestContent) requestContent = "(Không có nội dung)";
 
       // Analyze with AI
-      const aiResult = await analyzeWithAI(requestContent, senderName);
+      const aiResult = await analyzeWithAI(requestContent, senderName, senderId);
 
       if (aiResult.type === 'ANSWER') {
         // Reply to user directly
