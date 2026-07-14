@@ -258,12 +258,9 @@ app.get('/report', async (req, res) => {
   const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
   const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
 
-  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-
-  if (login !== expectedUser || password !== expectedPass) {
+  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
     res.set('WWW-Authenticate', 'Basic realm="401"');
-    return res.status(401).send('Yêu cầu đăng nhập quản trị.');
+    return res.status(401).send('Yêu cầu đăng nhập quản trị. Username: minhhan');
   }
 
   const formattedRequests = await renderTableRows();
@@ -757,10 +754,7 @@ app.post('/api/tickets/resolve', async (req, res) => {
   const user = auth[0];
   const pass = auth[1];
 
-  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-
-  if (user !== expectedUser || pass !== expectedPass) {
+  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
     res.setHeader('WWW-Authenticate', 'Basic');
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -810,10 +804,7 @@ app.post('/api/tickets/clean', async (req, res) => {
   const user = auth[0];
   const pass = auth[1];
 
-  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-
-  if (user !== expectedUser || pass !== expectedPass) {
+  if (user !== 'minhhan' || pass !== 'Hannguyen@113') {
     res.setHeader('WWW-Authenticate', 'Basic');
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -837,10 +828,7 @@ app.get('/api/tickets/rows', async (req, res) => {
   if (!b64auth) return res.status(401).json({ error: 'Unauthorized' });
   const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
   
-  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-  
-  if (login !== expectedUser || password !== expectedPass) {
+  if (login !== 'minhhan' || password !== 'Hannguyen@113') {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -972,9 +960,7 @@ app.post('/webhook', async (req, res) => {
       }
       
       const reportLink = `${PUBLIC_URL}/report`;
-      const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-      const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-      await sendZaloMessage(chatId, `✅ Báo cáo trực tuyến của bạn đã sẵn sàng tại:\n${reportLink}\n\n(Tài khoản: ${expectedUser} / Mật khẩu: ${expectedPass})`);
+      await sendZaloMessage(chatId, `✅ Báo cáo trực tuyến của bạn đã sẵn sàng tại:\n${reportLink}\n\n(Tài khoản: minhhan / Mật khẩu: Hannguyen@113)`);
       return;
     }
 
