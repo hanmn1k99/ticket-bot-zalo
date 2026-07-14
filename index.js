@@ -175,6 +175,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use('/download', express.static(publicDir));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 const PORT = process.env.PORT || 3000;
 const WEBHOOK_SECRET_TOKEN = process.env.WEBHOOK_SECRET_TOKEN;
@@ -243,7 +244,7 @@ app.get('/report', async (req, res) => {
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <input type="text" id="replyInput_${r.id}" placeholder="Gõ phản hồi IT..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
+              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="[nội dung đã xử lý]" style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
               <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
            </div>
          `;
@@ -268,7 +269,8 @@ app.get('/report', async (req, res) => {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Báo Cáo AI BOT Tháng ${monthStr}</title>
+      <title>Phần mềm quản trị hệ thống - minhhan.net</title>
+      <link rel="icon" href="/assets/favicon.png">
       <!-- Nhúng thư viện html2pdf từ CDN -->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <style>
@@ -290,7 +292,7 @@ app.get('/report', async (req, res) => {
               margin: 0;
           }
           .container {
-              max-width: 1000px;
+              max-width: 1400px;
               margin: 0 auto;
           }
           .header {
@@ -484,7 +486,10 @@ app.get('/report', async (req, res) => {
   <body>
       <div class="container">
           <div class="header">
-              <h2>📊 BÁO CÁO AI BOT THÁNG ${monthStr}</h2>
+              <h2>
+                  <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
+                  📊 BÁO CÁO AI BOT THÁNG ${monthStr}
+              </h2>
               <div class="controls">
                   <select id="statusFilter">
                       <option value="">-- Tất cả trạng thái --</option>
@@ -495,7 +500,7 @@ app.get('/report', async (req, res) => {
                       <option value="">-- Tất cả người báo --</option>
                   </select>
                   <input type="text" id="searchInput" placeholder="Tìm kiếm tự do...">
-                  <button class="btn-secondary" onclick="resetFilters()">
+                  <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                   </button>
                   <button onclick="downloadPDF()">
@@ -583,16 +588,9 @@ app.get('/report', async (req, res) => {
           }
 
           searchInput.addEventListener('keyup', filterData);
+          searchInput.addEventListener('keyup', filterData);
           nameFilter.addEventListener('change', filterData);
           statusFilter.addEventListener('change', filterData);
-
-          // Hàm Reset Bộ Lọc
-          function resetFilters() {
-              searchInput.value = '';
-              nameFilter.value = '';
-              statusFilter.value = '';
-              filterData();
-          }
 
           // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
           async function resolveTicket(ticketId) {
