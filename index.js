@@ -637,6 +637,15 @@ app.get('/report', checkAuth, async (req, res) => {
 
           /* Định dạng khi in (Print) */
           @media print {
+              :root, [data-theme="dark"], body {
+                  --bg-color: #ffffff !important;
+                  --card-bg: #ffffff !important;
+                  --text-main: #000000 !important;
+                  --text-muted: #333333 !important;
+                  --border-color: #dddddd !important;
+                  --table-header-bg: #f1f5f9 !important;
+                  --table-hover-bg: #ffffff !important;
+              }
               * {
                   -webkit-print-color-adjust: exact !important;
                   print-color-adjust: exact !important;
