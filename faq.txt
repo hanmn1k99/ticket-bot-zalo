@@ -1,4 +1,4 @@
-- Mật khẩu wifi giáo viên / wifi trường / wifi IT: gvmeyschool
-- Mật khẩu wifi khách: meyschool123
-- Hướng dẫn mượn máy chiếu: Vui lòng xuống phòng IT (P.102) đăng ký mượn trước 15 phút.
-- Hướng dẫn in tài liệu: Máy in nằm ở phòng giáo viên, mật khẩu đăng nhập máy in là 123456.
+- Mật khẩu wificủa trường: Meyschooldtd
+- Mật khẩu wifi khách: không có
+- Trường TH & THCS Meyschool Đoàn Thị Điểm
+- Liên kết đăng nhập email: mail.meyschooldtd.edu.vn
