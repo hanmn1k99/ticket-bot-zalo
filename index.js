@@ -39,6 +39,13 @@ Lưu ý: Trả lời ngắn gọn, thân thiện, có emoji. KHÔNG bao giờ tr
         max_tokens: 256
       })
     });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('DeepSeek API Error HTTP', response.status, ':', errText);
+      return { type: 'TICKET' };
+    }
+
     const data = await response.json();
     const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
     if (result.startsWith('ANSWER|')) {
@@ -46,7 +53,7 @@ Lưu ý: Trả lời ngắn gọn, thân thiện, có emoji. KHÔNG bao giờ tr
     }
     return { type: 'TICKET' };
   } catch (error) {
-    console.error('Lỗi gọi AI API:', error);
+    console.error('Lỗi gọi AI API (Network):', error);
     return { type: 'TICKET' };
   }
 }
