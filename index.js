@@ -349,11 +349,21 @@ app.post('/webhook', async (req, res) => {
       }
 
       const { Parser } = require('json2csv');
-      const parser = new Parser({ fields: ['id', 'timestamp', 'date', 'sender_name', 'sender_id', 'content'] });
-      const formattedRequests = requests.map(r => ({
-         ...r,
-         date: new Date(r.timestamp).toLocaleString('vi-VN')
-      }));
+      const parser = new Parser({ fields: ['Tên Zalo', 'Ngày', 'Giờ', 'Nội dung'] });
+      const formattedRequests = requests.map(r => {
+         const d = new Date(r.timestamp);
+         const day = String(d.getDate()).padStart(2, '0');
+         const month = String(d.getMonth() + 1).padStart(2, '0');
+         const year = d.getFullYear();
+         const time = d.toLocaleTimeString('en-US', { hour12: false });
+         
+         return {
+           'Tên Zalo': r.sender_name,
+           'Ngày': `${day}/${month}/${year}`,
+           'Giờ': time,
+           'Nội dung': r.content
+         };
+      });
       const csv = parser.parse(formattedRequests);
       
       const fileName = `report_${crypto.randomBytes(4).toString('hex')}.csv`;
