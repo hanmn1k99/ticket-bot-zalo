@@ -286,7 +286,7 @@ app.get('/login', (req, res) => {
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .login-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
-        .login-card img { max-width: 150px; margin-bottom: 20px; border-radius: 8px; }
+        .login-card img { max-width: 250px; margin-bottom: 20px; border-radius: 8px; }
         .login-card h2 { margin-top: 0; color: #1e293b; font-size: 24px; }
         .input-group { margin-bottom: 20px; text-align: left; }
         .input-group label { display: block; font-size: 14px; font-weight: 500; color: #475569; margin-bottom: 8px; }
@@ -613,7 +613,9 @@ app.get('/report', checkAuth, async (req, res) => {
       <div class="container">
           <div class="header">
               <h2>
-                  <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
+                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
+                      <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
+                  </a>
                   📊 BÁO CÁO AI BOT THÁNG ${monthStr}
               </h2>
               <div class="controls">
