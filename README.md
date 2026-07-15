@@ -80,6 +80,10 @@ ADMIN_PASSWORD=your-password
 
 # Chuỗi bí mật dùng để mã hóa Cookie bảo vệ trang Web (Nhập ngẫu nhiên một chuỗi thật dài)
 JWT_SECRET=your_super_secret_jwt_key_here
+
+# Tùy chỉnh Tiêu đề (Không bắt buộc)
+PAGE_TITLE=Phần mềm quản trị hệ thống
+HEADER_TITLE=BÁO CÁO AI BOT THÁNG 7
 ```
 
 ### Bước 4: Chạy Bot bằng PM2

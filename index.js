@@ -280,7 +280,7 @@ app.get('/login', (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Đăng nhập - Phần mềm quản trị</title>
+      <title>${process.env.PAGE_TITLE || 'Đăng nhập - Phần mềm quản trị'}</title>
       <script>
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -394,7 +394,7 @@ app.get('/report', checkAuth, async (req, res) => {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Phần mềm quản trị hệ thống - minhhan.net</title>
+      <title>${process.env.PAGE_TITLE || 'Phần mềm quản trị hệ thống - minhhan.net'}</title>
       <script>
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -673,7 +673,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
                       <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
                   </a>
-                  📊 BÁO CÁO AI BOT THÁNG ${monthStr}
+                  📊 ${process.env.HEADER_TITLE || `BÁO CÁO AI BOT THÁNG ${monthStr}`}
               </h2>
               <div class="controls">
                   <select id="statusFilter">
