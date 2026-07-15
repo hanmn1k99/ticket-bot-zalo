@@ -115,5 +115,9 @@ Hệ thống hỗ trợ thay đổi Logo và Favicon tùy chỉnh. Bạn chỉ c
 3. Upload file logo (Tên bắt buộc: `logo.png`, khuyên dùng hình chữ nhật ngang, cao khoảng 80-100px, nền trong suốt).
 Hệ thống sẽ tự động hiển thị trên giao diện Web Dashboard mà không cần khởi động lại.
 
+### Bước 8: Tùy chỉnh Khu vực Mẫu Tiêu Đề (Header Template)
+Hệ thống hiển thị một khu vực tiêu đề phụ ở trên cùng trang Web, bao gồm thông tin Nhà phát triển và Đồng hồ tự động cập nhật thời gian thực (real-time). Khu vực này sẽ tự động được sử dụng làm thông tin bổ sung khi bạn in báo cáo.
+Để thay đổi thông tin này (ví dụ đổi tên github, thay đổi text, hoặc thêm logo), bạn có thể chỉnh sửa trực tiếp nội dung HTML trong file `print_template.html` nằm cùng cấp với `index.js`. Hệ thống sẽ tự động cập nhật ngay trên trang Web (khi F5) mà không cần khởi động lại bot.
+
 ---
 *Phát triển và thiết kế bởi Đội ngũ AI Agentic*
