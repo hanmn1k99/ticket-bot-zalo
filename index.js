@@ -675,7 +675,8 @@ app.get('/report', checkAuth, async (req, res) => {
                   <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
                       <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
                   </a>
-                  📊 ${process.env.HEADER_TITLE || `BÁO CÁO AI BOT THÁNG ${monthStr}`}
+                  <span class="screen-title">${process.env.HEADER_TITLE || `BÁO CÁO AI BOT THÁNG ${monthStr}`}</span>
+                  <span class="print-title">Báo cáo tháng ${monthStr}</span>
               </h2>
               <div class="controls">
                   <select id="statusFilter">
