@@ -454,8 +454,8 @@ app.get('/report', checkAuth, async (req, res) => {
               font-size: 24px;
               font-weight: 700;
               color: var(--text-main);
-              text-transform: uppercase;
           }
+          .print-title { display: none; }
           .controls {
               display: flex;
               gap: 15px;
@@ -650,6 +650,8 @@ app.get('/report', checkAuth, async (req, res) => {
                   -webkit-print-color-adjust: exact !important;
                   print-color-adjust: exact !important;
               }
+              .screen-title { display: none !important; }
+              .print-title { display: inline !important; }
               body { background: white; padding: 0; }
               .container { max-width: 100%; width: 100%; margin: 0; }
               .controls { display: none !important; }
