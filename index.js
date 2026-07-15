@@ -675,7 +675,7 @@ app.get('/report', checkAuth, async (req, res) => {
   <body>
       <div class="container">
           <div class="print-header">
-              \${printTemplateHtml}
+              ${printTemplateHtml}
           </div>
           <div class="header">
               <h2>
