@@ -387,6 +387,10 @@ app.get('/report', checkAuth, async (req, res) => {
   const formattedRequests = await renderTableRows();
 
   const monthStr = new Date().getMonth() + 1;
+  let printTemplateHtml = '';
+  try {
+      printTemplateHtml = fs.readFileSync(path.join(__dirname, 'print_template.html'), 'utf8');
+  } catch(e) {}
   
   const htmlContent = `
   <!DOCTYPE html>
@@ -456,6 +460,7 @@ app.get('/report', checkAuth, async (req, res) => {
               color: var(--text-main);
           }
           .print-title { display: none; }
+          .print-header { display: none; }
           .controls {
               display: flex;
               gap: 15px;
@@ -652,7 +657,8 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               .screen-title { display: none !important; }
               .print-title { display: inline !important; }
-              body { background: white; padding: 0; }
+              .print-header { display: block !important; }
+              body { background: white; padding: 40px 0 0 0 !important; }
               .container { max-width: 100%; width: 100%; margin: 0; }
               .controls { display: none !important; }
               .table-wrapper { 
@@ -670,6 +676,9 @@ app.get('/report', checkAuth, async (req, res) => {
   </head>
   <body>
       <div class="container">
+          <div class="print-header">
+              \${printTemplateHtml}
+          </div>
           <div class="header">
               <h2>
                   <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
@@ -728,6 +737,16 @@ app.get('/report', checkAuth, async (req, res) => {
       </div>
 
       <script>
+          window.addEventListener('beforeprint', () => {
+              const timeEl = document.getElementById('dynamic-print-time');
+              if (timeEl) {
+                  const now = new Date();
+                  const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false });
+                  const dateStr = now.toLocaleDateString('vi-VN');
+                  timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
+              }
+          });
+
           function toggleDarkMode() {
               const current = document.documentElement.getAttribute('data-theme');
               if (current === 'dark') {
