@@ -740,7 +740,7 @@ app.get('/report', checkAuth, async (req, res) => {
               if (timeEl) {
                   const now = new Date();
                   const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });
-                  const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                  const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' });
                   timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
               }
           }
