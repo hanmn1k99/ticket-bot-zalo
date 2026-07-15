@@ -741,7 +741,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   const now = new Date();
                   const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false });
                   const dateStr = now.toLocaleDateString('vi-VN');
-                  timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
+                  timeEl.textContent = \`\${timeStr}, \${dateStr} +7 Ho Chi Minh\`;
               }
           }
           setInterval(updateDynamicTime, 1000);
