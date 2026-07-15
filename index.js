@@ -460,7 +460,6 @@ app.get('/report', checkAuth, async (req, res) => {
               color: var(--text-main);
           }
           .print-title { display: none; }
-          .print-header { display: none; }
           .controls {
               display: flex;
               gap: 15px;
@@ -657,8 +656,7 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               .screen-title { display: none !important; }
               .print-title { display: inline !important; }
-              .print-header { display: block !important; }
-              body { background: white; padding: 40px 0 0 0 !important; }
+              body { background: white; padding: 0 !important; }
               .container { max-width: 100%; width: 100%; margin: 0; }
               .controls { display: none !important; }
               .table-wrapper { 
@@ -737,7 +735,7 @@ app.get('/report', checkAuth, async (req, res) => {
       </div>
 
       <script>
-          window.addEventListener('beforeprint', () => {
+          function updateDynamicTime() {
               const timeEl = document.getElementById('dynamic-print-time');
               if (timeEl) {
                   const now = new Date();
@@ -745,7 +743,9 @@ app.get('/report', checkAuth, async (req, res) => {
                   const dateStr = now.toLocaleDateString('vi-VN');
                   timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
               }
-          });
+          }
+          setInterval(updateDynamicTime, 1000);
+          updateDynamicTime();
 
           function toggleDarkMode() {
               const current = document.documentElement.getAttribute('data-theme');
