@@ -739,9 +739,9 @@ app.get('/report', checkAuth, async (req, res) => {
               const timeEl = document.getElementById('dynamic-print-time');
               if (timeEl) {
                   const now = new Date();
-                  const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false });
-                  const dateStr = now.toLocaleDateString('vi-VN');
-                  timeEl.textContent = \`\${timeStr}, \${dateStr} +7 Ho Chi Minh\`;
+                  const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });
+                  const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+                  timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
               }
           }
           setInterval(updateDynamicTime, 1000);
