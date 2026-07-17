@@ -1183,6 +1183,65 @@ app.post('/webhook', async (req, res) => {
       return;
     }
 
+    // Handle /groups command
+    if (text.trim() === '/groups' || text.trim() === '/group') {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const groups = await db.getAllGroups();
+      if (groups.length === 0) {
+        await sendZaloMessage(chatId, "📋 Hiện chưa có nhóm nào được kết nối.");
+        return;
+      }
+
+      let msg = "📋 DANH SÁCH NHÓM ĐANG KẾT NỐI:\n";
+      for (let i = 0; i < groups.length; i++) {
+        const name = await db.getGroupName(groups[i]) || 'Chưa đặt tên';
+        msg += `${i + 1}. ${name} (ID: ${groups[i]})\n`;
+      }
+      msg += "\n💡 Dùng lệnh /remove <Tên> để gỡ nhóm khỏi hệ thống.";
+      await sendZaloMessage(chatId, msg);
+      return;
+    }
+
+    // Handle /remove command
+    if (text.startsWith('/remove ')) {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+
+      const nameToRemove = text.replace('/remove ', '').trim().toLowerCase();
+      const groups = await db.getAllGroups();
+      let foundId = null;
+
+      for (const gid of groups) {
+        const name = await db.getGroupName(gid);
+        if (name && name.toLowerCase() === nameToRemove) {
+          foundId = gid;
+          break;
+        }
+      }
+
+      if (foundId) {
+        await db.removeGroup(foundId);
+        // Delete alias
+        const dbJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'database.json'), 'utf8'));
+        if (dbJson.groupNames && dbJson.groupNames[foundId]) {
+          delete dbJson.groupNames[foundId];
+          fs.writeFileSync(path.join(__dirname, 'database.json'), JSON.stringify(dbJson, null, 2));
+        }
+        await sendZaloMessage(chatId, `✅ Đã gỡ nhóm "${nameToRemove}" khỏi hệ thống.`);
+      } else {
+        await sendZaloMessage(chatId, `❌ Không tìm thấy nhóm nào có tên "${nameToRemove}". Vui lòng dùng lệnh /groups để xem danh sách.`);
+      }
+      return;
+    }
+
     // Xử lý tin nhắn từ Admin (Reply ticket)
     const adminIdForReply = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
     const isBotMentioned = text.includes(BOT_NAME) || text.includes('@Bot');
