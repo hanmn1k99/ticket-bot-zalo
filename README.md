@@ -84,6 +84,16 @@ JWT_SECRET=your_super_secret_jwt_key_here
 # Tùy chỉnh Tiêu đề (Không bắt buộc)
 PAGE_TITLE=Phần mềm quản trị hệ thống
 HEADER_TITLE=BÁO CÁO AI BOT THÁNG 7
+
+# --- CẤU HÌNH VĂN PHONG AI VÀ MÔI TRƯỜNG ---
+# Dùng để thay đổi cách AI xưng hô, áp dụng cho các dự án không phải trường học
+BOT_ORG_NAME=Công ty ABC
+BOT_USER_ROLE=Nhân viên
+BOT_ENVIRONMENT=MÔI TRƯỜNG DOANH NGHIỆP (công sở)
+BOT_PRONOUN_ME=Mình
+BOT_PRONOUN_USER_MALE=Anh
+BOT_PRONOUN_USER_FEMALE=Chị
+BOT_PRONOUN_USER_DEFAULT=Anh/Chị
 ```
 
 ### Bước 4: Chạy Bot bằng PM2

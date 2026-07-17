@@ -11,6 +11,15 @@ const jwt = require('jsonwebtoken');
 const AI_API_KEY = process.env.AI_API_KEY;
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_please_change_in_env';
 
+// Configuration for AI Tone and Environment
+const BOT_ORG_NAME = process.env.BOT_ORG_NAME || 'trường Meyschool';
+const BOT_USER_ROLE = process.env.BOT_USER_ROLE || 'Giáo viên';
+const BOT_PRONOUN_ME = process.env.BOT_PRONOUN_ME || 'Em';
+const BOT_PRONOUN_USER_MALE = process.env.BOT_PRONOUN_USER_MALE || 'Thầy';
+const BOT_PRONOUN_USER_FEMALE = process.env.BOT_PRONOUN_USER_FEMALE || 'Cô';
+const BOT_PRONOUN_USER_DEFAULT = process.env.BOT_PRONOUN_USER_DEFAULT || 'Thầy/Cô';
+const BOT_ENVIRONMENT = process.env.BOT_ENVIRONMENT || 'MÔI TRƯỜNG GIÁO DỤC (trường học)';
+
 // Bộ nhớ ngữ cảnh hội thoại cho từng user (lưu trên RAM)
 const userContexts = new Map();
 
@@ -248,6 +257,7 @@ async function renderTableRows() {
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
+        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:12px; font-size:12px;">${r.chat_name || 'Cá nhân'}</span></td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
@@ -719,11 +729,12 @@ app.get('/report', checkAuth, async (req, res) => {
                   <thead>
                       <tr>
                           <th width="5%">STT</th>
-                          <th width="15%">Người Yêu Cầu</th>
+                          <th width="12%">Người Yêu Cầu</th>
+                          <th width="13%">Nguồn</th>
                           <th width="15%">Thời gian</th>
-                          <th width="25%">Mô tả sự cố</th>
+                          <th width="20%">Mô tả sự cố</th>
                           <th width="15%">Trạng thái</th>
-                          <th width="25%">Phản hồi của IT</th>
+                          <th width="20%">Phản hồi của IT</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -1054,12 +1065,14 @@ app.post('/webhook', async (req, res) => {
     const senderName = sender.display_name || 'Khách';
     const senderId = sender.id;
     const chatId = chat.id || senderId; // Use chat.id for replies (per Zalo docs)
+    const chatName = chat.title || (chatId !== senderId ? 'Nhóm (Không rõ tên)' : 'Cá nhân');
     const timestamp = parseInt(message.date) || Date.now();
     const dateObj = new Date(timestamp);
 
     console.log('Parsed text:', text);
     console.log('Parsed senderId:', senderId);
     console.log('Parsed chatId:', chatId);
+    console.log('Parsed chatName:', chatName);
 
     // Format date and time (12h format and dd/mm/yyyy)
     const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -1178,13 +1191,10 @@ app.post('/webhook', async (req, res) => {
          const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
          if (match) targetTicketId = parseInt(match[1]);
       } 
-      // Ưu tiên 3: Lấy ticket mới nhất đang chờ
+      // Không hợp lệ: Yêu cầu nhập rõ mã ID
       else {
-         // Nếu không có quote, lấy ticket mới nhất đang chờ
-         const latestPending = await db.getLatestPendingRequest();
-         if (latestPending) {
-           targetTicketId = latestPending.id;
-         }
+         await sendZaloMessage(chatId, "⚠️ Vui lòng gõ mã sự cố (VD: #12 Xong) hoặc Reply (Trả lời) tin nhắn báo lỗi để hoàn thành.");
+         return;
       }
 
       if (targetTicketId) {
@@ -1235,7 +1245,7 @@ app.post('/webhook', async (req, res) => {
       }
 
       // Save to Database (Nếu là TICKET)
-      const newId = await db.addRequest(timestamp, senderName, senderId, chatId, requestContent);
+      const newId = await db.addRequest(timestamp, senderName, senderId, chatId, chatName, requestContent);
 
       // Format the message to send to Admin
       const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #${newId}]\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;
