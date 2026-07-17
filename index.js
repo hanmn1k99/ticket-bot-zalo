@@ -1061,7 +1061,8 @@ app.post('/webhook', async (req, res) => {
 
   if (message) {
     const text = message.text || '';
-    const cleanTextForCmd = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
+    let cleanTextForCmd = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
+    cleanTextForCmd = cleanTextForCmd.replace(/^@\s*/, '').trim();
     const sender = message.from || {};
     const chat = message.chat || {};
     const senderName = sender.display_name || 'Khách';
