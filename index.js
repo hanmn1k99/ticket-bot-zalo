@@ -1065,7 +1065,8 @@ app.post('/webhook', async (req, res) => {
     const senderName = sender.display_name || 'Khách';
     const senderId = sender.id;
     const chatId = chat.id || senderId; // Use chat.id for replies (per Zalo docs)
-    const chatName = chat.title || (chatId !== senderId ? 'Nhóm (Không rõ tên)' : 'Cá nhân');
+    const savedGroupName = await db.getGroupName(chatId);
+    const chatName = savedGroupName || chat.title || (chatId !== senderId ? 'Nhóm (Không rõ tên)' : 'Cá nhân');
     const timestamp = parseInt(message.date) || Date.now();
     const dateObj = new Date(timestamp);
 
@@ -1090,6 +1091,18 @@ app.post('/webhook', async (req, res) => {
     if (text.trim() === '/addgroup') {
       await db.addGroup(chatId);
       await sendZaloMessage(chatId, "✅ Đã đăng ký nhóm này vào danh sách nhận thông báo (Broadcast).");
+      return;
+    }
+
+    // Handle /setname
+    if (text.startsWith('/setname ')) {
+      const newName = text.replace('/setname ', '').trim();
+      if (!newName) {
+        await sendZaloMessage(chatId, "⚠️ Vui lòng nhập tên nhóm. VD: /setname Tổ Toán");
+        return;
+      }
+      await db.setGroupName(chatId, newName);
+      await sendZaloMessage(chatId, `✅ Đã lưu tên nhóm này thành: ${newName}`);
       return;
     }
 
@@ -1248,14 +1261,32 @@ app.post('/webhook', async (req, res) => {
       const newId = await db.addRequest(timestamp, senderName, senderId, chatId, chatName, requestContent);
 
       // Format the message to send to Admin
-      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #${newId}]\n------------------------------\n👤 Người gửi: ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ IT Meyschool vui lòng tiếp nhận!`;
+      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI!
+Mã Yêu Cầu: #${newId}
+------------------------------
+👤 Người gửi: ${senderName}
+🏠 Nguồn: ${chatName}
+🕒 Thời gian: ${timeStr} - ${dateStr}
+📌 Nội dung:
+${requestContent}
+------------------------------
+🛠️ IT ${BOT_ORG_NAME} vui lòng tiếp nhận!`;
       
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
 
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (adminId) {
-        const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!\n------------------------------\nMã Sự Cố: #${newId}\n👤 Người gửi: Thầy/Cô ${senderName}\n🕒 Thời gian: ${timeStr} - ${dateStr}\n📌 Nội dung:\n${requestContent}\n------------------------------\n🛠️ Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.\n😊 Xin cảm ơn Thầy/Cô!`;
+        const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!
+------------------------------
+Mã Sự Cố: #${newId}
+👤 Người gửi: ${BOT_PRONOUN_USER_DEFAULT} ${senderName}
+🕒 Thời gian: ${timeStr} - ${dateStr}
+📌 Nội dung:
+${requestContent}
+------------------------------
+🛠️ Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
         await sendZaloMessage(adminId, adminMessage);
         await sendZaloMessage(chatId, userMessage);
       } else {

@@ -139,6 +139,19 @@ async function deleteRequestsOlderThan(timestamp) {
   return initialLength - db.requests.length;
 }
 
+async function setGroupName(groupId, name) {
+  const db = readDB();
+  if (!db.groupNames) db.groupNames = {};
+  db.groupNames[groupId] = name;
+  writeDB(db);
+}
+
+async function getGroupName(groupId) {
+  const db = readDB();
+  if (!db.groupNames) return null;
+  return db.groupNames[groupId] || null;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -151,5 +164,7 @@ module.exports = {
   deleteRequestsOlderThan,
   addGroup,
   removeGroup,
-  getAllGroups
+  getAllGroups,
+  setGroupName,
+  getGroupName
 };
