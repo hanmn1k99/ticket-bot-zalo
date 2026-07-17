@@ -71,7 +71,7 @@ Lúc này BẮT BUỘC bắt đầu bằng chữ: ANSWER|
 - Tuyệt đối không gọi đích danh bất kỳ cá nhân nào trong phòng IT, chỉ được phép dùng từ "Bộ phận IT".
 - Với câu hỏi tra cứu FAQ (xin wifi, máy in...): Lọc ĐÚNG thông tin cần thiết và trả lời CỰC KỲ NGẮN GỌN (1-2 câu). Không liệt kê các thông tin thừa mà người dùng không hỏi. (Ví dụ: Hỏi wifi khách thì chỉ nói tên và pass wifi khách, không kể lể wifi giáo viên).
 - Với câu hỏi xã giao/nhờ vả cá nhân: Trả lời RẤT NGẮN GỌN, lịch sự từ chối hoặc trả lời đúng trọng tâm.
-- Với các câu cảm thán, khen ngợi, hoặc kết thúc (ví dụ: "ok rồi", "cảm ơn", "tốt"): Hãy phản hồi VUI VẺ, NHIỆT TÌNH, có cảm xúc (ví dụ: "Dạ vâng ạ, Thầy/Cô cần hỗ trợ gì thêm cứ nhắn em nhé! 😊").
+- Với các câu cảm thán, khen ngợi, hoặc kết thúc (ví dụ: "ok rồi", "cảm ơn", "tốt"): Hãy phản hồi VUI VẺ, NHIỆT TÌNH, có cảm xúc (ví dụ: "Dạ vâng ạ, \${BOT_PRONOUN_USER_DEFAULT} cần hỗ trợ gì thêm cứ nhắn \${BOT_PRONOUN_ME} nhé! 😊").
 - Với câu hỏi kiến thức, toán học: ĐƯA RA TRỰC TIẾP ĐÁP ÁN, TUYỆT ĐỐI KHÔNG GIẢI THÍCH LAN MAN.
 Ví dụ: "ANSWER| Dạ wifi dành cho khách là meyschool_guest, mạng mở không cần mật khẩu ạ."
 Ví dụ: "ANSWER| Dạ căn bậc 2 của 178 là khoảng 13.34 ạ."
@@ -90,7 +90,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     const blacklist = fs.readFileSync(path.join(__dirname, 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
-        return { type: 'ANSWER', answer: '🙏 Xin lỗi Thầy/Cô, em không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.' };
+        return { type: 'ANSWER', answer: \`🙏 Xin lỗi \${BOT_PRONOUN_USER_DEFAULT}, \${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.\` };
       }
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
@@ -1060,6 +1060,7 @@ app.post('/webhook', async (req, res) => {
 
   if (message) {
     const text = message.text || '';
+    const cleanTextForCmd = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
     const sender = message.from || {};
     const chat = message.chat || {};
     const senderName = sender.display_name || 'Khách';
@@ -1088,15 +1089,15 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Handle /addgroup
-    if (text.trim() === '/addgroup') {
+    if (cleanTextForCmd === '/addgroup') {
       await db.addGroup(chatId);
       await sendZaloMessage(chatId, "✅ Đã đăng ký nhóm này vào danh sách nhận thông báo (Broadcast).");
       return;
     }
 
     // Handle /setname
-    if (text.startsWith('/setname ')) {
-      const newName = text.replace('/setname ', '').trim();
+    if (cleanTextForCmd.startsWith('/setname ')) {
+      const newName = cleanTextForCmd.replace('/setname ', '').trim();
       if (!newName) {
         await sendZaloMessage(chatId, "⚠️ Vui lòng nhập tên nhóm. VD: /setname Tổ Toán");
         return;
@@ -1107,7 +1108,7 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Handle /removegroup
-    if (text.trim() === '/removegroup') {
+    if (cleanTextForCmd === '/removegroup') {
       await db.removeGroup(chatId);
       await sendZaloMessage(chatId, "⚠️ Đã gỡ nhóm này khỏi danh sách nhận thông báo.");
       return;
@@ -1184,7 +1185,7 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Handle /groups command
-    if (text.trim() === '/groups' || text.trim() === '/group') {
+    if (cleanTextForCmd === '/groups' || cleanTextForCmd === '/group') {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (senderId !== adminId) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
@@ -1208,14 +1209,14 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Handle /remove command
-    if (text.startsWith('/remove ')) {
+    if (cleanTextForCmd.startsWith('/remove ')) {
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (senderId !== adminId) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
 
-      const nameToRemove = text.replace('/remove ', '').trim().toLowerCase();
+      const nameToRemove = cleanTextForCmd.replace('/remove ', '').trim().toLowerCase();
       const groups = await db.getAllGroups();
       let foundId = null;
 
