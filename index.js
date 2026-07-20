@@ -1841,11 +1841,10 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Handle /test command
-    if (text.startsWith('/test ')) {
-      const content = text.replace('/test ', '').trim();
+    if (text.trim() === '/test' || text.startsWith('/test ')) {
+      let content = text.replace('/test', '').trim();
       if (!content) {
-        await sendZaloMessage(chatId, "⚠️ Vui lòng nhập nội dung test. VD: /test Thử nghiệm hệ thống");
-        return;
+        content = 'Kiểm tra hệ thống';
       }
       const ticketId = await db.addRequest(Date.now(), senderName, senderId, chatId, chatName, `[TEST] ${content}`, "[TEST]");
       await sendZaloMessage(chatId, `✅ Đã tạo sự cố TEST (Mã số: #${ticketId}). Sẽ tự động xóa sau 1 phút kể từ khi thao tác xong (Đóng/Từ chối).`);
