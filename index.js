@@ -1443,7 +1443,7 @@ app.get('/report', checkAuth, async (req, res) => {
               // Populate Zalo dropdown for Web Users creation
               const zaloSelect = document.getElementById('newWebZaloId');
               if (zaloSelect) {
-                  zaloSelect.innerHTML = '<option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>';
+                  zaloSelect.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>';
                   data.active.forEach(a => {
                       zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
                   });
@@ -2209,11 +2209,11 @@ ${systemPromptPreview}
         <div style="background: var(--bg-color); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.02);">
           <h4 style="margin-top:0; margin-bottom:16px; font-size: 16px; color: var(--text-main); font-weight: 600;">✨ Thêm Tài khoản mới</h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 16px;">
-            <input type="text" id="newWebUsername" placeholder="Tên đăng nhập" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-            <input type="password" id="newWebPassword" placeholder="Mật khẩu" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-            <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A)" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <input type="text" id="newWebUsername" placeholder="Tên đăng nhập *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <input type="password" id="newWebPassword" placeholder="Mật khẩu *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A) *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
             <select id="newWebZaloId" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-               <option value="">-- Bắt buộc chọn Zalo Account --</option>
+               <option value="">-- Chọn tài khoản Zalo --</option>
             </select>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
@@ -2254,18 +2254,18 @@ ${systemPromptPreview}
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Mật khẩu mới (Để trống nếu không đổi)</label>
             <input type="password" id="editWebPassword" placeholder="Nhập mật khẩu mới..." style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
             
-            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Tên hiển thị</label>
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Tên hiển thị <span style="color:#ef4444">*</span></label>
             <input type="text" id="editWebDisplayName" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
             
-            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Vai trò</label>
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Vai trò <span style="color:#ef4444">*</span></label>
             <select id="editWebRole" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
                <option value="ADMIN">🛡️ Vận hành</option>
                <option value="SUPER_ADMIN">👑 Quản trị viên</option>
             </select>
             
-            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Liên kết Zalo Account</label>
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Liên kết tài khoản Zalo <span style="color:#ef4444">*</span></label>
             <select id="editWebZaloId" style="width:100%; padding:10px 14px; margin-bottom:24px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
-               <option value="">-- Bắt buộc chọn Zalo Account --</option>
+               <option value="">-- Chọn tài khoản Zalo --</option>
             </select>
             
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
@@ -2376,7 +2376,7 @@ ${systemPromptPreview}
           document.getElementById('editWebPassword').value = '';
           
           const select = document.getElementById('editWebZaloId');
-          select.innerHTML = '<option value="">-- Bắt buộc chọn Zalo Account --</option>' + 
+          select.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>' + 
              activeZaloAdminsForDropdown.map(a => \`<option value="\${a.id}">\${a.name}</option>\`).join('');
           select.value = user.zaloId || '';
           
@@ -2391,7 +2391,7 @@ ${systemPromptPreview}
           const password = document.getElementById('editWebPassword').value.trim();
           
           if (!displayName || !zaloId) {
-             showAlert('Tên hiển thị và Zalo Account là bắt buộc!');
+             showAlert('Vui lòng nhập Tên hiển thị và chọn Tài khoản Zalo!');
              return;
           }
           
@@ -2421,7 +2421,7 @@ ${systemPromptPreview}
           const zaloId = document.getElementById('newWebZaloId').value;
           
           if (!username || !password || !displayName || !zaloId) {
-             showAlert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu, Tên hiển thị và chọn Zalo Account!');
+             showAlert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu, Tên hiển thị và chọn Tài khoản Zalo!');
              return;
           }
           
@@ -2602,7 +2602,7 @@ ${systemPromptPreview}
             // Populate Zalo dropdown for Web Users creation
             const zaloSelect = document.getElementById('newWebZaloId');
             if (zaloSelect) {
-                zaloSelect.innerHTML = '<option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>';
+                zaloSelect.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>';
                 data.admins.forEach(a => {
                     zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
                 });
