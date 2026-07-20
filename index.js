@@ -979,8 +979,11 @@ app.get('/report', checkAuth, async (req, res) => {
           // Cơ chế đồng bộ thời gian thực (Real-time Polling)
           async function fetchAndRenderRows() {
               try {
-                  const activeEl = document.activeElement;
-                  if (activeEl && activeEl.tagName === 'INPUT' && activeEl.id.startsWith('replyInput_')) {
+                  // Ngừng cập nhật nếu người dùng đang focus vào ô input HOẶC ô input đã có chữ (chưa gửi)
+                  const hasActiveInput = Array.from(document.querySelectorAll('input[type="text"]')).some(input => {
+                      return (input.id.startsWith('replyInput_') || input.id.startsWith('rejectInput_')) && (document.activeElement === input || input.value.trim() !== '');
+                  });
+                  if (hasActiveInput) {
                       return;
                   }
                   
