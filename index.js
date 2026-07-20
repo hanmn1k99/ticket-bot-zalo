@@ -828,6 +828,9 @@ app.get('/report', checkAuth, async (req, res) => {
                   <button onclick="window.print()" title="In báo cáo">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                   </button>
+                  <button onclick="window.location.href='/settings'" title="Cài đặt hệ thống">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  </button>
                   
                   <div class="dropdown">
                       <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:5px;">
@@ -1592,6 +1595,63 @@ ${systemPromptPreview}
           setTimeout(() => div.remove(), 3000);
         }
 
+        function showCustomConfirm(msg, onConfirm) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '20px';
+          box.style.borderRadius = '8px';
+          box.style.minWidth = '300px';
+          box.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #ccc)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '20px';
+          text.style.fontWeight = 'bold';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          btns.style.gap = '10px';
+          
+          const btnCancel = document.createElement('button');
+          btnCancel.innerText = 'Hủy';
+          btnCancel.style.padding = '6px 16px';
+          btnCancel.style.background = '#64748b';
+          btnCancel.style.color = '#fff';
+          btnCancel.style.border = 'none';
+          btnCancel.style.borderRadius = '4px';
+          btnCancel.style.cursor = 'pointer';
+          btnCancel.onclick = () => overlay.remove();
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đồng ý';
+          btnOk.style.padding = '6px 16px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '4px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.onclick = () => { overlay.remove(); onConfirm(); };
+          
+          btns.appendChild(btnCancel);
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         async function saveFaq() {
           const content = document.getElementById('faqContent').value;
           const res = await fetch('/api/settings/faq', {
@@ -1613,14 +1673,15 @@ ${systemPromptPreview}
           if (res.ok) showNotification('Đổi tên thành công!');
         }
 
-        async function deleteGroup(groupId) {
-          if (!confirm('Bạn có chắc muốn gỡ hệ thống khỏi nhóm này?')) return;
-          const res = await fetch('/api/settings/group/delete', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ groupId })
+        function deleteGroup(groupId) {
+          showCustomConfirm('Bạn có chắc muốn gỡ hệ thống khỏi nhóm này?', async () => {
+            const res = await fetch('/api/settings/group/delete', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ groupId })
+            });
+            if (res.ok) window.location.reload();
           });
-          if (res.ok) window.location.reload();
         }
 
         async function loadAdmins() {
@@ -1653,40 +1714,47 @@ ${systemPromptPreview}
           }
         }
 
-        async function approveAdmin(id) {
-          if (!confirm('Duyệt người này làm Admin Zalo?')) return;
-          const res = await fetch('/api/admins/approve', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id })
+        function approveAdmin(id) {
+          showCustomConfirm('Duyệt người này làm Admin Zalo?', async () => {
+            const res = await fetch('/api/admins/approve', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ id })
+            });
+            if (res.ok) { showNotification('Đã duyệt!'); loadAdmins(); }
+            else showNotification('Lỗi khi duyệt.');
           });
-          if (res.ok) { showNotification('Đã duyệt!'); loadAdmins(); }
-          else showNotification('Lỗi khi duyệt.');
         }
 
-        async function rejectAdmin(id) {
-          if (!confirm('Từ chối yêu cầu của người này?')) return;
-          const res = await fetch('/api/admins/reject', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id })
+        function rejectAdmin(id) {
+          showCustomConfirm('Từ chối yêu cầu của người này?', async () => {
+            const res = await fetch('/api/admins/reject', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ id })
+            });
+            if (res.ok) { showNotification('Đã từ chối!'); loadAdmins(); }
+            else showNotification('Lỗi khi từ chối.');
           });
-          if (res.ok) { showNotification('Đã từ chối!'); loadAdmins(); }
-          else showNotification('Lỗi khi từ chối.');
         }
 
-        async function removeAdmin(id) {
-          if (!confirm('CẢNH BÁO: Thu hồi quyền Admin Zalo của người này?')) return;
-          const res = await fetch('/api/admins/remove', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ id })
+        function removeAdmin(id) {
+          showCustomConfirm('CẢNH BÁO: Thu hồi quyền Admin Zalo của người này?', async () => {
+            const res = await fetch('/api/admins/remove', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({ id })
+            });
+            if (res.ok) { showNotification('Đã thu hồi quyền!'); loadAdmins(); }
+            else showNotification('Lỗi khi thu hồi.');
           });
-          if (res.ok) { showNotification('Đã thu hồi quyền!'); loadAdmins(); }
-          else showNotification('Lỗi khi thu hồi.');
         }
 
-        window.addEventListener('DOMContentLoaded', loadAdmins);
+        window.addEventListener('DOMContentLoaded', () => {
+          loadAdmins();
+          // Auto update admins list every 5 seconds
+          setInterval(loadAdmins, 5000);
+        });
       </script>
     </body>
     </html>
