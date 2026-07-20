@@ -487,12 +487,16 @@ app.get('/report', checkAuth, async (req, res) => {
               flex-wrap: wrap;
               gap: 15px;
           }
-          h2 { 
+          .header h2 { 
               margin: 0; 
               font-size: 24px;
               font-weight: 700;
               color: var(--text-main);
+              display: flex;
+              align-items: center;
+              gap: 12px;
           }
+          .header h2 a { display: flex; align-items: center; }
           .print-title { display: none; }
           
           /* Dropdown CSS */
@@ -628,6 +632,16 @@ app.get('/report', checkAuth, async (req, res) => {
                   flex-direction: column;
                   align-items: flex-start;
               }
+              .header h2 {
+                  font-size: 18px;
+                  flex-wrap: wrap;
+                  justify-content: center;
+                  text-align: center;
+                  width: 100%;
+              }
+              .header {
+                  justify-content: center;
+              }
               .controls {
                   width: 100%;
                   display: flex;
@@ -754,7 +768,7 @@ app.get('/report', checkAuth, async (req, res) => {
           <div class="header">
               <h2>
                   <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
-                      <img src="/assets/logo.png" alt="Logo" style="height: 40px; margin-right: 15px; vertical-align: middle;" onerror="this.style.display='none'">
+                      <img src="/assets/logo.png" alt="Logo" style="height: 40px; object-fit: contain;" onerror="this.style.display='none'">
                   </a>
                   <span class="screen-title">${process.env.HEADER_TITLE || `BÁO CÁO AI BOT THÁNG ${monthStr}`}</span>
                   <span class="print-title">Báo cáo tháng ${monthStr}</span>
