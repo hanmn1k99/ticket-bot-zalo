@@ -275,7 +275,7 @@ async function renderTableRows() {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; flex-direction:column; gap:8px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
-              <div style="display:flex; gap:6px; justify-content:flex-end;">
+              <div style="display:flex; gap:6px; justify-content:flex-start;">
                   <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Gửi</button>
                   <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Chuyển trạng thái</button>
               </div>
@@ -1034,7 +1034,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   actionBox.innerHTML = \`
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="Lý do thay đổi trạng thái..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
-                        <div style="display:flex; gap:6px; justify-content:flex-end;">
+                        <div style="display:flex; gap:6px; justify-content:flex-start;">
                             <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Xác nhận</button>
                             <button onclick="fetchAndRenderRows()" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
                         </div>
@@ -1070,6 +1070,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   });
                   const data = await response.json();
                   if (response.ok && data.success) {
+                      if (input) input.value = '';
                       fetchAndRenderRows();
                   } else {
                       alert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
@@ -1113,6 +1114,7 @@ app.get('/report', checkAuth, async (req, res) => {
 
                   const data = await response.json();
                   if (response.ok && data.success) {
+                      if (input) input.value = '';
                       // Cập nhật giao diện mà không cần tải trang
                       document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
                       document.getElementById('replyCell_' + ticketId).innerHTML = replyText;
