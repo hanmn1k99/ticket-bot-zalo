@@ -1234,12 +1234,22 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
   const updatedReq = await db.rejectRequest(id, replyText, Date.now());
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
+    let userMsg = '';
+    if (existingReq.status === 'Đang chờ') {
+        userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU
+------------------------------
+🛠️ Xin lỗi Thầy/Cô ${updatedReq.sender_name}, bộ phận IT xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${id}) tại ${updatedReq.location || 'Không xác định'}.
+💬 Lý do: ${replyText}
+------------------------------
+😊 Mong Thầy/Cô thông cảm!`;
+    } else {
+        userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
 ------------------------------
 🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} thành Từ chối.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
+    }
     await sendZaloMessage(targetChat, userMsg);
     
     const adminId = await db.getSetting('admin_chat_id');
@@ -1787,12 +1797,23 @@ app.post('/webhook', async (req, res) => {
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
-        await sendZaloMessage(targetChat, `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
+        let userMsg = '';
+        if (reqTicket.status === 'Đang chờ') {
+            userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU
+------------------------------
+🛠️ Xin lỗi Thầy/Cô ${updated.sender_name}, bộ phận IT xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${ticketId}) tại ${updated.location || 'Không xác định'}.
+💬 Lý do: ${replyText}
+------------------------------
+😊 Mong Thầy/Cô thông cảm!`;
+        } else {
+            userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
 ------------------------------
 🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} thành Từ chối.
 💬 Lý do: ${replyText}
 ------------------------------
-😊 Mong Thầy/Cô thông cảm!`);
+😊 Mong Thầy/Cô thông cảm!`;
+        }
+        await sendZaloMessage(targetChat, userMsg);
       }
       return;
     }
