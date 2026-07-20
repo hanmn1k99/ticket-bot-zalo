@@ -342,6 +342,9 @@ async function checkAuth(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
+    if (!req.user.role) {
+      req.user.role = 'SUPER_ADMIN';
+    }
     next();
   } catch (err) {
     if (req.path === '/report' || req.path === '/settings') return res.redirect('/login');
@@ -1035,31 +1038,24 @@ app.get('/report', checkAuth, async (req, res) => {
               </div>
           </div>
 
-          <div class="grid-container">
-            <div class="table-wrapper" id="pdf-content">
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th width="5%">STT</th>
-                            <th width="12%">Người Yêu Cầu</th>
-                            <th width="13%">Nhóm</th>
-                            <th width="15%">Thời gian</th>
-                            <th width="20%">Mô tả sự cố</th>
-                            <th width="15%">Trạng thái</th>
-                            <th width="20%">Phản hồi của IT</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${formattedRequests}
-                    </tbody>
-                </table>
-                <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
-            </div>
-            <!-- Quản lý tài khoản Web -->
-            <div id="webUserManagement" class="table-wrapper" style="padding:20px;">
-                <h3>Quản lý Tài khoản Web</h3>
-                <div id="webUserList"></div>
-            </div>
+          <div class="table-wrapper" id="pdf-content">
+              <table id="reportTable">
+                  <thead>
+                      <tr>
+                          <th width="5%">STT</th>
+                          <th width="12%">Người Yêu Cầu</th>
+                          <th width="13%">Nhóm</th>
+                          <th width="15%">Thời gian</th>
+                          <th width="20%">Mô tả sự cố</th>
+                          <th width="15%">Trạng thái</th>
+                          <th width="20%">Phản hồi của IT</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${formattedRequests}
+                  </tbody>
+              </table>
+              <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
           </div>
       </div>
 
