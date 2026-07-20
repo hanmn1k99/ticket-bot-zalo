@@ -1584,18 +1584,16 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       let groupRows = '';
       for (const [groupId, name] of Object.entries(groupNames)) {
          groupRows += `
-           <tr>
-             <td style="padding:12px; border-bottom:1px solid var(--border-color); font-family:monospace; color:#64748b;">${groupId}</td>
-             <td style="padding:12px; border-bottom:1px solid var(--border-color);">
-                <input type="text" id="gname_${groupId}" value="${name}" style="width:100%; padding:8px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:14px;">
-             </td>
-             <td style="padding:12px; border-bottom:1px solid var(--border-color);">
-                <div style="display:flex; gap:8px;">
-                  <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:500; font-size:13px; transition:0.2s;">Lưu</button>
-                  <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:500; font-size:13px; transition:0.2s;">Xóa</button>
-                </div>
-             </td>
-           </tr>
+           <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px; background: var(--bg-color);">
+             <div style="display: flex; justify-content: space-between; align-items: center;">
+               <span style="font-family: monospace; font-size: 13px; color: #64748b; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);">ID: ${groupId}</span>
+               <div style="display: flex; gap: 8px;">
+                 <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Lưu</button>
+                 <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Xóa</button>
+               </div>
+             </div>
+             <input type="text" id="gname_${groupId}" value="${name}" placeholder="Tên nhóm (VD: Tổ Toán)" style="width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--card-bg); color:var(--text-main); font-size:15px; box-sizing: border-box;">
+           </div>
          `;
       }
   
@@ -1715,18 +1713,10 @@ ${systemPromptPreview}
 
       <div class="card">
         <h3>Quản lý Nhóm</h3>
-        <table style="width:100%; border-collapse:collapse; text-align:left;">
-           <thead>
-             <tr>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">ID Nhóm</th>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên Nhóm</th>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
-             </tr>
-           </thead>
-           <tbody>
-             ${groupRows}
-           </tbody>
-        </table>
+        <p style="font-size:14px; opacity:0.8;">Danh sách các nhóm đã cài đặt để nhận thông báo Broadcast.</p>
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+          ${groupRows}
+        </div>
       </div>
 
       <div class="card">
