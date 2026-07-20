@@ -777,7 +777,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   <div class="dropdown">
                       <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:5px;">
                           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                          Tùy chọn
+                          Tài khoản
                       </button>
                       <div class="dropdown-content">
                           <button onclick="window.location.href='/settings'" style="color:#2563eb;">
@@ -1258,6 +1258,26 @@ app.get('/settings', checkAuth, async (req, res) => {
       </div>
 
       <script>
+        function showNotification(msg) {
+          let old = document.getElementById('notification-toast');
+          if (old) old.remove();
+          const div = document.createElement('div');
+          div.id = 'notification-toast';
+          div.style.position = 'fixed';
+          div.style.top = '20px';
+          div.style.right = '20px';
+          div.style.background = '#10b981';
+          div.style.color = '#fff';
+          div.style.padding = '12px 20px';
+          div.style.borderRadius = '8px';
+          div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+          div.style.zIndex = '9999';
+          div.style.fontWeight = 'bold';
+          div.innerText = msg;
+          document.body.appendChild(div);
+          setTimeout(() => div.remove(), 3000);
+        }
+
         async function saveFaq() {
           const content = document.getElementById('faqContent').value;
           const res = await fetch('/api/settings/faq', {
@@ -1265,8 +1285,8 @@ app.get('/settings', checkAuth, async (req, res) => {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ content })
           });
-          if (res.ok) alert('Lưu FAQ thành công!');
-          else alert('Lỗi khi lưu.');
+          if (res.ok) showNotification('Lưu FAQ thành công!');
+          else showNotification('Lỗi khi lưu.');
         }
 
         async function updateGroup(groupId) {
@@ -1276,7 +1296,7 @@ app.get('/settings', checkAuth, async (req, res) => {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ groupId, name })
           });
-          if (res.ok) alert('Đổi tên thành công!');
+          if (res.ok) showNotification('Đổi tên thành công!');
         }
 
         async function deleteGroup(groupId) {
