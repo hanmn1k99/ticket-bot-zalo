@@ -362,6 +362,55 @@ app.get('/login', (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${process.env.PAGE_TITLE || 'Đăng nhập - Phần mềm quản trị'}</title>
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
@@ -414,6 +463,55 @@ app.get('/login', (req, res) => {
         </form>
       </div>
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         window.onload = () => {
             loadAdmins();
             loadWebUsers();
@@ -507,6 +605,55 @@ app.get('/setup', async (req, res) => {
         </div>
       </div>
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         async function doSetup(e) {
           e.preventDefault();
           const u = document.getElementById('username').value;
@@ -521,7 +668,7 @@ app.get('/setup', async (req, res) => {
             document.getElementById('setupForm').style.display = 'none';
             document.getElementById('recoveryBox').style.display = 'block';
             document.getElementById('recCode').innerText = data.recoveryKey;
-          } else alert(data.error);
+          } else showAlert(data.error);
         }
       </script>
     </body>
@@ -580,6 +727,55 @@ app.get('/forgot-password', (req, res) => {
         <p style="text-align:center;"><a href="/login" style="color:#3b82f6; text-decoration:none; font-size:14px;">Quay lại đăng nhập</a></p>
       </div>
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         async function doRecover(e) {
           e.preventDefault();
           const u = document.getElementById('username').value;
@@ -592,9 +788,9 @@ app.get('/forgot-password', (req, res) => {
           });
           const data = await res.json();
           if (res.ok) {
-            alert('Khôi phục thành công! Hãy đăng nhập lại.');
+            showAlert('Khôi phục thành công! Hãy đăng nhập lại.');
             window.location.href = '/login';
-          } else alert(data.error);
+          } else showAlert(data.error);
         }
       </script>
     </body>
@@ -646,6 +842,55 @@ app.get('/report', checkAuth, async (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${process.env.PAGE_TITLE || 'Phần mềm quản trị hệ thống - minhhan.net'}</title>
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
@@ -1060,6 +1305,55 @@ app.get('/report', checkAuth, async (req, res) => {
       </div>
 
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
           function updateDynamicTime() {
               const timeEl = document.getElementById('dynamic-print-time');
               if (timeEl) {
@@ -1235,12 +1529,12 @@ app.get('/report', checkAuth, async (req, res) => {
                   if (response.ok && data.success) {
                       fetchAndRenderRows();
                   } else {
-                      alert('Lỗi: ' + (data.error || 'Không thể nhận yêu cầu.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể nhận yêu cầu.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                   }
               } catch (err) {
-                  alert('Lỗi kết nối tới máy chủ.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
               }
@@ -1273,7 +1567,7 @@ app.get('/report', checkAuth, async (req, res) => {
               const input = document.getElementById('rejectInput_' + ticketId);
               const reason = input ? input.value.trim() : '';
               if (!reason) {
-                  alert('Vui lòng nhập lý do thay đổi trạng thái!');
+                  showAlert('Vui lòng nhập lý do thay đổi trạng thái!');
                   if (input) input.focus();
                   return;
               }
@@ -1295,13 +1589,13 @@ app.get('/report', checkAuth, async (req, res) => {
                       if (input) input.value = '';
                       fetchAndRenderRows();
                   } else {
-                      alert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                       input.disabled = false;
                   }
               } catch (err) {
-                  alert('Lỗi kết nối tới máy chủ.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
                   input.disabled = false;
@@ -1314,7 +1608,7 @@ app.get('/report', checkAuth, async (req, res) => {
               const input = document.getElementById('replyInput_' + ticketId);
               const replyText = input.value.trim();
               if (!replyText) {
-                  alert('Vui lòng nhập nội dung phản hồi trước khi Đóng sự cố!');
+                  showAlert('Vui lòng nhập nội dung phản hồi trước khi Đóng sự cố!');
                   input.focus();
                   return;
               }
@@ -1341,13 +1635,13 @@ app.get('/report', checkAuth, async (req, res) => {
                       document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
                       document.getElementById('replyCell_' + ticketId).innerHTML = replyText;
                   } else {
-                      alert('Lỗi: ' + (data.error || 'Không thể đóng sự cố.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể đóng sự cố.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                       input.disabled = false;
                   }
               } catch (err) {
-                  alert('Lỗi kết nối tới máy chủ.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
                   input.disabled = false;
@@ -1366,15 +1660,15 @@ app.get('/report', checkAuth, async (req, res) => {
               try {
                   const response = await fetch('/api/tickets/clean', { method: 'POST' });
                   if (response.ok) {
-                      alert('✅ Đã dọn dẹp sạch sẽ toàn bộ dữ liệu!');
+                      showAlert('✅ Đã dọn dẹp sạch sẽ toàn bộ dữ liệu!', true);
                       window.location.reload();
                   } else {
-                      alert('❌ Lỗi: Không thể xóa dữ liệu (Thiếu quyền).');
+                      showAlert('❌ Lỗi: Không thể xóa dữ liệu (Thiếu quyền).');
                       btn.innerHTML = originalHTML;
                       btn.disabled = false;
                   }
               } catch (err) {
-                  alert('❌ Lỗi kết nối máy chủ.');
+                  showAlert('❌ Lỗi kết nối máy chủ.');
                   btn.innerHTML = originalHTML;
                   btn.disabled = false;
               }
@@ -1713,6 +2007,55 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
         }
@@ -1936,6 +2279,55 @@ ${systemPromptPreview}
       </div>
 
       <script>
+
+        function showAlert(msg, isSuccess = false) {
+          const overlay = document.createElement('div');
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
+          overlay.style.background = 'rgba(0,0,0,0.5)';
+          overlay.style.zIndex = '10000';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          
+          const box = document.createElement('div');
+          box.style.background = 'var(--card-bg, #fff)';
+          box.style.color = 'var(--text-main, #000)';
+          box.style.padding = '24px';
+          box.style.borderRadius = '12px';
+          box.style.minWidth = '320px';
+          box.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          box.style.border = '1px solid var(--border-color, #e2e8f0)';
+          
+          const text = document.createElement('p');
+          text.innerText = msg;
+          text.style.marginBottom = '24px';
+          text.style.fontWeight = '500';
+          text.style.color = isSuccess ? '#10b981' : '#ef4444';
+          text.style.lineHeight = '1.5';
+          
+          const btns = document.createElement('div');
+          btns.style.display = 'flex';
+          btns.style.justifyContent = 'flex-end';
+          
+          const btnOk = document.createElement('button');
+          btnOk.innerText = 'Đóng';
+          btnOk.style.padding = '8px 20px';
+          btnOk.style.background = '#2563eb';
+          btnOk.style.color = '#fff';
+          btnOk.style.border = 'none';
+          btnOk.style.borderRadius = '8px';
+          btnOk.style.cursor = 'pointer';
+          btnOk.style.fontWeight = '600';
+          btnOk.onclick = () => overlay.remove();
+          
+          btns.appendChild(btnOk);
+          box.appendChild(text);
+          box.appendChild(btns);
+          overlay.appendChild(box);
+          document.body.appendChild(overlay);
+        }
+
         // Web Users Logic
         let activeZaloAdminsForDropdown = [];
         let webUsersData = [];
@@ -1999,7 +2391,7 @@ ${systemPromptPreview}
           const password = document.getElementById('editWebPassword').value.trim();
           
           if (!displayName) {
-             alert('Tên hiển thị không được để trống!');
+             showAlert('Tên hiển thị không được để trống!');
              return;
           }
           
@@ -2017,7 +2409,7 @@ ${systemPromptPreview}
             document.getElementById('editUserModal').style.display = 'none';
             loadWebUsers();
           } else {
-            alert('Lỗi: ' + (data.error || 'Không thể cập nhật'));
+            showAlert('Lỗi: ' + (data.error || 'Không thể cập nhật'));
           }
         }
 
@@ -2029,7 +2421,7 @@ ${systemPromptPreview}
           const zaloId = document.getElementById('newWebZaloId').value;
           
           if (!username || !password || !displayName) {
-             alert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu và Tên hiển thị!');
+             showAlert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu và Tên hiển thị!');
              return;
           }
           
@@ -2048,7 +2440,7 @@ ${systemPromptPreview}
                loadWebUsers();
             });
           } else {
-            alert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'));
+            showAlert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'));
           }
         }
 
@@ -2064,7 +2456,7 @@ ${systemPromptPreview}
                showNotification('Đã xóa tài khoản');
                loadWebUsers();
              } else {
-               alert('Lỗi: ' + data.error);
+               showAlert('Lỗi: ' + data.error);
              }
            });
         }
