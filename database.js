@@ -114,6 +114,11 @@ async function addGroup(groupId) {
   if (!db.groups) db.groups = [];
   if (!db.groups.includes(groupId)) {
     db.groups.push(groupId);
+    if (!db.groupNames) db.groupNames = {};
+    if (!db.groupNames[groupId]) {
+      const count = Object.keys(db.groupNames).length + 1;
+      db.groupNames[groupId] = `Gr${String(count).padStart(2, '0')}`;
+    }
     writeDB(db);
     return true;
   }
@@ -164,6 +169,26 @@ async function getGroupName(groupId) {
   return db.groupNames[groupId] || null;
 }
 
+async function getAllGroupNames() {
+  const db = readDB();
+  return db.groupNames || {};
+}
+
+async function removeGroupCompletely(groupId) {
+  const db = readDB();
+  let changed = false;
+  if (db.groups && db.groups.includes(groupId)) {
+    db.groups = db.groups.filter(id => id !== groupId);
+    changed = true;
+  }
+  if (db.groupNames && db.groupNames[groupId]) {
+    delete db.groupNames[groupId];
+    changed = true;
+  }
+  if (changed) writeDB(db);
+  return changed;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -177,7 +202,9 @@ module.exports = {
   deleteRequestsOlderThan,
   addGroup,
   removeGroup,
+  removeGroupCompletely,
   getAllGroups,
   setGroupName,
-  getGroupName
+  getGroupName,
+  getAllGroupNames
 };

@@ -26,12 +26,15 @@ const userContexts = new Map();
 async function analyzeWithAI(text, senderName, senderId) {
   if (!AI_API_KEY) return { type: 'TICKET' };
   
-  // Đọc nội dung file faq.txt
-  let faqContent = "";
-  try {
-    faqContent = fs.readFileSync(path.join(__dirname, 'faq.txt'), 'utf8');
-  } catch (err) {
-    faqContent = "- Chưa có dữ liệu FAQ.";
+  // Đọc nội dung FAQ
+  let faqContent = await db.getSetting('faq_content');
+  if (!faqContent) {
+    try {
+      faqContent = fs.readFileSync(path.join(__dirname, 'faq.txt'), 'utf8');
+      await db.setSetting('faq_content', faqContent);
+    } catch (err) {
+      faqContent = "- Chưa có dữ liệu FAQ.";
+    }
   }
 
   const systemPrompt = `Bạn là Trợ lý IT Ảo (phần mềm AI) của ${BOT_ORG_NAME}. ${BOT_USER_ROLE} vừa gửi tin nhắn: "${text}"
@@ -644,10 +647,11 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               td:nth-of-type(1)::before { content: "STT"; }
               td:nth-of-type(2)::before { content: "Người Yêu Cầu"; }
-              td:nth-of-type(3)::before { content: "Thời gian"; }
-              td:nth-of-type(4)::before { content: "Nội dung lỗi"; }
-              td:nth-of-type(5)::before { content: "Trạng thái"; }
-              td:nth-of-type(6)::before { content: "Phản hồi"; }
+              td:nth-of-type(3)::before { content: "Nhóm"; }
+              td:nth-of-type(4)::before { content: "Thời gian"; }
+              td:nth-of-type(5)::before { content: "Nội dung lỗi"; }
+              td:nth-of-type(6)::before { content: "Trạng thái"; }
+              td:nth-of-type(7)::before { content: "Phản hồi"; }
 
               /* Input Box for Action */
               td div[id^="actionBox_"] { 
@@ -674,6 +678,8 @@ app.get('/report', checkAuth, async (req, res) => {
                   --border-color: #dddddd !important;
                   --table-header-bg: #f1f5f9 !important;
                   --table-hover-bg: #ffffff !important;
+                  --btn-secondary-bg: #e2e8f0 !important;
+                  --btn-secondary-text: #000000 !important;
               }
               * {
                   -webkit-print-color-adjust: exact !important;
@@ -729,6 +735,9 @@ app.get('/report', checkAuth, async (req, res) => {
                   </button>
                   <button class="btn-secondary" onclick="cleanData()" title="Xóa toàn bộ báo cáo" style="color:#ef4444;">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                  <button class="btn-secondary" onclick="window.location.href='/settings'" title="Cài đặt" style="color:#2563eb;">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                   </button>
                   <button class="btn-secondary" onclick="window.location.href='/logout'" title="Đăng xuất" style="color:#475569;">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
@@ -1083,6 +1092,173 @@ app.post('/api/tickets/clean', checkAuth, async (req, res) => {
 app.get('/api/tickets/rows', checkAuth, async (req, res) => {
   const html = await renderTableRows();
   return res.json({ success: true, html: html });
+});
+
+// SETTINGS PAGE
+app.get('/settings', checkAuth, async (req, res) => {
+  const faqContent = await db.getSetting('faq_content') || '';
+  const groupNames = await db.getAllGroupNames();
+  
+  let groupRows = '';
+  for (const [groupId, name] of Object.entries(groupNames)) {
+     groupRows += `
+       <tr>
+         <td style="padding:10px; border-bottom:1px solid var(--border-color);">${groupId}</td>
+         <td style="padding:10px; border-bottom:1px solid var(--border-color);">
+            <input type="text" id="gname_${groupId}" value="${name}" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-main);">
+         </td>
+         <td style="padding:10px; border-bottom:1px solid var(--border-color);">
+            <button onclick="updateGroup('${groupId}')" style="background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Lưu</button>
+            <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin-left:6px;">Xóa</button>
+         </td>
+       </tr>
+     `;
+  }
+  
+  const html = `
+    <!DOCTYPE html>
+    <html lang="vi" data-theme="light">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Cài đặt Hệ thống</title>
+      <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      </script>
+      <style>
+          :root {
+              --bg-color: #f8fafc;
+              --card-bg: #ffffff;
+              --text-main: #1e293b;
+              --border-color: #e2e8f0;
+          }
+          [data-theme="dark"] {
+              --bg-color: #0f172a;
+              --card-bg: #1e293b;
+              --text-main: #f8fafc;
+              --border-color: #334155;
+          }
+          body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              background: var(--bg-color);
+              color: var(--text-main);
+              padding: 20px;
+              max-width: 900px;
+              margin: 0 auto;
+          }
+          .card {
+              background: var(--card-bg);
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              padding: 20px;
+              margin-bottom: 20px;
+          }
+          textarea {
+              width: 100%;
+              height: 200px;
+              padding: 10px;
+              border: 1px solid var(--border-color);
+              border-radius: 6px;
+              background: var(--bg-color);
+              color: var(--text-main);
+              font-family: monospace;
+          }
+          button {
+              padding: 10px 16px;
+              border: none;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+          }
+          .btn-primary { background: #2563eb; color: white; }
+          .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h2>Cài đặt Hệ thống</h2>
+        <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
+      </div>
+      
+      <div class="card">
+        <h3>Huấn luyện AI (Nội dung FAQ)</h3>
+        <p style="font-size:14px; opacity:0.8;">Nhập các dữ liệu bạn muốn AI học (VD: mật khẩu wifi, hướng dẫn xử lý). Không cần nhập cấu trúc lệnh gốc.</p>
+        <textarea id="faqContent">${faqContent}</textarea>
+        <br><br>
+        <button class="btn-primary" onclick="saveFaq()">Lưu FAQ</button>
+      </div>
+
+      <div class="card">
+        <h3>Quản lý Nhóm</h3>
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+           <thead>
+             <tr>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">ID Nhóm</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên Nhóm</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
+             </tr>
+           </thead>
+           <tbody>
+             ${groupRows}
+           </tbody>
+        </table>
+      </div>
+
+      <script>
+        async function saveFaq() {
+          const content = document.getElementById('faqContent').value;
+          const res = await fetch('/api/settings/faq', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ content })
+          });
+          if (res.ok) alert('Lưu FAQ thành công!');
+          else alert('Lỗi khi lưu.');
+        }
+
+        async function updateGroup(groupId) {
+          const name = document.getElementById('gname_' + groupId).value;
+          const res = await fetch('/api/settings/group/edit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ groupId, name })
+          });
+          if (res.ok) alert('Đổi tên thành công!');
+        }
+
+        async function deleteGroup(groupId) {
+          if (!confirm('Bạn có chắc muốn gỡ hệ thống khỏi nhóm này?')) return;
+          const res = await fetch('/api/settings/group/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ groupId })
+          });
+          if (res.ok) window.location.reload();
+        }
+      </script>
+    </body>
+    </html>
+  `;
+  res.send(html);
+});
+
+app.post('/api/settings/faq', checkAuth, async (req, res) => {
+  await db.setSetting('faq_content', req.body.content || '');
+  res.json({ success: true });
+});
+
+app.post('/api/settings/group/edit', checkAuth, async (req, res) => {
+  const { groupId, name } = req.body;
+  if (groupId && name) await db.setGroupName(groupId, name);
+  res.json({ success: true });
+});
+
+app.post('/api/settings/group/delete', checkAuth, async (req, res) => {
+  const { groupId } = req.body;
+  if (groupId) await db.removeGroupCompletely(groupId);
+  res.json({ success: true });
 });
 
 // Webhook endpoint
