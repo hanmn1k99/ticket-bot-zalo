@@ -260,6 +260,8 @@ async function renderTableRows() {
      let statusBadge = '';
      if (r.status === 'Đã xong') {
        statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
+     } else if (r.status === 'Từ chối') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#f1f5f9; color:#475569; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">⚪ Từ chối</span>`;
      } else if (r.status === 'Đang xử lý') {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
      } else {
@@ -267,7 +269,7 @@ async function renderTableRows() {
      }
        
      let adminReplyCell = '';
-     if (r.status === 'Đã xong') {
+     if (r.status === 'Đã xong' || r.status === 'Từ chối') {
          adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
      } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
@@ -279,7 +281,8 @@ async function renderTableRows() {
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 18px; font-size:13px; font-weight:600; background:#fee2e2; color:#991b1b; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
            </div>
          `;
      }
@@ -1019,6 +1022,41 @@ app.get('/report', checkAuth, async (req, res) => {
               }
           }
 
+          async function rejectTicket(ticketId, event) {
+              const reason = prompt('Nhập lý do từ chối:');
+              if (reason === null) return;
+              if (!reason.trim()) {
+                  alert('Vui lòng nhập lý do từ chối!');
+                  return;
+              }
+
+              const btn = event.target;
+              const originalBtnText = btn.textContent;
+              btn.textContent = 'Đang xử lý...';
+              btn.disabled = true;
+
+              try {
+                  const response = await fetch('/api/tickets/reject', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ id: ticketId, replyText: reason.trim() })
+                  });
+                  const data = await response.json();
+                  if (response.ok && data.success) {
+                      fetchAndRenderRows();
+                  } else {
+                      alert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
+                      btn.textContent = originalBtnText;
+                      btn.disabled = false;
+                  }
+              } catch (err) {
+                  alert('Lỗi kết nối tới máy chủ.');
+                  btn.textContent = originalBtnText;
+                  btn.disabled = false;
+              }
+          }
+
+
           // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
           async function resolveTicket(ticketId) {
               const input = document.getElementById('replyInput_' + ticketId);
@@ -1139,6 +1177,43 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     const adminId = await db.getSetting('admin_chat_id');
     if (adminId) {
       await sendZaloMessage(adminId, `✅ Sự cố #${id} đã hoàn thành qua web`);
+    }
+
+    return res.json({ success: true });
+  } else {
+    return res.status(500).json({ error: 'Lỗi ghi dữ liệu vào hệ thống.' });
+  }
+});
+
+// ENDPOINT: Từ chối sự cố
+app.post('/api/tickets/reject', checkAuth, async (req, res) => {
+  const { id, replyText } = req.body;
+  if (!id || !replyText) {
+    return res.status(400).json({ error: 'Thiếu thông tin (ID hoặc Lý do từ chối).' });
+  }
+
+  const existingReq = await db.getRequest(id);
+  if (!existingReq) {
+    return res.status(404).json({ error: `Không tìm thấy sự cố #${id}.` });
+  }
+  if (existingReq.status !== 'Đang chờ') {
+    return res.status(400).json({ error: `Chỉ có thể từ chối sự cố ở trạng thái Đang chờ.` });
+  }
+
+  const updatedReq = await db.rejectRequest(id, replyText, Date.now());
+  if (updatedReq) {
+    const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const userMsg = `⛔ YÊU CẦU ĐÃ BỊ TỪ CHỐI!
+------------------------------
+🛠️ Yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã bị bộ phận IT từ chối tiếp nhận.
+💬 Lý do: ${replyText}
+------------------------------
+😊 Mong Thầy/Cô thông cảm!`;
+    await sendZaloMessage(targetChat, userMsg);
+    
+    const adminId = await db.getSetting('admin_chat_id');
+    if (adminId) {
+      await sendZaloMessage(adminId, `⛔ Sự cố #${id} đã bị từ chối qua web`);
     }
 
     return res.json({ success: true });
@@ -1552,6 +1627,142 @@ app.post('/webhook', async (req, res) => {
       }
 
       await sendZaloMessage(chatId, `✅ Đã gửi thông báo đến ${successCount}/${groups.length} nhóm.`);
+      return;
+    }
+
+    // Handle /nhan command
+    if (text.startsWith('/nhan ')) {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const ticketId = parseInt(text.replace('/nhan ', '').trim(), 10);
+      if (isNaN(ticketId)) {
+        await sendZaloMessage(chatId, "⚠️ Cú pháp sai. Vui lòng nhập: /nhan [Mã sự cố]");
+        return;
+      }
+      
+      const reqTicket = await db.getRequest(ticketId);
+      if (!reqTicket) {
+        await sendZaloMessage(chatId, `❌ Không tìm thấy sự cố #${ticketId}`);
+        return;
+      }
+      if (reqTicket.status !== 'Đang chờ') {
+        await sendZaloMessage(chatId, `⚠️ Sự cố #${ticketId} không ở trạng thái Đang chờ (hiện tại: ${reqTicket.status}).`);
+        return;
+      }
+      
+      const updated = await db.updateRequestStatus(ticketId, 'Đang xử lý');
+      if (updated) {
+        await sendZaloMessage(chatId, `✅ Đã tiếp nhận sự cố #${ticketId}. Đang xử lý...`);
+        const targetChat = updated.chat_id || updated.sender_id;
+        await sendZaloMessage(targetChat, `🟡 IT ĐANG XỬ LÝ SỰ CỐ!
+------------------------------
+👨‍💻 Sự cố (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã được Bộ phận IT tiếp nhận.
+🔧 Kỹ thuật viên đang tiến hành kiểm tra và khắc phục.
+------------------------------
+🕒 Xin vui lòng chờ trong giây lát!`);
+      }
+      return;
+    }
+
+    // Handle /xong command
+    if (text.startsWith('/xong ')) {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const params = text.replace('/xong ', '').trim();
+      const firstSpace = params.indexOf(' ');
+      
+      let ticketId, replyText;
+      if (firstSpace === -1) {
+        ticketId = parseInt(params, 10);
+        replyText = 'Đã xử lý xong';
+      } else {
+        ticketId = parseInt(params.substring(0, firstSpace), 10);
+        replyText = params.substring(firstSpace + 1).trim();
+      }
+      
+      if (isNaN(ticketId)) {
+        await sendZaloMessage(chatId, "⚠️ Cú pháp sai. Vui lòng nhập: /xong [Mã sự cố] [Cách khắc phục]");
+        return;
+      }
+      
+      const reqTicket = await db.getRequest(ticketId);
+      if (!reqTicket) {
+        await sendZaloMessage(chatId, `❌ Không tìm thấy sự cố #${ticketId}`);
+        return;
+      }
+      if (reqTicket.status === 'Đã xong') {
+        await sendZaloMessage(chatId, `⚠️ Sự cố #${ticketId} đã được báo hoàn thành từ trước.`);
+        return;
+      }
+      
+      const updated = await db.updateRequest(ticketId, replyText, Date.now());
+      if (updated) {
+        await sendZaloMessage(chatId, `✅ Đã đánh dấu hoàn thành sự cố #${ticketId}.`);
+        const targetChat = updated.chat_id || updated.sender_id;
+        await sendZaloMessage(targetChat, `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
+------------------------------
+🛠️ Sự cố (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
+💬 Phản hồi từ IT: ${replyText}
+------------------------------
+😊 Xin cảm ơn Thầy/Cô!`);
+      }
+      return;
+    }
+
+    // Handle /tuchoi command
+    if (text.startsWith('/tuchoi ')) {
+      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+      if (senderId !== adminId) {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
+      
+      const params = text.replace('/tuchoi ', '').trim();
+      const firstSpace = params.indexOf(' ');
+      
+      let ticketId, replyText;
+      if (firstSpace === -1) {
+        ticketId = parseInt(params, 10);
+        replyText = 'Lý do không được cung cấp';
+      } else {
+        ticketId = parseInt(params.substring(0, firstSpace), 10);
+        replyText = params.substring(firstSpace + 1).trim();
+      }
+      
+      if (isNaN(ticketId)) {
+        await sendZaloMessage(chatId, "⚠️ Cú pháp sai. Vui lòng nhập: /tuchoi [Mã sự cố] [Lý do]");
+        return;
+      }
+      
+      const reqTicket = await db.getRequest(ticketId);
+      if (!reqTicket) {
+        await sendZaloMessage(chatId, `❌ Không tìm thấy sự cố #${ticketId}`);
+        return;
+      }
+      if (reqTicket.status !== 'Đang chờ') {
+        await sendZaloMessage(chatId, `⚠️ Không thể từ chối sự cố #${ticketId} (trạng thái hiện tại: ${reqTicket.status}).`);
+        return;
+      }
+      
+      const updated = await db.rejectRequest(ticketId, replyText, Date.now());
+      if (updated) {
+        await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
+        const targetChat = updated.chat_id || updated.sender_id;
+        await sendZaloMessage(targetChat, `⛔ YÊU CẦU ĐÃ BỊ TỪ CHỐI!
+------------------------------
+🛠️ Yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã bị bộ phận IT từ chối tiếp nhận.
+💬 Lý do: ${replyText}
+------------------------------
+😊 Mong Thầy/Cô thông cảm!`);
+      }
       return;
     }
 

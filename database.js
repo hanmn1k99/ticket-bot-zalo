@@ -68,6 +68,19 @@ async function updateRequest(id, adminReply, completedAt) {
   return null;
 }
 
+async function rejectRequest(id, adminReply, completedAt) {
+  const db = readDB();
+  const index = db.requests.findIndex(r => r.id === id);
+  if (index !== -1) {
+    db.requests[index].status = 'Từ chối';
+    db.requests[index].admin_reply = adminReply;
+    db.requests[index].completed_at = completedAt;
+    writeDB(db);
+    return db.requests[index];
+  }
+  return null;
+}
+
 async function updateRequestStatus(id, newStatus) {
   const db = readDB();
   const index = db.requests.findIndex(r => r.id === id);
@@ -195,6 +208,7 @@ module.exports = {
   addRequest,
   getRequest,
   updateRequest,
+  rejectRequest,
   updateRequestStatus,
   getLatestPendingRequest,
   getAllRequests,
