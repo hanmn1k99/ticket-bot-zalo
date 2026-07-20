@@ -259,11 +259,11 @@ async function renderTableRows() {
      
      let statusBadge = '';
      if (r.status === 'Đã xong') {
-       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
+       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
      } else if (r.status === 'Đang xử lý') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
      } else {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
      }
        
      let adminReplyCell = '';
@@ -272,14 +272,14 @@ async function renderTableRows() {
      } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
-              <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:8px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
+              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
+              <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
            </div>
          `;
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:1px solid #eab308; border-radius:8px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:1px solid #eab308; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
            </div>
          `;
      }
@@ -288,7 +288,7 @@ async function renderTableRows() {
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
-        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:12px; font-size:12px;">${currentChatName}</span></td>
+        <td><span style="background:var(--btn-secondary-bg); padding:4px 10px; border-radius:9999px; font-size:12px;">${currentChatName}</span></td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
@@ -1047,7 +1047,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   const data = await response.json();
                   if (response.ok && data.success) {
                       // Cập nhật giao diện mà không cần tải trang
-                      document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px;">🟢 Đã xong</span>';
+                      document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
                       document.getElementById('replyCell_' + ticketId).innerHTML = replyText;
                   } else {
                       alert('Lỗi: ' + (data.error || 'Không thể đóng sự cố.'));
