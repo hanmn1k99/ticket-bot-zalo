@@ -690,7 +690,7 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               td:nth-of-type(1)::before { content: "STT"; }
               td:nth-of-type(2)::before { content: "Người Yêu Cầu"; }
-              td:nth-of-type(3)::before { content: "Nguồn"; }
+              td:nth-of-type(3)::before { content: "Nhóm"; }
               td:nth-of-type(4)::before { content: "Thời gian"; }
               td:nth-of-type(5)::before { content: "Mô tả sự cố"; }
               td:nth-of-type(6)::before { content: "Trạng thái"; }
@@ -809,7 +809,7 @@ app.get('/report', checkAuth, async (req, res) => {
                       <tr>
                           <th width="5%">STT</th>
                           <th width="12%">Người Yêu Cầu</th>
-                          <th width="13%">Nguồn</th>
+                          <th width="13%">Nhóm</th>
                           <th width="15%">Thời gian</th>
                           <th width="20%">Mô tả sự cố</th>
                           <th width="15%">Trạng thái</th>
@@ -1655,7 +1655,7 @@ app.post('/webhook', async (req, res) => {
       const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
 👤 Giáo viên: ${senderName}
-🏫 Nguồn: ${chatName}
+🏫 Nhóm: ${chatName}
 📍 Vị trí: ${location}
 🕒 Thời gian: ${timeStr} - ${dateStr}
 📌 Chi tiết sự cố:
