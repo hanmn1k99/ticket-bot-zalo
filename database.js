@@ -152,6 +152,17 @@ async function getAllGroups() {
   return db.groups || [];
 }
 
+async function deleteRequest(id) {
+  const db = readDB();
+  const initialLength = db.requests ? db.requests.length : 0;
+  if (db.requests) {
+    db.requests = db.requests.filter(r => r.id !== id);
+    writeDB(db);
+    return initialLength !== db.requests.length;
+  }
+  return false;
+}
+
 async function deleteAllRequests() {
   const db = readDB();
   const deletedCount = db.requests ? db.requests.length : 0;
@@ -212,6 +223,7 @@ module.exports = {
   updateRequestStatus,
   getLatestPendingRequest,
   getAllRequests,
+  deleteRequest,
   deleteAllRequests,
   deleteRequestsOlderThan,
   addGroup,

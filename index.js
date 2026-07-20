@@ -236,6 +236,14 @@ async function sendZaloMessage(chatId, text) {
 // Init cron jobs
 setupCronJobs(sendZaloMessage);
 
+function scheduleTestDeletion(ticketId, content) {
+    if (content && content.startsWith('[TEST]')) {
+        setTimeout(() => {
+            db.deleteRequest(ticketId);
+        }, 60000);
+    }
+}
+
 // Default route
 app.get('/', (req, res) => {
   res.redirect('/report');
@@ -1207,6 +1215,7 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
+    scheduleTestDeletion(id, updatedReq.content);
     
     // Thông báo cho Admin
     const adminId = await db.getSetting('admin_chat_id');
@@ -1255,6 +1264,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
 😊 Mong Thầy/Cô thông cảm!`;
     }
     await sendZaloMessage(targetChat, userMsg);
+    scheduleTestDeletion(id, updatedReq.content);
     
     const adminId = await db.getSetting('admin_chat_id');
     if (adminId) {
@@ -1764,6 +1774,7 @@ app.post('/webhook', async (req, res) => {
 💬 Phản hồi từ IT: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
+        scheduleTestDeletion(ticketId, updated.content);
       }
       return;
     }
@@ -1824,7 +1835,20 @@ app.post('/webhook', async (req, res) => {
 😊 Mong Thầy/Cô thông cảm!`;
         }
         await sendZaloMessage(targetChat, userMsg);
+        scheduleTestDeletion(ticketId, updated.content);
       }
+      return;
+    }
+
+    // Handle /test command
+    if (text.startsWith('/test ')) {
+      const content = text.replace('/test ', '').trim();
+      if (!content) {
+        await sendZaloMessage(chatId, "⚠️ Vui lòng nhập nội dung test. VD: /test Thử nghiệm hệ thống");
+        return;
+      }
+      const ticketId = await db.addRequest(Date.now(), senderName, senderId, chatId, chatName, `[TEST] ${content}`, "[TEST]");
+      await sendZaloMessage(chatId, `✅ Đã tạo sự cố TEST (Mã số: #${ticketId}). Sẽ tự động xóa sau 1 phút kể từ khi thao tác xong (Đóng/Từ chối).`);
       return;
     }
 
