@@ -1281,6 +1281,12 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 ------------------------------
 😊 Sẽ có thông báo gửi đến Thầy/Cô ngay khi hoàn tất!`;
     await sendZaloMessage(targetChat, userMsg);
+
+    const adminId = await db.getSetting('admin_chat_id');
+    if (adminId) {
+      await sendZaloMessage(adminId, `✅ Sự cố #${id} đã được tiếp nhận qua web`);
+    }
+
     return res.json({ success: true });
   }
   return res.status(400).json({ error: 'Không thể cập nhật' });
