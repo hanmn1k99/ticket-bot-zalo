@@ -1295,9 +1295,13 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       </div>
       
       <div class="card">
-        <h3>Nội soi "Bộ não" AI (System Prompt)</h3>
-        <p style="font-size:14px; opacity:0.8;">Đây là toàn bộ quy tắc cốt lõi mà AI đang sử dụng để suy luận (Chỉ xem, không thể sửa).</p>
-        <textarea readonly style="background-color: var(--border-color); cursor: not-allowed;">${systemPromptPreview}</textarea>
+        <details>
+          <summary style="font-size: 1.17em; font-weight: bold; cursor: pointer; outline: none; list-style: none;">
+            🔍 Xem Quy tắc Cốt lõi của AI (System Prompt)
+          </summary>
+          <p style="font-size:14px; opacity:0.8; margin-top: 10px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
+          <textarea readonly style="background-color: var(--border-color); cursor: not-allowed; margin-top: 10px;">${systemPromptPreview}</textarea>
+        </details>
       </div>
 
       <div class="card">
