@@ -340,7 +340,8 @@ async function checkAuth(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
     next();
   } catch (err) {
     if (req.path === '/report' || req.path === '/settings') return res.redirect('/login');
@@ -410,6 +411,10 @@ app.get('/login', (req, res) => {
         </form>
       </div>
       <script>
+        window.onload = () => {
+            loadAdmins();
+            loadWebUsers();
+        };
         async function doLogin(e) {
           e.preventDefault();
           const btn = document.querySelector('.btn');
@@ -446,7 +451,13 @@ app.post('/login', async (req, res) => {
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (valid) {
-    const token = jwt.sign({ admin: true, username }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ 
+      admin: true, 
+      username,
+      role: user.role,
+      displayName: user.displayName,
+      zaloId: user.zaloId
+    }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie('auth_token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     return res.json({ success: true });
   }
@@ -527,7 +538,7 @@ app.post('/api/auth/setup', async (req, res) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const recoveryKeyHash = await bcrypt.hash(rawRecoveryKey, 10);
 
-  const created = await db.createUser(username, passwordHash, recoveryKeyHash);
+  const created = await db.createUser(username, passwordHash, recoveryKeyHash, 'SUPER_ADMIN', 'Quản trị viên', '');
   if (created) {
     return res.status(201).json({ success: true, recoveryKey: rawRecoveryKey });
   }
@@ -679,6 +690,11 @@ app.get('/report', checkAuth, async (req, res) => {
               max-width: 1400px;
               margin: 0 auto;
           }
+          .grid-container {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+          }
           .header {
               display: flex;
               justify-content: space-between;
@@ -828,6 +844,7 @@ app.get('/report', checkAuth, async (req, res) => {
           
           /* Responsive (Giao diện Mobile) */
           @media screen and (max-width: 768px) {
+              .grid-container { grid-template-columns: 1fr; }
               .header {
                   flex-direction: column;
                   align-items: flex-start;
@@ -999,6 +1016,7 @@ app.get('/report', checkAuth, async (req, res) => {
                           Tài khoản
                       </button>
                       <div class="dropdown-content">
+                          ${req.user.role === 'SUPER_ADMIN' ? `
                           <button onclick="window.location.href='/settings'" style="color:#2563eb;">
                               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                               Cài đặt & AI
@@ -1007,6 +1025,7 @@ app.get('/report', checkAuth, async (req, res) => {
                               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                               Xóa toàn bộ CSDL
                           </button>
+                          ` : ''}
                           <button onclick="window.location.href='/logout'" style="color:#475569;">
                               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                               Đăng xuất
@@ -1016,24 +1035,31 @@ app.get('/report', checkAuth, async (req, res) => {
               </div>
           </div>
 
-          <div class="table-wrapper" id="pdf-content">
-              <table id="reportTable">
-                  <thead>
-                      <tr>
-                          <th width="5%">STT</th>
-                          <th width="12%">Người Yêu Cầu</th>
-                          <th width="13%">Nhóm</th>
-                          <th width="15%">Thời gian</th>
-                          <th width="20%">Mô tả sự cố</th>
-                          <th width="15%">Trạng thái</th>
-                          <th width="20%">Phản hồi của IT</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      ${formattedRequests}
-                  </tbody>
-              </table>
-              <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
+          <div class="grid-container">
+            <div class="table-wrapper" id="pdf-content">
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th width="5%">STT</th>
+                            <th width="12%">Người Yêu Cầu</th>
+                            <th width="13%">Nhóm</th>
+                            <th width="15%">Thời gian</th>
+                            <th width="20%">Mô tả sự cố</th>
+                            <th width="15%">Trạng thái</th>
+                            <th width="20%">Phản hồi của IT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${formattedRequests}
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
+            </div>
+            <!-- Quản lý tài khoản Web -->
+            <div id="webUserManagement" class="table-wrapper" style="padding:20px;">
+                <h3>Quản lý Tài khoản Web</h3>
+                <div id="webUserList"></div>
+            </div>
           </div>
       </div>
 
@@ -1120,6 +1146,18 @@ app.get('/report', checkAuth, async (req, res) => {
                   } else {
                       rows[i].style.display = 'none';
                   }
+              }
+
+              let activeHtml = '';
+            
+              // Populate Zalo dropdown for Web Users creation
+              const zaloSelect = document.getElementById('newWebZaloId');
+              if (zaloSelect) {
+                  zaloSelect.innerHTML = '<option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>';
+                  data.active.forEach(a => {
+                      zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
+                  });
+                  activeZaloAdminsForDropdown = data.active;
               }
 
               if (visibleCount === 0) {
@@ -1384,10 +1422,11 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
   if (updatedReq) {
     // Thông báo về nhóm/người dùng gốc
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
 ------------------------------
-🛠️ Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
-💬 Phản hồi từ IT: ${replyText}
+🛠️ Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được ${itName} xử lý hoàn tất.
+💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
@@ -1420,18 +1459,19 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
   const updatedReq = await db.rejectRequest(id, replyText, Date.now());
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     let userMsg = '';
     if (existingReq.status === 'Đang chờ') {
         userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU
 ------------------------------
-🛠️ Xin lỗi Thầy/Cô ${updatedReq.sender_name}, bộ phận IT xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${id}) tại ${updatedReq.location || 'Không xác định'}.
+🛠️ Xin lỗi Thầy/Cô ${updatedReq.sender_name}, ${itName} xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${id}) tại ${updatedReq.location || 'Không xác định'}.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
     } else {
         userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
 ------------------------------
-🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} thành Từ chối.
+🛠️ Sau khi kiểm tra, ${itName} xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} thành Từ chối.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1454,9 +1494,10 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý');
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ!
 ------------------------------
-👨‍💻 Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được Bộ phận IT tiếp nhận.
+👨‍💻 Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được ${itName} tiếp nhận.
 🔧 Kỹ thuật viên đang tiến hành kiểm tra và khắc phục.
 ------------------------------
 😊 Sẽ có thông báo gửi đến Thầy/Cô ngay khi hoàn tất!`;
@@ -1471,12 +1512,12 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 
 // ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
 app.post('/api/tickets/clean', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
   // Chạy lệnh dọn dẹp
   const count = await db.deleteAllRequests();
   
   // Gửi thông báo cho Admin qua Zalo
   await sendToAdmins(`🧹 [WEB DASHBOARD] Đã dọn dẹp hệ thống. Xóa thành công ${count} sự cố. Bộ đếm ID đã được reset về #1.`);
-
   return res.json({ success: true, deletedCount: count });
 });
 
@@ -1526,8 +1567,39 @@ app.post('/api/admins/remove', checkAuth, async (req, res) => {
   return res.status(400).json({ error: 'Không tìm thấy admin' });
 });
 
+// --- WEB USERS API ---
+app.get('/api/users', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
+  const users = await db.getUsers();
+  // Filter out sensitive data
+  const safeUsers = users.map(u => ({ username: u.username, role: u.role, displayName: u.displayName, zaloId: u.zaloId, createdAt: u.createdAt }));
+  res.json({ success: true, users: safeUsers });
+});
+
+app.post('/api/users/create', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
+  const { username, password, role, displayName, zaloId } = req.body;
+  if (!username || !password || !role) return res.status(400).json({ error: 'Thiếu thông tin' });
+  const rawRecoveryKey = 'TICKET-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const passwordHash = await bcrypt.hash(password, 10);
+  const recoveryKeyHash = await bcrypt.hash(rawRecoveryKey, 10);
+  const created = await db.createUser(username, passwordHash, recoveryKeyHash, role, displayName, zaloId || '');
+  if (created) res.json({ success: true, recoveryKey: rawRecoveryKey });
+  else res.status(400).json({ error: 'Tên đăng nhập đã tồn tại' });
+});
+
+app.post('/api/users/delete', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
+  const { username } = req.body;
+  if (username === req.user.username) return res.status(400).json({ error: 'Không thể tự xóa bản thân' });
+  const success = await db.deleteUser(username);
+  if (success) res.json({ success: true });
+  else res.status(400).json({ error: 'Tài khoản không tồn tại' });
+});
+
 // SETTINGS PAGE
 app.get('/settings', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.redirect('/report');
   const defaultFaq = `1. Mật khẩu mạng wifi "Meyschool - Giáo Viên" là: Mey@2024\n2. Mạng wifi "Meyschool - Guest" là mạng mở, không có mật khẩu.\n3. Liên hệ khẩn cấp Phòng IT (Phòng D102): 0909.123.456 (Mr. Nghĩa) hoặc 0988.789.123 (Mr. Nam).\n4. Nếu máy in hết mực, máy tính không lên nguồn, vui lòng tạo TICKET báo lỗi.`;
   let faqContent = await db.getSetting('faq_content');
   if (!faqContent) faqContent = defaultFaq;
@@ -1660,7 +1732,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
           .grid-container {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+              grid-template-columns: 1fr 1fr;
               gap: 24px;
           }
           .card {
@@ -1751,6 +1823,42 @@ ${systemPromptPreview}
            </tbody>
         </table>
         </div>
+      </div>
+
+      <div class="card">
+        <h3>Quản lý Tài khoản Web</h3>
+        <p style="color:#666; font-size: 14px;"><i>Tạo và phân quyền tài khoản cho nhân viên Vận hành. Liên kết với Zalo ID để tự động hiển thị tên nhân viên khi tiếp nhận sự cố.</i></p>
+        
+        <div style="background:var(--bg-color); padding:16px; border-radius:8px; border:1px solid var(--border-color); margin-bottom: 20px;">
+          <h4 style="margin-top:0; margin-bottom:12px;">Thêm Tài khoản mới</h4>
+          <input type="text" id="newWebUsername" placeholder="Tên đăng nhập" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
+          <input type="password" id="newWebPassword" placeholder="Mật khẩu" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
+          <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A)" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
+          <select id="newWebZaloId" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
+             <option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>
+          </select>
+          <select id="newWebRole" style="width:100%; padding:8px; margin-bottom:12px; border-radius:4px; border:1px solid var(--border-color);">
+             <option value="ADMIN">ADMIN (Vận hành, Không có quyền cài đặt)</option>
+             <option value="SUPER_ADMIN">SUPER_ADMIN (Toàn quyền)</option>
+          </select>
+          <button class="btn-primary" onclick="createWebUser()" style="width:100%;">Tạo Tài khoản</button>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+           <thead>
+             <tr>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên đăng nhập</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Vai trò</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên hiển thị</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
+             </tr>
+           </thead>
+           <tbody id="webUsersTbody">
+             <tr><td colspan="4" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+           </tbody>
+        </table>
+      </div>
+
       </div>
 
       <script>
@@ -1891,6 +1999,17 @@ ${systemPromptPreview}
 
             document.getElementById('pendingAdminsTbody').innerHTML = pendingHtml;
             document.getElementById('activeAdminsTbody').innerHTML = activeHtml;
+
+            // Populate Zalo dropdown for Web Users creation
+            const zaloSelect = document.getElementById('newWebZaloId');
+            if (zaloSelect) {
+                zaloSelect.innerHTML = '<option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>';
+                data.admins.forEach(a => {
+                    zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
+                });
+                activeZaloAdminsForDropdown = data.admins;
+                loadWebUsers(); // Refresh web users to update linked zalo names
+            }
           }
         }
 
@@ -2026,6 +2145,13 @@ app.post('/webhook', async (req, res) => {
     const isAdminUser = activeAdmins.some(a => a.id === senderId);
     const isPrivateChat = (chatId === senderId && eventName !== 'group_send_text');
 
+    let botRole = null;
+    if (isAdminUser) {
+      const allWebUsers = await db.getUsers();
+      const linkedUser = allWebUsers.find(u => u.zaloId === senderId);
+      botRole = linkedUser ? linkedUser.role : 'ADMIN';
+    }
+
     if (isPrivateChat && !isAdminUser) {
       if (cleanTextForCmd === '/install') {
         const added = await db.addPendingAdmin(senderId, senderName);
@@ -2052,7 +2178,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /addgroup
     if (cleanTextForCmd === '/addgroup') {
-      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
+      if (botRole !== 'SUPER_ADMIN') { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       await db.addGroup(chatId);
       await sendZaloMessage(chatId, "✅ Đã đăng ký nhóm này vào danh sách nhận thông báo (Broadcast).");
       return;
@@ -2060,7 +2186,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /setname
     if (cleanTextForCmd.startsWith('/setname ')) {
-      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
+      if (botRole !== 'SUPER_ADMIN') { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       const newName = cleanTextForCmd.replace('/setname ', '').trim();
       if (!newName) {
         await sendZaloMessage(chatId, "⚠️ Vui lòng nhập tên nhóm. VD: /setname Tổ Toán");
@@ -2073,7 +2199,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /removegroup
     if (cleanTextForCmd === '/removegroup') {
-      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
+      if (botRole !== 'SUPER_ADMIN') { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       await db.removeGroup(chatId);
       await sendZaloMessage(chatId, "⚠️ Đã gỡ nhóm này khỏi danh sách nhận thông báo.");
       return;
@@ -2081,7 +2207,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /thongbao
     if (text.startsWith('/thongbao ')) {
-      if (!(await isAdmin(senderId))) {
+      if (botRole !== 'SUPER_ADMIN') {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -2256,6 +2382,10 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /test command
     if (text.trim() === '/test' || text.startsWith('/test ')) {
+      if (botRole !== 'SUPER_ADMIN') {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
       let content = text.replace('/test', '').trim();
       if (!content) {
         content = 'Kiểm tra hệ thống';
@@ -2267,33 +2397,50 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /ask command (Help)
     if (text.trim() === '/ask' || text.trim() === '/help') {
-      const helpMsg = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
+      if (botRole === 'SUPER_ADMIN') {
+        const helpMsgSuperAdmin = `🤖 DANH SÁCH LỆNH CỦA BẠN (SUPER ADMIN) 👑
 ------------------------------
-🔹 Quản lý hệ thống:
-1️⃣ /install : Đăng ký quyền Zalo Admin.
-2️⃣ /admin : Xem danh sách Zalo Admin.
-3️⃣ /uninstall : Tự xóa quyền Zalo Admin cá nhân.
-4️⃣ /report : Lấy link truy cập Trang quản trị Web.
-5️⃣ /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
-6️⃣ /test : Tạo sự cố thử nghiệm tự xóa sau 1 phút.
+👨‍💻 Vận hành xử lý sự cố:
+1️⃣ /nhan [Mã số] : Nhận sự cố
+2️⃣ /xong [Mã số] [ND] : Đóng sự cố
+3️⃣ /tuchoi [Mã số] [Lý do] : Từ chối
+4️⃣ /install & /uninstall : Quản lý Admin cá nhân
+5️⃣ /report : Lấy link Dashboard
 
-🔹 Xử lý sự cố:
-7️⃣ /nhan [Mã số] 
-   👉 Nhận xử lý sự cố. (VD: /nhan 15)
-8️⃣ /xong [Mã số] [Nội dung] 
-   👉 Đóng sự cố. (VD: /xong 15 Đã cắm lại cáp)
-9️⃣ /tuchoi [Mã số] [Lý do] 
-   👉 Từ chối yêu cầu. (VD: /tuchoi 15 Máy in hết mực)
+👑 Quản lý Broadcast & Nhóm:
+6️⃣ /addgroup : Đăng ký nhóm Broadcast
+7️⃣ /removegroup : Gỡ nhóm
+8️⃣ /setname [Tên] : Đổi tên hiển thị nhóm
+9️⃣ /thongbao [Nội dung] : Gửi Broadcast hàng loạt
 
+⚠️ Quản trị hệ thống sâu:
+🔟 /admin : Xem Zalo Admin
+1️⃣1️⃣ /clean : Xóa TOÀN BỘ DB sự cố
+1️⃣2️⃣ /test : Tạo sự cố thử tự xóa`;
+        await sendZaloMessage(chatId, helpMsgSuperAdmin);
+      } else {
+        const helpMsgAdmin = `🤖 DANH SÁCH LỆNH CỦA BẠN (ADMIN) 👨‍💻
+------------------------------
+🔹 Vận hành xử lý sự cố:
+1️⃣ /nhan [Mã số] : Nhận sự cố (VD: /nhan 15)
+2️⃣ /xong [Mã số] [Nội dung] : Đóng sự cố (VD: /xong 15 Đã sửa)
+3️⃣ /tuchoi [Mã số] [Lý do] : Từ chối (VD: /tuchoi 15 Máy hỏng nặng)
+4️⃣ /report : Lấy link truy cập Web Dashboard
 
-💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
-      await sendZaloMessage(chatId, helpMsg);
+🔹 Cấu hình cá nhân:
+5️⃣ /install : Yêu cầu cấp quyền Zalo Admin
+6️⃣ /uninstall : Tự gỡ quyền Zalo Admin của mình`;
+        await sendZaloMessage(chatId, helpMsgAdmin);
+      }
       return;
     }
 
-
     // Handle /admin command
     if (text.trim() === '/admin') {
+      if (botRole !== 'SUPER_ADMIN') {
+        await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
+        return;
+      }
       const admins = await db.getAdmins();
       if (admins.length === 0) {
         await sendZaloMessage(chatId, "Danh sách Zalo Admin hiện đang trống.");
@@ -2332,7 +2479,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /clean command
     if (text.trim() === '/clean') {
-      if (!(await isAdmin(senderId))) {
+      if (botRole !== 'SUPER_ADMIN') {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -2344,7 +2491,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /groups command
     if (cleanTextForCmd === '/groups' || cleanTextForCmd === '/group') {
-      if (!(await isAdmin(senderId))) {
+      if (botRole !== 'SUPER_ADMIN') {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }

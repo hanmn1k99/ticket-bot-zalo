@@ -295,7 +295,19 @@ async function removeAdmin(id) {
 // --- Web Users API ---
 async function getUsers() {
   const db = readDB();
-  return db.settings.users || [];
+  const users = db.settings.users || [];
+  // Migrate existing users to SUPER_ADMIN if they don't have a role
+  let modified = false;
+  users.forEach(u => {
+    if (!u.role) {
+      u.role = 'SUPER_ADMIN';
+      u.displayName = 'Quản trị viên';
+      u.zaloId = '';
+      modified = true;
+    }
+  });
+  if (modified) writeDB(db);
+  return users;
 }
 
 async function getUserByUsername(username) {
@@ -303,7 +315,7 @@ async function getUserByUsername(username) {
   return users.find(u => u.username === username);
 }
 
-async function createUser(username, passwordHash, recoveryKeyHash) {
+async function createUser(username, passwordHash, recoveryKeyHash, role = 'SUPER_ADMIN', displayName = '', zaloId = '') {
   const db = readDB();
   if (!db.settings.users) db.settings.users = [];
   if (db.settings.users.find(u => u.username === username)) return false;
@@ -312,10 +324,25 @@ async function createUser(username, passwordHash, recoveryKeyHash) {
     username,
     passwordHash,
     recoveryKeyHash,
+    role,
+    displayName,
+    zaloId,
     createdAt: Date.now()
   });
   writeDB(db);
   return true;
+}
+
+async function deleteUser(username) {
+  const db = readDB();
+  if (!db.settings.users) return false;
+  const initialLength = db.settings.users.length;
+  db.settings.users = db.settings.users.filter(u => u.username !== username);
+  if (db.settings.users.length !== initialLength) {
+    writeDB(db);
+    return true;
+  }
+  return false;
 }
 
 async function updateUserPassword(username, newPasswordHash) {
@@ -359,5 +386,6 @@ module.exports = {
   getUsers,
   getUserByUsername,
   createUser,
+  deleteUser,
   updateUserPassword
 };
