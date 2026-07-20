@@ -598,7 +598,7 @@ app.get('/setup', async (req, res) => {
         </form>
         <div id="recoveryBox" class="recovery-box">
           <strong>QUAN TRỌNG: LƯU LẠI MÃ NÀY!</strong><br>
-          Mã phục hồi của bạn là:<br><br>
+          Mã khôi phục của bạn là:<br><br>
           <code id="recCode" style="font-size:18px; font-weight:bold; letter-spacing:1px; background:#fff; padding:4px 8px; border-radius:4px; display:block; text-align:center;"></code><br>
           Mã này dùng để lấy lại mật khẩu nếu bạn quên. Nó chỉ hiện 1 lần duy nhất.<br><br>
           <button class="btn" onclick="window.location.href='/login'" style="background:#10b981;">Đã lưu, tới trang Đăng nhập</button>
@@ -719,11 +719,11 @@ app.get('/forgot-password', (req, res) => {
         <h2>Khôi phục Mật khẩu</h2>
         <form id="forgotForm" onsubmit="doRecover(event)">
           <div class="input-group"><label>Tên đăng nhập</label><input type="text" id="username" required></div>
-          <div class="input-group"><label>Mã phục hồi (Recovery Key)</label><input type="text" id="recoveryKey" required></div>
+          <div class="input-group"><label>Mã khôi phục (Recovery Key)</label><input type="text" id="recoveryKey" required></div>
           <div class="input-group"><label>Mật khẩu mới</label><input type="password" id="newPassword" required></div>
           <button type="submit" class="btn">Đổi Mật Khẩu</button>
         </form>
-        <p style="text-align:center; margin-top:20px; color:#64748b; font-size:13px;">*Nếu bạn quên cả mã phục hồi, hãy chạy lệnh <code>npm run reset-auth</code> trên máy chủ.</p>
+        <p style="text-align:center; margin-top:20px; color:#64748b; font-size:13px;">*Nếu bạn quên cả mã khôi phục, hãy chạy lệnh <code>npm run reset-auth</code> trên máy chủ.</p>
         <p style="text-align:center;"><a href="/login" style="color:#3b82f6; text-decoration:none; font-size:14px;">Quay lại đăng nhập</a></p>
       </div>
       <script>
@@ -807,7 +807,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
   if (!user || !user.recoveryKeyHash) return res.status(404).json({ error: 'Tài khoản không tồn tại' });
 
   const valid = await bcrypt.compare(recoveryKey, user.recoveryKeyHash);
-  if (!valid) return res.status(401).json({ error: 'Mã phục hồi không đúng' });
+  if (!valid) return res.status(401).json({ error: 'Mã khôi phục không đúng' });
 
   const hashed = await bcrypt.hash(newPassword, 10);
   const success = await db.updateUserPassword(username, hashed);
@@ -2203,11 +2203,11 @@ ${systemPromptPreview}
       </div>
 
       <div class="card">
-        <h3>Quản lý Tài khoản Web</h3>
+        <h3>Quản lý tài khoản</h3>
         <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 20px;">Tạo và phân quyền tài khoản cho nhân viên Vận hành. Tự động liên kết hiển thị tên với Zalo.</p>
         
         <div style="background: var(--bg-color); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.02);">
-          <h4 style="margin-top:0; margin-bottom:16px; font-size: 16px; color: var(--text-main); font-weight: 600;">✨ Thêm Tài khoản mới</h4>
+          <h4 style="margin-top:0; margin-bottom:16px; font-size: 16px; color: var(--text-main); font-weight: 600;">Thêm tài khoản</h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 16px;">
             <input type="text" id="newWebUsername" placeholder="Tên đăng nhập *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
             <input type="password" id="newWebPassword" placeholder="Mật khẩu *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
@@ -2218,13 +2218,13 @@ ${systemPromptPreview}
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
             <select id="newWebRole" style="flex: 1; min-width: 200px; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-               <option value="ADMIN">🛡️ Vận hành</option>
-               <option value="SUPER_ADMIN">👑 Quản trị viên</option>
+               <option value="ADMIN">Vận hành</option>
+               <option value="SUPER_ADMIN">Quản trị viên</option>
             </select>
             <button class="btn-primary" onclick="createWebUser()" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
               <span style="display: flex; align-items: center; gap: 6px;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Tạo Tài khoản
+                Tạo tài khoản
               </span>
             </button>
           </div>
@@ -2249,7 +2249,7 @@ ${systemPromptPreview}
         <!-- Edit Modal Overlay -->
         <div id="editUserModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
           <div style="background: var(--card-bg); padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-            <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--text-main);">Sửa Tài Khoản</h3>
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--text-main);">Sửa tài khoản</h3>
             <input type="hidden" id="editWebUsername">
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Mật khẩu mới (Để trống nếu không đổi)</label>
             <input type="password" id="editWebPassword" placeholder="Nhập mật khẩu mới..." style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
@@ -2259,8 +2259,8 @@ ${systemPromptPreview}
             
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Vai trò <span style="color:#ef4444">*</span></label>
             <select id="editWebRole" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
-               <option value="ADMIN">🛡️ Vận hành</option>
-               <option value="SUPER_ADMIN">👑 Quản trị viên</option>
+               <option value="ADMIN">Vận hành</option>
+               <option value="SUPER_ADMIN">Quản trị viên</option>
             </select>
             
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Liên kết tài khoản Zalo <span style="color:#ef4444">*</span></label>
@@ -2349,7 +2349,7 @@ ${systemPromptPreview}
             data.users.forEach(u => {
               const linkedZalo = activeZaloAdminsForDropdown.find(a => a.id === u.zaloId);
               const zaloName = linkedZalo ? linkedZalo.name : (u.zaloId ? 'ID: ' + u.zaloId : 'Chưa liên kết');
-              const roleDisplay = u.role === 'SUPER_ADMIN' ? '👑 Quản trị viên' : '🛡️ Vận hành';
+              const roleDisplay = u.role === 'SUPER_ADMIN' ? 'Quản trị viên' : 'Vận hành';
               const roleColor = u.role === 'SUPER_ADMIN' ? '#991b1b' : '#166534';
               const roleBg = u.role === 'SUPER_ADMIN' ? '#fee2e2' : '#dcfce7';
               
@@ -2391,7 +2391,7 @@ ${systemPromptPreview}
           const password = document.getElementById('editWebPassword').value.trim();
           
           if (!displayName || !zaloId) {
-             showAlert('Vui lòng nhập Tên hiển thị và chọn Tài khoản Zalo!');
+             showAlert('Vui lòng nhập Tên hiển thị và chọn Tài khoản Zalo.');
              return;
           }
           
@@ -2421,7 +2421,7 @@ ${systemPromptPreview}
           const zaloId = document.getElementById('newWebZaloId').value;
           
           if (!username || !password || !displayName || !zaloId) {
-             showAlert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu, Tên hiển thị và chọn Tài khoản Zalo!');
+             showAlert('Vui lòng nhập đầy đủ thông tin.');
              return;
           }
           
@@ -2432,7 +2432,7 @@ ${systemPromptPreview}
           });
           const data = await res.json();
           if (res.ok) {
-            showCustomConfirm('Tạo tài khoản thành công! Mã Phục Hồi (QUAN TRỌNG): ' + data.recoveryKey + '\\nHãy lưu lại mã này để khôi phục mật khẩu nếu quên.', () => {
+            showCustomConfirm('Tạo tài khoản thành công! Mã khôi phục (QUAN TRỌNG): ' + data.recoveryKey + '\\nHãy lưu lại mã này để khôi phục mật khẩu nếu quên.', () => {
                document.getElementById('newWebUsername').value = '';
                document.getElementById('newWebPassword').value = '';
                document.getElementById('newWebDisplayName').value = '';
@@ -3006,7 +3006,7 @@ app.post('/webhook', async (req, res) => {
 4️⃣ /install & /uninstall : Quản lý Admin cá nhân
 5️⃣ /report : Lấy link Dashboard
 
-👑 Quản lý Broadcast & Nhóm:
+Quản lý Broadcast & Nhóm:
 6️⃣ /addgroup : Đăng ký nhóm Broadcast
 7️⃣ /removegroup : Gỡ nhóm
 8️⃣ /setname [Tên] : Đổi tên hiển thị nhóm
