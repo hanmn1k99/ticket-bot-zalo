@@ -276,6 +276,7 @@ async function renderTableRows() {
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
               <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Từ chối</button>
            </div>
          `;
      } else {
@@ -1215,16 +1216,16 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
   if (!existingReq) {
     return res.status(404).json({ error: `Không tìm thấy sự cố #${id}.` });
   }
-  if (existingReq.status !== 'Đang chờ') {
-    return res.status(400).json({ error: `Chỉ có thể từ chối sự cố ở trạng thái Đang chờ.` });
+  if (existingReq.status !== 'Đang chờ' && existingReq.status !== 'Đang xử lý') {
+    return res.status(400).json({ error: `Chỉ có thể từ chối sự cố ở trạng thái Đang chờ hoặc Đang xử lý.` });
   }
 
   const updatedReq = await db.rejectRequest(id, replyText, Date.now());
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `⛔ YÊU CẦU ĐÃ BỊ TỪ CHỐI!
+    const userMsg = `⛔ CẬP NHẬT: TỪ CHỐI TIẾP NHẬN YÊU CẦU
 ------------------------------
-🛠️ Yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã bị bộ phận IT từ chối tiếp nhận.
+🛠️ Sau khi kiểm tra, bộ phận IT xin phép từ chối yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'}.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1766,7 +1767,7 @@ app.post('/webhook', async (req, res) => {
         await sendZaloMessage(chatId, `❌ Không tìm thấy sự cố #${ticketId}`);
         return;
       }
-      if (reqTicket.status !== 'Đang chờ') {
+      if (reqTicket.status !== 'Đang chờ' && reqTicket.status !== 'Đang xử lý') {
         await sendZaloMessage(chatId, `⚠️ Không thể từ chối sự cố #${ticketId} (trạng thái hiện tại: ${reqTicket.status}).`);
         return;
       }
@@ -1775,9 +1776,9 @@ app.post('/webhook', async (req, res) => {
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
-        await sendZaloMessage(targetChat, `⛔ YÊU CẦU ĐÃ BỊ TỪ CHỐI!
+        await sendZaloMessage(targetChat, `⛔ CẬP NHẬT: TỪ CHỐI TIẾP NHẬN YÊU CẦU
 ------------------------------
-🛠️ Yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã bị bộ phận IT từ chối tiếp nhận.
+🛠️ Sau khi kiểm tra, bộ phận IT xin phép từ chối yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'}.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`);
