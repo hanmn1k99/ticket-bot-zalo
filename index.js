@@ -1667,9 +1667,10 @@ ${requestContent}
 
       const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
       if (adminId) {
-        const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!
+        const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG!
 ------------------------------
-🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} thông báo với Mã Sự Cố: #${newId} đã được gửi cho bộ phận IT, Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.
+🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} (Mã số: #${newId}) đã được hệ thống ghi nhận và chuyển đến bộ phận IT.
+👨‍💻 Các kỹ thuật viên sẽ nhanh chóng kiểm tra và xử lý trong thời gian sớm nhất.
 ------------------------------
 😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
         await sendZaloMessage(adminId, adminMessage);
