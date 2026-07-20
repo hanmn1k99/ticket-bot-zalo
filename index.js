@@ -247,7 +247,10 @@ app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'sw.js')));
 
 async function renderTableRows() {
   const requests = await db.getAllRequests();
+  const groupNames = await db.getAllGroupNames();
+  
   return requests.map(r => {
+     const currentChatName = groupNames[r.chat_id] || r.chat_name || 'Cá nhân';
      const d = new Date(r.timestamp);
      const day = String(d.getDate()).padStart(2, '0');
      const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -285,7 +288,7 @@ async function renderTableRows() {
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
-        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:12px; font-size:12px;">${r.chat_name || 'Cá nhân'}</span></td>
+        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:12px; font-size:12px;">${currentChatName}</span></td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
