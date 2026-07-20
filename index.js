@@ -281,8 +281,8 @@ async function renderTableRows() {
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align:center;">Nhận yêu cầu</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-align:center;">Từ chối</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
            </div>
          `;
      }
