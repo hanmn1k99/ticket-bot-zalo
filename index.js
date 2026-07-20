@@ -1025,11 +1025,11 @@ app.get('/report', checkAuth, async (req, res) => {
           function rejectTicket(ticketId, event) {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
-                  actionBox.innerHTML = `
-                    <input type="text" id="rejectInput_${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(${ticketId})" placeholder="Lý do từ chối..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
-                    <button onclick="submitReject(${ticketId})" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
+                  actionBox.innerHTML = \`
+                    <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="Lý do từ chối..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
+                    <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
                     <button onclick="fetchAndRenderRows()" style="padding:6px 12px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap;">Hủy</button>
-                  `;
+                  \`;
                   setTimeout(() => {
                       const input = document.getElementById('rejectInput_' + ticketId);
                       if (input) input.focus();
