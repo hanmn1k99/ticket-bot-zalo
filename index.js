@@ -275,15 +275,15 @@ async function renderTableRows() {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
-              <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Từ chối</button>
+              <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Gửi</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#f87171; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Chuyển trạng thái</button>
            </div>
          `;
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#f87171; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Chuyển trạng thái</button>
            </div>
          `;
      }
@@ -1027,9 +1027,9 @@ app.get('/report', checkAuth, async (req, res) => {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
                   actionBox.innerHTML = \`
-                    <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="Lý do từ chối..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
-                    <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
-                    <button onclick="fetchAndRenderRows()" style="padding:6px 12px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap;">Hủy</button>
+                    <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="Lý do thay đổi trạng thái..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
+                    <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#f87171; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Gửi</button>
+                    <button onclick="fetchAndRenderRows()" style="padding:6px 12px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
                   \`;
                   setTimeout(() => {
                       const input = document.getElementById('rejectInput_' + ticketId);
@@ -1042,7 +1042,7 @@ app.get('/report', checkAuth, async (req, res) => {
               const input = document.getElementById('rejectInput_' + ticketId);
               const reason = input ? input.value.trim() : '';
               if (!reason) {
-                  alert('Vui lòng nhập lý do từ chối!');
+                  alert('Vui lòng nhập lý do thay đổi trạng thái!');
                   if (input) input.focus();
                   return;
               }
