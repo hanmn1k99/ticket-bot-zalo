@@ -1823,41 +1823,132 @@ ${systemPromptPreview}
 
       <div class="card">
         <h3>Quản lý Tài khoản Web</h3>
-        <p style="color:#666; font-size: 14px;"><i>Tạo và phân quyền tài khoản cho nhân viên Vận hành. Liên kết với Zalo ID để tự động hiển thị tên nhân viên khi tiếp nhận sự cố.</i></p>
+        <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 20px;">Tạo và phân quyền tài khoản cho nhân viên Vận hành. Tự động liên kết hiển thị tên với Zalo.</p>
         
-        <div style="background:var(--bg-color); padding:16px; border-radius:8px; border:1px solid var(--border-color); margin-bottom: 20px;">
-          <h4 style="margin-top:0; margin-bottom:12px;">Thêm Tài khoản mới</h4>
-          <input type="text" id="newWebUsername" placeholder="Tên đăng nhập" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
-          <input type="password" id="newWebPassword" placeholder="Mật khẩu" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
-          <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A)" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
-          <select id="newWebZaloId" style="width:100%; padding:8px; margin-bottom:8px; border-radius:4px; border:1px solid var(--border-color);">
-             <option value="">-- Liên kết Zalo Account (Không bắt buộc) --</option>
-          </select>
-          <select id="newWebRole" style="width:100%; padding:8px; margin-bottom:12px; border-radius:4px; border:1px solid var(--border-color);">
-             <option value="ADMIN">ADMIN (Vận hành, Không có quyền cài đặt)</option>
-             <option value="SUPER_ADMIN">SUPER_ADMIN (Toàn quyền)</option>
-          </select>
-          <button class="btn-primary" onclick="createWebUser()" style="width:100%;">Tạo Tài khoản</button>
+        <div style="background: var(--bg-color); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.02);">
+          <h4 style="margin-top:0; margin-bottom:16px; font-size: 16px; color: var(--text-main); font-weight: 600;">✨ Thêm Tài khoản mới</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <input type="text" id="newWebUsername" placeholder="Tên đăng nhập" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <input type="password" id="newWebPassword" placeholder="Mật khẩu" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A)" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+            <select id="newWebZaloId" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+               <option value="">-- Liên kết Zalo Account (Tùy chọn) --</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <select id="newWebRole" style="flex: 1; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
+               <option value="ADMIN">🛡️ ADMIN (Chỉ vận hành)</option>
+               <option value="SUPER_ADMIN">👑 SUPER_ADMIN (Toàn quyền)</option>
+            </select>
+            <button class="btn-primary" onclick="createWebUser()" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
+              <span style="display: flex; align-items: center; gap: 6px;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Tạo Tài khoản
+              </span>
+            </button>
+          </div>
         </div>
 
-        <table style="width:100%; border-collapse:collapse; text-align:left;">
-           <thead>
-             <tr>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên đăng nhập</th>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Vai trò</th>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên hiển thị</th>
-               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
-             </tr>
-           </thead>
-           <tbody id="webUsersTbody">
-             <tr><td colspan="4" style="padding:10px; text-align:center;">Đang tải...</td></tr>
-           </tbody>
-        </table>
+        <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: var(--bg-color);">
+          <table style="width:100%; border-collapse:collapse; text-align:left; font-size: 14px;">
+             <thead style="background: var(--card-bg);">
+               <tr>
+                 <th style="padding:14px 16px; border-bottom:1px solid var(--border-color); font-weight: 600; color: var(--text-main);">Tên đăng nhập</th>
+                 <th style="padding:14px 16px; border-bottom:1px solid var(--border-color); font-weight: 600; color: var(--text-main);">Vai trò</th>
+                 <th style="padding:14px 16px; border-bottom:1px solid var(--border-color); font-weight: 600; color: var(--text-main);">Tên hiển thị</th>
+                 <th style="padding:14px 16px; border-bottom:1px solid var(--border-color); font-weight: 600; color: var(--text-main); text-align: right;">Thao tác</th>
+               </tr>
+             </thead>
+             <tbody id="webUsersTbody">
+               <tr><td colspan="4" style="padding:20px; text-align:center; color: var(--text-muted);">Đang tải...</td></tr>
+             </tbody>
+          </table>
+        </div>
       </div>
 
       </div>
 
       <script>
+        // Web Users Logic
+        let activeZaloAdminsForDropdown = [];
+        
+        async function loadWebUsers() {
+          try {
+            const res = await fetch('/api/users');
+            if (!res.ok) return; // Silent return if not Super Admin
+            const data = await res.json();
+            const tbody = document.getElementById('webUsersTbody');
+            
+            if (data.users.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color: var(--text-muted);">Không có dữ liệu</td></tr>';
+              return;
+            }
+            
+            let html = '';
+            data.users.forEach(u => {
+              const linkedZalo = activeZaloAdminsForDropdown.find(a => a.id === u.zaloId);
+              const zaloName = linkedZalo ? linkedZalo.name : (u.zaloId ? 'ID: ' + u.zaloId : 'Chưa liên kết');
+              html += \`<tr>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); color: var(--text-main);"><strong>\${u.username}</strong></td>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color);"><span style="background:\${u.role==='SUPER_ADMIN'?'#fee2e2':'#dcfce7'}; color:\${u.role==='SUPER_ADMIN'?'#991b1b':'#166534'}; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:bold;">\${u.role}</span></td>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); color: var(--text-main);">\${u.displayName}<br><small style="color:var(--text-muted); font-size: 12px;">Zalo: \${zaloName}</small></td>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); text-align: right;">
+                  <button onclick="deleteWebUser('\${u.username}')" style="background:#fee2e2; color:#dc2626; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">Xóa bỏ</button>
+                </td>
+              </tr>\`;
+            });
+            tbody.innerHTML = html;
+          } catch(e) {}
+        }
+
+        async function createWebUser() {
+          const username = document.getElementById('newWebUsername').value.trim();
+          const password = document.getElementById('newWebPassword').value.trim();
+          const role = document.getElementById('newWebRole').value;
+          const displayName = document.getElementById('newWebDisplayName').value.trim();
+          const zaloId = document.getElementById('newWebZaloId').value;
+          
+          if (!username || !password || !displayName) {
+             alert('Vui lòng điền đủ Tên đăng nhập, Mật khẩu và Tên hiển thị!');
+             return;
+          }
+          
+          const res = await fetch('/api/users/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password, role, displayName, zaloId})
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showCustomConfirm('Tạo tài khoản thành công! Mã Phục Hồi (QUAN TRỌNG): ' + data.recoveryKey + '\\nHãy lưu lại mã này để khôi phục mật khẩu nếu quên.', () => {
+               document.getElementById('newWebUsername').value = '';
+               document.getElementById('newWebPassword').value = '';
+               document.getElementById('newWebDisplayName').value = '';
+               document.getElementById('newWebZaloId').value = '';
+               loadWebUsers();
+            });
+          } else {
+            alert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'));
+          }
+        }
+
+        async function deleteWebUser(username) {
+           showCustomConfirm('Bạn có chắc muốn xóa tài khoản [' + username + ']? Hành động này không thể hoàn tác.', async () => {
+             const res = await fetch('/api/users/delete', {
+               method: 'POST',
+               headers: {'Content-Type': 'application/json'},
+               body: JSON.stringify({username})
+             });
+             const data = await res.json();
+             if (res.ok) {
+               showNotification('Đã xóa tài khoản');
+               loadWebUsers();
+             } else {
+               alert('Lỗi: ' + data.error);
+             }
+           });
+        }
+
         function showNotification(msg) {
           let old = document.getElementById('notification-toast');
           if (old) old.remove();
