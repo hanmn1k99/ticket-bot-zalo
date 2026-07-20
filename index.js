@@ -3000,59 +3000,40 @@ app.post('/webhook', async (req, res) => {
         const helpMsgSuperAdmin = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý hệ thống:
-1. /install 
-   👉 Đăng ký quyền Quản trị viên Zalo.
-2. /admin 
-   👉 Xem danh sách Quản trị viên.
-3. /uninstall 
-   👉 Tự xóa quyền Quản trị viên cá nhân.
-4. /report 
-   👉 Lấy link truy cập Trang quản trị Web.
-5. /clean 
-   👉 (Nguy hiểm) Xóa toàn bộ dữ liệu.
-6. /test 
-   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút.
+1. /install 👉 Đăng ký quyền Quản trị viên.
+2. /admin 👉 Xem danh sách Quản trị viên.
+3. /uninstall 👉 Hủy quyền Quản trị viên của bạn.
+4. /report 👉 Lấy link Trang quản trị Web.
+5. /clean 👉 (Nguy hiểm) Xóa toàn bộ dữ liệu.
+6. /test 👉 Tạo sự cố thử nghiệm tự xóa sau 1p.
 
-🔹 Quản lý thông báo (Broadcast):
-7. /addgroup 
-   👉 Đăng ký nhóm nhận thông báo.
-8. /removegroup 
-   👉 Gỡ nhóm khỏi danh sách nhận.
-9. /setname [Tên] 
-   👉 Đổi tên hiển thị của nhóm. (VD: /setname IT Support)
-10. /thongbao [Nội dung] 
-   👉 Gửi thông báo hàng loạt. (VD: /thongbao Server đang bảo trì)
+🔹 Thông báo (Broadcast):
+7. /addgroup 👉 Đăng ký nhóm nhận thông báo.
+8. /removegroup 👉 Hủy đăng ký nhóm.
+9. /setname [Tên] 👉 Đổi tên nhóm. (VD: /setname IT)
+10. /thongbao [ND] 👉 Gửi thông báo. (VD: /thongbao Lỗi mạng)
 
 🔹 Xử lý sự cố:
-11. /nhan [Mã số] 
-   👉 Nhận xử lý sự cố. (VD: /nhan 15)
-12. /xong [Mã số] [Nội dung] 
-   👉 Đóng sự cố. (VD: /xong 15 Đã thay hộp mực)
-13. /tuchoi [Mã số] [Lý do] 
-   👉 Từ chối yêu cầu. (VD: /tuchoi 15 ngoài chuyên môn của IT)
+11. /nhan [Mã] 👉 Nhận xử lý. (VD: /nhan 15)
+12. /xong [Mã] [ND] 👉 Đóng sự cố. (VD: /xong 15 Đã sửa)
+13. /tuchoi [Mã] [Lý do] 👉 Từ chối. (VD: /tuchoi 15 Hỏng nặng)
 
-💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
+💡 Mẹo: Nên dùng Trang quản trị Web để thao tác trực quan hơn.`;
         await sendZaloMessage(chatId, helpMsgSuperAdmin);
       } else {
         const helpMsgAdmin = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý cá nhân & Hệ thống:
-1. /install 
-   👉 Đăng ký quyền Quản trị viên Zalo.
-2. /uninstall 
-   👉 Tự xóa quyền Quản trị viên cá nhân.
-3. /report 
-   👉 Lấy link truy cập Trang quản trị Web.
+1. /install 👉 Đăng ký quyền Quản trị viên.
+2. /uninstall 👉 Hủy quyền Quản trị viên của bạn.
+3. /report 👉 Lấy link Trang quản trị Web.
 
 🔹 Xử lý sự cố:
-4. /nhan [Mã số] 
-   👉 Nhận xử lý sự cố. (VD: /nhan 15)
-5. /xong [Mã số] [Nội dung] 
-   👉 Đóng sự cố. (VD: /xong 15 Đã thay hộp mực)
-6. /tuchoi [Mã số] [Lý do] 
-   👉 Từ chối yêu cầu. (VD: /tuchoi 15 ngoài chuyên môn của IT)
+4. /nhan [Mã] 👉 Nhận xử lý. (VD: /nhan 15)
+5. /xong [Mã] [ND] 👉 Đóng sự cố. (VD: /xong 15 Đã sửa)
+6. /tuchoi [Mã] [Lý do] 👉 Từ chối. (VD: /tuchoi 15 Hỏng nặng)
 
-💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
+💡 Mẹo: Nên dùng Trang quản trị Web để thao tác trực quan hơn.`;
         await sendZaloMessage(chatId, helpMsgAdmin);
       }
       return;
