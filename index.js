@@ -647,11 +647,11 @@ app.get('/report', checkAuth, async (req, res) => {
               }
               td:nth-of-type(1)::before { content: "STT"; }
               td:nth-of-type(2)::before { content: "Người Yêu Cầu"; }
-              td:nth-of-type(3)::before { content: "Nhóm"; }
+              td:nth-of-type(3)::before { content: "Nguồn"; }
               td:nth-of-type(4)::before { content: "Thời gian"; }
-              td:nth-of-type(5)::before { content: "Nội dung lỗi"; }
+              td:nth-of-type(5)::before { content: "Mô tả sự cố"; }
               td:nth-of-type(6)::before { content: "Trạng thái"; }
-              td:nth-of-type(7)::before { content: "Phản hồi"; }
+              td:nth-of-type(7)::before { content: "Phản hồi của IT"; }
 
               /* Input Box for Action */
               td div[id^="actionBox_"] { 
