@@ -1588,6 +1588,16 @@ app.post('/api/users/delete', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
   const { username } = req.body;
   if (username === req.user.username) return res.status(400).json({ error: 'Không thể tự xóa bản thân' });
+  
+  const users = await db.getUsers();
+  const targetUser = users.find(u => u.username === username);
+  if (targetUser && targetUser.role === 'SUPER_ADMIN') {
+    const superAdmins = users.filter(u => u.role === 'SUPER_ADMIN');
+    if (superAdmins.length <= 1) {
+      return res.status(400).json({ error: 'Không thể xóa SUPER_ADMIN duy nhất còn lại của hệ thống!' });
+    }
+  }
+  
   const success = await db.deleteUser(username);
   if (success) res.json({ success: true });
   else res.status(400).json({ error: 'Tài khoản không tồn tại' });
