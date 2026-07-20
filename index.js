@@ -279,7 +279,7 @@ async function renderTableRows() {
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 12px; font-size:13px; background:#eab308; color:white; border:none; border-radius:6px; cursor:pointer; width:100%; white-space:nowrap;">Nhận yêu cầu</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; font-weight:500; background:#eab308; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Nhận yêu cầu</button>
            </div>
          `;
      }
