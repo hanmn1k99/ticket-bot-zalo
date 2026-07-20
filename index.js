@@ -3001,23 +3001,23 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 🔹 Quản lý hệ thống:
 1. /install 
-   👉 Đăng ký quyền Quản trị viên Zalo. (VD: /install)
+   👉 Đăng ký quyền Quản trị viên Zalo.
 2. /admin 
-   👉 Xem danh sách Quản trị viên. (VD: /admin)
+   👉 Xem danh sách Quản trị viên.
 3. /uninstall 
-   👉 Tự xóa quyền Quản trị viên cá nhân. (VD: /uninstall)
+   👉 Tự xóa quyền Quản trị viên cá nhân.
 4. /report 
-   👉 Lấy link truy cập Trang quản trị Web. (VD: /report)
+   👉 Lấy link truy cập Trang quản trị Web.
 5. /clean 
-   👉 (Nguy hiểm) Xóa toàn bộ dữ liệu. (VD: /clean)
+   👉 (Nguy hiểm) Xóa toàn bộ dữ liệu.
 6. /test 
-   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút. (VD: /test)
+   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút.
 
 🔹 Quản lý thông báo (Broadcast):
 7. /addgroup 
-   👉 Đăng ký nhóm nhận thông báo. (VD: /addgroup)
+   👉 Đăng ký nhóm nhận thông báo.
 8. /removegroup 
-   👉 Gỡ nhóm khỏi danh sách nhận. (VD: /removegroup)
+   👉 Gỡ nhóm khỏi danh sách nhận.
 9. /setname [Tên] 
    👉 Đổi tên hiển thị của nhóm. (VD: /setname IT Support)
 10. /thongbao [Nội dung] 
@@ -3038,11 +3038,11 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 🔹 Quản lý cá nhân & Hệ thống:
 1. /install 
-   👉 Đăng ký quyền Quản trị viên Zalo. (VD: /install)
+   👉 Đăng ký quyền Quản trị viên Zalo.
 2. /uninstall 
-   👉 Tự xóa quyền Quản trị viên cá nhân. (VD: /uninstall)
+   👉 Tự xóa quyền Quản trị viên cá nhân.
 3. /report 
-   👉 Lấy link truy cập Trang quản trị Web. (VD: /report)
+   👉 Lấy link truy cập Trang quản trị Web.
 
 🔹 Xử lý sự cố:
 4. /nhan [Mã số] 
