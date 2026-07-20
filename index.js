@@ -61,7 +61,9 @@ Quy tắc phân loại (RẤT QUAN TRỌNG - KHÔNG ĐƯỢC BỎ LỠ TICKET C�
 - Các dấu hiệu nhận biết: "coi dùm máy", "xem giúp mạng", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "mất wifi", "bị đơ", "không in được"...
 - ĐẶC BIỆT LƯU Ý VỀ WIFI: Nếu người dùng kêu "mất wifi", "không có wifi", "wifi hỏng", "không kết nối được wifi" -> CHẮC CHẮN LÀ TICKET (Báo lỗi). CHỈ phân loại là ANSWER khi người dùng thực sự hỏi "Mật khẩu wifi là gì?", "Cho xin pass wifi".
 - LƯU Ý ĐẶC BIỆT: KHÔNG TẠO TICKET đối với các nhờ vả cá nhân, sai vặt không liên quan đến sửa chữa kỹ thuật. Những câu này phân loại là ANSWER để từ chối khéo léo.
-- Khi quyết định là TICKET, CHỈ TRẢ VỀ DUY NHẤT 1 CHỮ LÀ "TICKET". Tuyệt đối không thêm bất cứ từ nào khác, không hứa hẹn, không an ủi.
+- Khi quyết định là TICKET, HÃY TRÍCH XUẤT ĐỊA ĐIỂM (vị trí) sự cố nếu có trong câu hỏi. Trả về đúng định dạng: TICKET|[Địa điểm]. Nếu không xác định được địa điểm, trả về: TICKET|Không xác định.
+Ví dụ: "phòng d102 lỗi máy chiếu" -> TICKET|Phòng D102
+Tuyệt đối không thêm bất cứ từ nào khác, không hứa hẹn, không an ủi.
 
 2. ANSWER - Áp dụng cho: 
 - Tin nhắn xin thông tin rõ ràng (ví dụ: "cho xin mật khẩu wifi", "pass wifi là gì", "làm sao để mượn máy chiếu").
@@ -135,16 +137,17 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       const errText = await response.text();
       console.error('DeepSeek API Error HTTP', response.status, ':', errText);
       userContexts.delete(uId);
-      return { type: 'TICKET' };
+      return { type: 'TICKET', location: "Không xác định" };
     }
 
     const data = await response.json();
     const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
     
     // Nếu AI trả về TICKET
-    if (result === 'TICKET' || result.includes('TICKET')) {
+    if (result.startsWith('TICKET')) {
       userContexts.delete(uId);
-      return { type: 'TICKET' };
+      const parts = result.split('|');
+      return { type: 'TICKET', location: parts.length > 1 ? parts[1].trim() : "Không xác định" };
     }
     
     // Còn lại mặc định là ANSWER (kể cả khi AI quên ghi chữ ANSWER|)
@@ -163,7 +166,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
   } catch (error) {
     console.error('Lỗi gọi AI API (Network):', error);
     userContexts.delete(uId);
-    return { type: 'TICKET' };
+    return { type: 'TICKET', location: "Không xác định" };
   }
 }
 
@@ -238,18 +241,29 @@ async function renderTableRows() {
      const year = d.getFullYear();
      const time = d.toLocaleTimeString('en-US', { hour12: false });
      
-     const statusBadge = r.status === 'Đã xong' 
-       ? '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>'
-       : `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
+     let statusBadge = '';
+     if (r.status === 'Đã xong') {
+       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
+     } else if (r.status === 'Đang xử lý') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
+     } else {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:12px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
+     }
        
      let adminReplyCell = '';
      if (r.status === 'Đã xong') {
          adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
-     } else {
+     } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
               <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
+           </div>
+         `;
+     } else {
+         adminReplyCell = `
+           <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
+              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 12px; font-size:13px; background:#eab308; color:white; border:none; border-radius:6px; cursor:pointer; width:100%; white-space:nowrap;">Nhận yêu cầu</button>
            </div>
          `;
      }
@@ -700,6 +714,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   <select id="statusFilter">
                       <option value="">-- Tất cả trạng thái --</option>
                       <option value="đã xong">🟢 Đã xong</option>
+                      <option value="đang xử lý">🟡 Đang xử lý</option>
                       <option value="đang chờ">🔴 Đang chờ</option>
                   </select>
                   <select id="nameFilter">
@@ -870,10 +885,9 @@ app.get('/report', checkAuth, async (req, res) => {
 
 
           // Cơ chế đồng bộ thời gian thực (Real-time Polling)
-          setInterval(async () => {
+          async function fetchAndRenderRows() {
               try {
                   const activeEl = document.activeElement;
-                  // Bỏ qua update nếu Admin đang gõ phím vào ô reply
                   if (activeEl && activeEl.tagName === 'INPUT' && activeEl.id.startsWith('replyInput_')) {
                       return;
                   }
@@ -887,10 +901,37 @@ app.get('/report', checkAuth, async (req, res) => {
                           filterData();
                       }
                   }
-              } catch (e) {
-                  // Ignore
+              } catch (e) {}
+          }
+          setInterval(fetchAndRenderRows, 10000);
+
+          // Hàm Nhận yêu cầu
+          async function acceptTicket(ticketId, event) {
+              const btn = event.currentTarget;
+              const originalBtnText = btn.textContent;
+              btn.textContent = 'Đang nhận...';
+              btn.disabled = true;
+
+              try {
+                  const response = await fetch('/api/tickets/inprogress', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ id: ticketId })
+                  });
+                  const data = await response.json();
+                  if (response.ok && data.success) {
+                      fetchAndRenderRows();
+                  } else {
+                      alert('Lỗi: ' + (data.error || 'Không thể nhận yêu cầu.'));
+                      btn.textContent = originalBtnText;
+                      btn.disabled = false;
+                  }
+              } catch (err) {
+                  alert('Lỗi kết nối tới máy chủ.');
+                  btn.textContent = originalBtnText;
+                  btn.disabled = false;
               }
-          }, 10000); // 10 giây update 1 lần
+          }
 
           // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
           async function resolveTicket(ticketId) {
@@ -993,19 +1034,35 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
   if (updatedReq) {
     // Thông báo về nhóm/người dùng gốc
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${id}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${replyText}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
+    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!
+------------------------------
+Sự cố Thầy/Cô ${updatedReq.sender_name} thông báo tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý xong
+💬 Phản hồi từ IT: ${replyText}
+------------------------------
+😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
     
-    // Thông báo cho Admin (Tuỳ chọn để Admin biết Webhook đã chạy)
+    // Thông báo cho Admin
     const adminId = await db.getSetting('admin_chat_id');
     if (adminId) {
-      await sendZaloMessage(adminId, `🌐 Hệ thống vừa ghi nhận sự cố #${id} đã được đóng trực tiếp qua Web Dashboard.`);
+      await sendZaloMessage(adminId, `✅ Sự cố #${id} đã hoàn thành qua web`);
     }
 
     return res.json({ success: true });
   } else {
     return res.status(500).json({ error: 'Lỗi ghi dữ liệu vào hệ thống.' });
   }
+});
+
+// ENDPOINT: Chuyển trạng thái sang Đang xử lý
+app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ error: 'Thiếu ID' });
+  const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý');
+  if (updatedReq) {
+    return res.json({ success: true });
+  }
+  return res.status(400).json({ error: 'Không thể cập nhật' });
 });
 
 // ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
@@ -1249,7 +1306,7 @@ app.post('/webhook', async (req, res) => {
     const adminIdForReply = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
     const isBotMentioned = text.includes(BOT_NAME) || text.includes('@Bot');
     const quoteText = message?.quote?.text || '';
-    const isExplicitQuoteReply = /Mã Yêu Cầu: #(\d+)/.test(quoteText);
+    const isExplicitQuoteReply = /\\[#(\d+)\\]|Mã Yêu Cầu: #(\d+)/.test(quoteText);
     const textTicketMatch = text.match(/#(\d+)/);
     const hasTextTicketId = textTicketMatch !== null;
 
@@ -1263,8 +1320,8 @@ app.post('/webhook', async (req, res) => {
       } 
       // Ưu tiên 2: Tìm Mã Yêu Cầu trong Quote
       else if (isExplicitQuoteReply) {
-         const match = quoteText.match(/Mã Yêu Cầu: #(\d+)/);
-         if (match) targetTicketId = parseInt(match[1]);
+         const match = quoteText.match(/\\[#(\d+)\\]|Mã Yêu Cầu: #(\d+)/);
+         if (match) targetTicketId = parseInt(match[1] || match[2]);
       } 
       // Không hợp lệ: Yêu cầu nhập rõ mã ID
       else {
@@ -1288,13 +1345,23 @@ app.post('/webhook', async (req, res) => {
          // Xóa mã #ID khỏi nội dung trả lời nếu Admin có gõ vào
          const cleanText = text.replace(/#\d+\s*/g, '').trim() || 'Hoàn thành';
 
-         const updatedReq = await db.updateRequest(targetTicketId, cleanText, Date.now());
-         if (updatedReq) {
-            await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
-            // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
-            const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!\n------------------------------\nMã Sự Cố: #${targetTicketId}\nNội dung Thầy/Cô báo: ${updatedReq.content}\n\n💬 Phản hồi từ IT: ${cleanText}\n------------------------------\nCảm ơn Thầy/Cô đã phản hồi!`;
-            await sendZaloMessage(targetChat, userMsg);
+         if (existingReq.status === 'Đang chờ') {
+             await db.updateRequestStatus(targetTicketId, 'Đang xử lý');
+             await sendZaloMessage(chatId, `🟡 Hệ thống đã ghi nhận bạn đang xử lý sự cố #${targetTicketId}. (Nhắn/Reply lần nữa để hoàn thành)`);
+         } else if (existingReq.status === 'Đang xử lý') {
+             const updatedReq = await db.updateRequest(targetTicketId, cleanText, Date.now());
+             if (updatedReq) {
+                await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
+                // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
+                const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+                const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!
+------------------------------
+Sự cố Thầy/Cô ${updatedReq.sender_name} thông báo tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý xong
+💬 Phản hồi từ IT: ${cleanText}
+------------------------------
+😊 Xin cảm ơn Thầy/Cô!`;
+                await sendZaloMessage(targetChat, userMsg);
+             }
          }
       } else {
          await sendZaloMessage(chatId, `⚠️ Không có yêu cầu nào đang chờ xử lý, hoặc hệ thống không nhận diện được bạn đang trả lời cho sự cố nào.`);
@@ -1320,14 +1387,15 @@ app.post('/webhook', async (req, res) => {
       }
 
       // Save to Database (Nếu là TICKET)
-      const newId = await db.addRequest(timestamp, senderName, senderId, chatId, chatName, requestContent);
+      const location = aiResult.location || 'Không xác định';
+      const newId = await db.addRequest(timestamp, senderName, senderId, chatId, chatName, requestContent, location);
 
       // Format the message to send to Admin
-      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI!
-Mã Yêu Cầu: #${newId}
+      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
 👤 Người gửi: ${senderName}
 🏠 Nguồn: ${chatName}
+📍 Vị trí: ${location}
 🕒 Thời gian: ${timeStr} - ${dateStr}
 📌 Nội dung:
 ${requestContent}
@@ -1341,13 +1409,8 @@ ${requestContent}
       if (adminId) {
         const userMessage = `✅ YÊU CẦU ĐÃ ĐƯỢC TIẾP NHẬN!
 ------------------------------
-Mã Sự Cố: #${newId}
-👤 Người gửi: ${BOT_PRONOUN_USER_DEFAULT} ${senderName}
-🕒 Thời gian: ${timeStr} - ${dateStr}
-📌 Nội dung:
-${requestContent}
+🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} thông báo với Mã Sự Cố: #${newId} đã được gửi cho bộ phận IT, Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.
 ------------------------------
-🛠️ Bộ phận IT sẽ tiến hành kiểm tra và sửa chữa.
 😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
         await sendZaloMessage(adminId, adminMessage);
         await sendZaloMessage(chatId, userMessage);

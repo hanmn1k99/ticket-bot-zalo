@@ -35,7 +35,7 @@ async function setSetting(key, value) {
 }
 
 // Requests API
-async function addRequest(timestamp, senderName, senderId, chatId, chatName, content) {
+async function addRequest(timestamp, senderName, senderId, chatId, chatName, content, location) {
   const db = readDB();
   const newId = db.requests.length > 0 ? db.requests[db.requests.length - 1].id + 1 : 1;
   db.requests.push({
@@ -46,7 +46,8 @@ async function addRequest(timestamp, senderName, senderId, chatId, chatName, con
     chat_id: chatId,
     chat_name: chatName,
     content,
-    status: 'Đang xử lý',
+    location: location || "Không xác định",
+    status: 'Đang chờ',
     admin_reply: null,
     completed_at: null
   });
@@ -61,6 +62,17 @@ async function updateRequest(id, adminReply, completedAt) {
     db.requests[index].status = 'Đã xong';
     db.requests[index].admin_reply = adminReply;
     db.requests[index].completed_at = completedAt;
+    writeDB(db);
+    return db.requests[index];
+  }
+  return null;
+}
+
+async function updateRequestStatus(id, newStatus) {
+  const db = readDB();
+  const index = db.requests.findIndex(r => r.id === id);
+  if (index !== -1) {
+    db.requests[index].status = newStatus;
     writeDB(db);
     return db.requests[index];
   }
@@ -158,6 +170,7 @@ module.exports = {
   addRequest,
   getRequest,
   updateRequest,
+  updateRequestStatus,
   getLatestPendingRequest,
   getAllRequests,
   deleteAllRequests,
