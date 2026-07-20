@@ -1234,6 +1234,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Cài đặt Hệ thống</title>
+      <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
+      <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <script>
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
