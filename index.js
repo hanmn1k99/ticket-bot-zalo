@@ -1752,8 +1752,8 @@ ${systemPromptPreview}
 
         window.addEventListener('DOMContentLoaded', () => {
           loadAdmins();
-          // Auto update admins list every 5 seconds
-          setInterval(loadAdmins, 5000);
+          // Auto update admins list every 0.5 seconds
+          setInterval(loadAdmins, 500);
         });
       </script>
     </body>
