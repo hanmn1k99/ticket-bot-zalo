@@ -1545,8 +1545,8 @@ app.post('/webhook', async (req, res) => {
 
   if (message) {
     const text = message.text || '';
-    let cleanTextForCmd = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
-    cleanTextForCmd = cleanTextForCmd.replace(/^@\s*/, '').trim();
+    let cleanTextForCmd = text.replace(new RegExp(`@?${BOT_NAME}`, 'gi'), '').replace(/@?Bot/gi, '').trim();
+    cleanTextForCmd = cleanTextForCmd.replace(/^@\s*/, '').replace(/@\s*$/, '').trim();
     const sender = message.from || {};
     const chat = message.chat || {};
     const senderName = sender.display_name || 'Khách';
@@ -1935,9 +1935,9 @@ app.post('/webhook', async (req, res) => {
     // Handle bot mention (Ticket request)
     if (text.includes(BOT_NAME) || text.includes('@Bot')) {
       // Remove bot name from text
-      let requestContent = text.replace(new RegExp(BOT_NAME, 'gi'), '').replace(/@Bot/gi, '').trim();
+      let requestContent = text.replace(new RegExp(`@?${BOT_NAME}`, 'gi'), '').replace(/@?Bot/gi, '').trim();
       // Remove trailing or leading @ symbol left behind
-      requestContent = requestContent.replace(/^@\s*/, '').trim();
+      requestContent = requestContent.replace(/^@\s*/, '').replace(/@\s*$/, '').trim();
       if (!requestContent) requestContent = "(Không có nội dung)";
 
       // Analyze with AI
