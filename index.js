@@ -272,14 +272,14 @@ async function renderTableRows() {
      } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; outline:none;">
-              <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap;">Gửi</button>
+              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="flex:1; padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; outline:none;">
+              <button onclick="resolveTicket(${r.id})" style="padding:6px 12px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:8px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
            </div>
          `;
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; font-weight:500; background:#eab308; color:white; border:none; border-radius:6px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Nhận yêu cầu</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:1px solid #eab308; border-radius:8px; cursor:pointer; white-space:nowrap; transition: background 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
            </div>
          `;
      }
