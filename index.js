@@ -1006,7 +1006,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   }
               } catch (e) {}
           }
-          setInterval(fetchAndRenderRows, 2000);
+          setInterval(fetchAndRenderRows, 500);
 
           // Hàm Nhận yêu cầu
           async function acceptTicket(ticketId, event) {
@@ -1868,6 +1868,8 @@ app.post('/webhook', async (req, res) => {
    👉 Đóng sự cố. (VD: /xong 15 Đã cắm lại cáp)
 7️⃣ /tuchoi [Mã số] [Lý do] 
    👉 Từ chối yêu cầu. (VD: /tuchoi 15 Máy in hết mực)
+8️⃣ /test [Nội dung tùy chọn]
+   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút. (VD: /test)
 
 💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
       await sendZaloMessage(chatId, helpMsg);
