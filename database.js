@@ -213,6 +213,69 @@ async function removeGroupCompletely(groupId) {
   return changed;
 }
 
+// Admins API
+async function getAdmins() {
+  const db = readDB();
+  return db.settings.admins || [];
+}
+
+async function getPendingAdmins() {
+  const db = readDB();
+  return db.settings.pending_admins || [];
+}
+
+async function addPendingAdmin(id, name) {
+  const db = readDB();
+  if (!db.settings.pending_admins) db.settings.pending_admins = [];
+  if (!db.settings.pending_admins.find(a => a.id === id)) {
+    db.settings.pending_admins.push({ id, name, timestamp: Date.now() });
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
+async function approveAdmin(id) {
+  const db = readDB();
+  if (!db.settings.pending_admins) return false;
+  const pendingIndex = db.settings.pending_admins.findIndex(a => a.id === id);
+  if (pendingIndex !== -1) {
+    const adminData = db.settings.pending_admins[pendingIndex];
+    db.settings.pending_admins.splice(pendingIndex, 1);
+    if (!db.settings.admins) db.settings.admins = [];
+    if (!db.settings.admins.find(a => a.id === id)) {
+      db.settings.admins.push(adminData);
+    }
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
+async function rejectAdmin(id) {
+  const db = readDB();
+  if (!db.settings.pending_admins) return false;
+  const initialLength = db.settings.pending_admins.length;
+  db.settings.pending_admins = db.settings.pending_admins.filter(a => a.id !== id);
+  if (db.settings.pending_admins.length !== initialLength) {
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
+async function removeAdmin(id) {
+  const db = readDB();
+  if (!db.settings.admins) return false;
+  const initialLength = db.settings.admins.length;
+  db.settings.admins = db.settings.admins.filter(a => a.id !== id);
+  if (db.settings.admins.length !== initialLength) {
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -232,5 +295,11 @@ module.exports = {
   getAllGroups,
   setGroupName,
   getGroupName,
-  getAllGroupNames
+  getAllGroupNames,
+  getAdmins,
+  getPendingAdmins,
+  addPendingAdmin,
+  approveAdmin,
+  rejectAdmin,
+  removeAdmin
 };

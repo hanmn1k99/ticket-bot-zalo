@@ -233,8 +233,20 @@ async function sendZaloMessage(chatId, text) {
   }
 }
 
+async function sendToAdmins(text) {
+  const admins = await db.getAdmins();
+  for (const admin of admins) {
+    await sendZaloMessage(admin.id, text);
+  }
+}
+
+async function isAdmin(senderId) {
+  const admins = await db.getAdmins();
+  return admins.some(a => a.id === senderId);
+}
+
 // Init cron jobs
-setupCronJobs(sendZaloMessage);
+setupCronJobs(sendToAdmins);
 
 function scheduleTestDeletion(ticketId, content) {
     if (content && content.startsWith('[TEST]')) {
@@ -1218,10 +1230,7 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     scheduleTestDeletion(id, updatedReq.content);
     
     // Thông báo cho Admin
-    const adminId = await db.getSetting('admin_chat_id');
-    if (adminId) {
-      await sendZaloMessage(adminId, `✅ Sự cố #${id} đã hoàn thành qua web`);
-    }
+    await sendToAdmins(`✅ Sự cố #${id} đã hoàn thành qua web`);
 
     return res.json({ success: true });
   } else {
@@ -1266,10 +1275,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
-    const adminId = await db.getSetting('admin_chat_id');
-    if (adminId) {
-      await sendZaloMessage(adminId, `⛔ Sự cố #${id} đã bị từ chối qua web`);
-    }
+    await sendToAdmins(`⛔ Sự cố #${id} đã bị từ chối qua web`);
 
     return res.json({ success: true });
   } else {
@@ -1292,10 +1298,7 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 😊 Sẽ có thông báo gửi đến Thầy/Cô ngay khi hoàn tất!`;
     await sendZaloMessage(targetChat, userMsg);
 
-    const adminId = await db.getSetting('admin_chat_id');
-    if (adminId) {
-      await sendZaloMessage(adminId, `✅ Sự cố #${id} đã được tiếp nhận qua web`);
-    }
+    await sendToAdmins(`✅ Sự cố #${id} đã được tiếp nhận qua web`);
 
     return res.json({ success: true });
   }
@@ -1308,10 +1311,7 @@ app.post('/api/tickets/clean', checkAuth, async (req, res) => {
   const count = await db.deleteAllRequests();
   
   // Gửi thông báo cho Admin qua Zalo
-  const adminId = await db.getSetting('admin_chat_id');
-  if (adminId) {
-    await sendZaloMessage(adminId, `🧹 [WEB DASHBOARD] Đã dọn dẹp hệ thống. Xóa thành công ${count} sự cố. Bộ đếm ID đã được reset về #1.`);
-  }
+  await sendToAdmins(`🧹 [WEB DASHBOARD] Đã dọn dẹp hệ thống. Xóa thành công ${count} sự cố. Bộ đếm ID đã được reset về #1.`);
 
   return res.json({ success: true, deletedCount: count });
 });
@@ -1320,6 +1320,46 @@ app.post('/api/tickets/clean', checkAuth, async (req, res) => {
 app.get('/api/tickets/rows', checkAuth, async (req, res) => {
   const html = await renderTableRows();
   return res.json({ success: true, html: html });
+});
+
+// ENDPOINT: Quản lý Admins
+app.get('/api/admins', checkAuth, async (req, res) => {
+  const admins = await db.getAdmins();
+  const pending = await db.getPendingAdmins();
+  res.json({ success: true, admins, pending });
+});
+
+app.post('/api/admins/approve', checkAuth, async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ error: 'Thiếu ID' });
+  const success = await db.approveAdmin(id);
+  if (success) {
+    await sendZaloMessage(id, "✅ Yêu cầu cấp quyền Quản trị viên (Admin) Zalo của bạn đã được CHẤP THUẬN! Bạn sẽ bắt đầu nhận được thông báo sự cố từ bây giờ.");
+    return res.json({ success: true });
+  }
+  return res.status(400).json({ error: 'Không tìm thấy yêu cầu' });
+});
+
+app.post('/api/admins/reject', checkAuth, async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ error: 'Thiếu ID' });
+  const success = await db.rejectAdmin(id);
+  if (success) {
+    await sendZaloMessage(id, "❌ Yêu cầu cấp quyền Admin Zalo của bạn đã bị TỪ CHỐI.");
+    return res.json({ success: true });
+  }
+  return res.status(400).json({ error: 'Không tìm thấy yêu cầu' });
+});
+
+app.post('/api/admins/remove', checkAuth, async (req, res) => {
+  const { id } = req.body;
+  if (!id) return res.status(400).json({ error: 'Thiếu ID' });
+  const success = await db.removeAdmin(id);
+  if (success) {
+    await sendZaloMessage(id, "⚠️ Quyền Quản trị viên Zalo của bạn đã bị THU HỒI bởi hệ thống.");
+    return res.json({ success: true });
+  }
+  return res.status(400).json({ error: 'Không tìm thấy admin' });
 });
 
 // SETTINGS PAGE
@@ -1498,6 +1538,39 @@ ${systemPromptPreview}
         </table>
       </div>
 
+      <div class="card">
+        <h3>Quản lý Quản trị viên Zalo</h3>
+        <p style="color:#666; font-size: 14px;"><i>Quyền duyệt tối cao thuộc về tài khoản Web Admin. Những người dùng Zalo được duyệt dưới đây sẽ có quyền sử dụng các lệnh Zalo và nhận thông báo khi có sự kiện.</i></p>
+        
+        <h4>Yêu cầu đang chờ duyệt</h4>
+        <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom: 20px;">
+           <thead>
+             <tr>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Zalo ID</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên Zalo</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
+             </tr>
+           </thead>
+           <tbody id="pendingAdminsTbody">
+             <tr><td colspan="3" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+           </tbody>
+        </table>
+
+        <h4>Admin chính thức hiện tại</h4>
+        <table style="width:100%; border-collapse:collapse; text-align:left;">
+           <thead>
+             <tr>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Zalo ID</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Tên Zalo</th>
+               <th style="padding:10px; border-bottom:2px solid var(--border-color);">Thao tác</th>
+             </tr>
+           </thead>
+           <tbody id="activeAdminsTbody">
+             <tr><td colspan="3" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+           </tbody>
+        </table>
+      </div>
+
       <script>
         function showNotification(msg) {
           let old = document.getElementById('notification-toast');
@@ -1549,6 +1622,71 @@ ${systemPromptPreview}
           });
           if (res.ok) window.location.reload();
         }
+
+        async function loadAdmins() {
+          const res = await fetch('/api/admins');
+          const data = await res.json();
+          if (data.success) {
+            const pendingHtml = data.pending.map(a => 
+              \`<tr>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;">\${a.id}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;">\${a.name}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;">
+                  <button class="btn-primary" style="background:#10b981; padding: 4px 8px; font-size:12px; margin-right:4px;" onclick="approveAdmin('\${a.id}')">Duyệt</button>
+                  <button class="btn-danger" style="padding: 4px 8px; font-size:12px;" onclick="rejectAdmin('\${a.id}')">Từ chối</button>
+                </td>
+              </tr>\`
+            ).join('') || '<tr><td colspan="3" style="padding:10px; text-align:center; color:#999;">Không có yêu cầu nào</td></tr>';
+            
+            const activeHtml = data.admins.map(a => 
+              \`<tr>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;">\${a.id}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;">\${a.name}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;">
+                  <button class="btn-danger" style="background:#991b1b; padding: 4px 8px; font-size:12px;" onclick="removeAdmin('\${a.id}')">Xóa quyền</button>
+                </td>
+              </tr>\`
+            ).join('') || '<tr><td colspan="3" style="padding:10px; text-align:center; color:#999;">Chưa có Admin nào được duyệt</td></tr>';
+
+            document.getElementById('pendingAdminsTbody').innerHTML = pendingHtml;
+            document.getElementById('activeAdminsTbody').innerHTML = activeHtml;
+          }
+        }
+
+        async function approveAdmin(id) {
+          if (!confirm('Duyệt người này làm Admin Zalo?')) return;
+          const res = await fetch('/api/admins/approve', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+          });
+          if (res.ok) { showNotification('Đã duyệt!'); loadAdmins(); }
+          else showNotification('Lỗi khi duyệt.');
+        }
+
+        async function rejectAdmin(id) {
+          if (!confirm('Từ chối yêu cầu của người này?')) return;
+          const res = await fetch('/api/admins/reject', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+          });
+          if (res.ok) { showNotification('Đã từ chối!'); loadAdmins(); }
+          else showNotification('Lỗi khi từ chối.');
+        }
+
+        async function removeAdmin(id) {
+          if (!confirm('CẢNH BÁO: Thu hồi quyền Admin Zalo của người này?')) return;
+          const res = await fetch('/api/admins/remove', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id })
+          });
+          if (res.ok) { showNotification('Đã thu hồi quyền!'); loadAdmins(); }
+          else showNotification('Lỗi khi thu hồi.');
+        }
+
+        window.addEventListener('DOMContentLoaded', loadAdmins);
       </script>
     </body>
     </html>
@@ -1663,8 +1801,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /thongbao
     if (text.startsWith('/thongbao ')) {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1693,8 +1830,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /nhan command
     if (text.startsWith('/nhan ')) {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1731,8 +1867,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /xong command
     if (text.startsWith('/xong ')) {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1781,8 +1916,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /tuchoi command
     if (text.startsWith('/tuchoi ')) {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1856,20 +1990,21 @@ app.post('/webhook', async (req, res) => {
       const helpMsg = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý hệ thống:
-1️⃣ /install : Trở thành Quản trị viên (nhận tin báo).
-2️⃣ /uninstall : Hủy quyền Quản trị viên.
-3️⃣ /report : Lấy link truy cập Trang quản trị Web.
-4️⃣ /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
+1️⃣ /install : Đăng ký quyền Quản trị viên Zalo.
+2️⃣ /admin : Xem danh sách Quản trị viên.
+3️⃣ /uninstall : Tự xóa quyền Quản trị viên cá nhân.
+4️⃣ /report : Lấy link truy cập Trang quản trị Web.
+5️⃣ /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
+6️⃣ /test : Tạo sự cố thử nghiệm tự xóa sau 1 phút.
 
 🔹 Xử lý sự cố:
-5️⃣ /nhan [Mã số] 
+7️⃣ /nhan [Mã số] 
    👉 Nhận xử lý sự cố. (VD: /nhan 15)
-6️⃣ /xong [Mã số] [Nội dung] 
+8️⃣ /xong [Mã số] [Nội dung] 
    👉 Đóng sự cố. (VD: /xong 15 Đã cắm lại cáp)
-7️⃣ /tuchoi [Mã số] [Lý do] 
+9️⃣ /tuchoi [Mã số] [Lý do] 
    👉 Từ chối yêu cầu. (VD: /tuchoi 15 Máy in hết mực)
-8️⃣ /test [Nội dung tùy chọn]
-   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút. (VD: /test)
+
 
 💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
       await sendZaloMessage(chatId, helpMsg);
@@ -1878,22 +2013,49 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /install command
     if (text.trim() === '/install') {
-      await db.setSetting('admin_chat_id', senderId);
-      await sendZaloMessage(chatId, "✅ Thiết lập thành công! Bạn đã được gán làm Admin. Các yêu cầu từ người dùng sẽ được chuyển tiếp tới đây.");
+      const isAlreadyAdmin = await isAdmin(senderId);
+      if (isAlreadyAdmin) {
+        await sendZaloMessage(chatId, "⚠️ Bạn đã là Quản trị viên Zalo rồi.");
+        return;
+      }
+      const added = await db.addPendingAdmin(senderId, senderName);
+      if (added) {
+        await sendZaloMessage(chatId, "✅ Yêu cầu cấp quyền Admin Zalo đã được gửi. Vui lòng chờ Quản trị viên Web phê duyệt.");
+      } else {
+        await sendZaloMessage(chatId, "⚠️ Yêu cầu của bạn đã tồn tại trong hàng đợi và đang chờ phê duyệt.");
+      }
+      return;
+    }
+
+    // Handle /admin command
+    if (text.trim() === '/admin') {
+      const admins = await db.getAdmins();
+      if (admins.length === 0) {
+        await sendZaloMessage(chatId, "Danh sách Quản trị viên hiện đang trống.");
+      } else {
+        let msg = "👥 DANH SÁCH QUẢN TRỊ VIÊN:\n------------------------------\n";
+        admins.forEach((a, idx) => {
+          msg += `${idx + 1}. ${a.name}\n`;
+        });
+        await sendZaloMessage(chatId, msg);
+      }
       return;
     }
 
     // Handle /uninstall command
     if (text.trim() === '/uninstall') {
-      await db.setSetting('admin_chat_id', null);
-      await sendZaloMessage(chatId, "⚠️ Đã gỡ bỏ quyền Admin của bạn. Hệ thống sẽ không chuyển tiếp tin nhắn tới đây nữa.");
-      return;
+       const removed = await db.removeAdmin(senderId);
+       if (removed) {
+         await sendZaloMessage(chatId, "✅ Đã tự động rời khỏi vị trí Admin. Bạn sẽ không nhận được thông báo nữa.");
+       } else {
+         await sendZaloMessage(chatId, "⚠️ Bạn không phải là Admin.");
+       }
+       return;
     }
 
     // Handle /report command
     if (text.trim() === '/report') {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1905,8 +2067,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /clean command
     if (text.trim() === '/clean') {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1918,8 +2079,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /groups command
     if (cleanTextForCmd === '/groups' || cleanTextForCmd === '/group') {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1942,8 +2102,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /remove command
     if (cleanTextForCmd.startsWith('/remove ')) {
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (senderId !== adminId) {
+      if (!(await isAdmin(senderId))) {
         await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này.");
         return;
       }
@@ -1976,7 +2135,7 @@ app.post('/webhook', async (req, res) => {
     }
 
     // Xử lý tin nhắn từ Admin (Reply ticket)
-    const adminIdForReply = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
+    const isSenderAdmin = await isAdmin(senderId);
     const isBotMentioned = text.includes(BOT_NAME) || text.includes('@Bot');
     const quoteText = message?.quote?.text || '';
     const isExplicitQuoteReply = /\\[#(\d+)\\]|Mã Yêu Cầu: #(\d+)/.test(quoteText);
@@ -1984,7 +2143,7 @@ app.post('/webhook', async (req, res) => {
     const hasTextTicketId = textTicketMatch !== null;
 
     // Là Reply nếu: Gửi từ Admin, KHÔNG phải lệnh, VÀ (Có Quote hợp lệ HOẶC có gõ #ID HOẶC không có nhắc đến @Bot)
-    if (senderId === adminIdForReply && !text.startsWith('/') && (isExplicitQuoteReply || hasTextTicketId || !isBotMentioned)) {
+    if (isSenderAdmin && !text.startsWith('/') && (isExplicitQuoteReply || hasTextTicketId || !isBotMentioned)) {
       let targetTicketId = null;
       
       // Ưu tiên 1: Gõ trực tiếp #ID trong tin nhắn
