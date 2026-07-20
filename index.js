@@ -1822,6 +1822,29 @@ app.post('/webhook', async (req, res) => {
       return;
     }
 
+    // Handle /ask command (Help)
+    if (text.trim() === '/ask' || text.trim() === '/help') {
+      const helpMsg = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
+------------------------------
+🔹 Quản lý hệ thống:
+1️⃣ /install : Trở thành Quản trị viên (nhận tin báo).
+2️⃣ /uninstall : Hủy quyền Quản trị viên.
+3️⃣ /report : Lấy link truy cập Trang quản trị Web.
+4️⃣ /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
+
+🔹 Xử lý sự cố:
+5️⃣ /nhan [Mã số] 
+   👉 Nhận xử lý sự cố. (VD: /nhan 15)
+6️⃣ /dong [Mã số] [Nội dung] 
+   👉 Đóng sự cố. (VD: /dong 15 Đã cắm lại cáp)
+7️⃣ /tuchoi [Mã số] [Lý do] 
+   👉 Từ chối yêu cầu. (VD: /tuchoi 15 Máy in hết mực)
+
+💡 Mẹo: Bạn cũng có thể dùng Trang quản trị Web để xử lý trực quan bằng nút bấm mà không cần gõ lệnh.`;
+      await sendZaloMessage(chatId, helpMsg);
+      return;
+    }
+
     // Handle /install command
     if (text.trim() === '/install') {
       await db.setSetting('admin_chat_id', senderId);
