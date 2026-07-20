@@ -1223,9 +1223,9 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
   const updatedReq = await db.rejectRequest(id, replyText, Date.now());
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `⛔ CẬP NHẬT: TỪ CHỐI TIẾP NHẬN YÊU CẦU
+    const userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
 ------------------------------
-🛠️ Sau khi kiểm tra, bộ phận IT xin phép từ chối yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'}.
+🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} thành Từ chối.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1776,9 +1776,9 @@ app.post('/webhook', async (req, res) => {
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
-        await sendZaloMessage(targetChat, `⛔ CẬP NHẬT: TỪ CHỐI TIẾP NHẬN YÊU CẦU
+        await sendZaloMessage(targetChat, `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
 ------------------------------
-🛠️ Sau khi kiểm tra, bộ phận IT xin phép từ chối yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'}.
+🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} thành Từ chối.
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`);
