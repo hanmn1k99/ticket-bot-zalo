@@ -1097,9 +1097,9 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
   if (updatedReq) {
     // Thông báo về nhóm/người dùng gốc
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!
+    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
 ------------------------------
-Sự cố Thầy/Cô ${updatedReq.sender_name} thông báo tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý xong
+🛠️ Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
 💬 Phản hồi từ IT: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
@@ -1124,11 +1124,12 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý');
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const userMsg = `🟡 SỰ CỐ ĐANG ĐƯỢC XỬ LÝ!
+    const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ!
 ------------------------------
-🛠️ Sự cố #${id} của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT TIẾP NHẬN và đang tiến hành kiểm tra/sửa chữa.
+👨‍💻 Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được Bộ phận IT tiếp nhận.
+🔧 Kỹ thuật viên đang tiến hành kiểm tra và khắc phục.
 ------------------------------
-😊 Bộ phận IT sẽ cập nhật khi hoàn tất!`;
+😊 Sẽ có thông báo gửi đến Thầy/Cô ngay khi hoàn tất!`;
     await sendZaloMessage(targetChat, userMsg);
     return res.json({ success: true });
   }
@@ -1614,9 +1615,9 @@ app.post('/webhook', async (req, res) => {
                 await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
                 // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
                 const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-                const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC XỬ LÝ XONG!
+                const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
 ------------------------------
-Sự cố Thầy/Cô ${updatedReq.sender_name} thông báo tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý xong
+🛠️ Sự cố (Mã số: #${targetTicketId}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
 💬 Phản hồi từ IT: ${cleanText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
@@ -1651,16 +1652,16 @@ Sự cố Thầy/Cô ${updatedReq.sender_name} thông báo tại ${updatedReq.lo
       const newId = await db.addRequest(timestamp, senderName, senderId, chatId, chatName, requestContent, location);
 
       // Format the message to send to Admin
-      const adminMessage = `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
+      const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
-👤 Người gửi: ${senderName}
-🏠 Nguồn: ${chatName}
+👤 Giáo viên: ${senderName}
+🏫 Nguồn: ${chatName}
 📍 Vị trí: ${location}
 🕒 Thời gian: ${timeStr} - ${dateStr}
-📌 Nội dung:
+📌 Chi tiết sự cố:
 ${requestContent}
 ------------------------------
-🛠️ IT ${BOT_ORG_NAME} vui lòng tiếp nhận!`;
+👨‍💻 Đội ngũ IT vui lòng tiếp nhận!`;
       
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
