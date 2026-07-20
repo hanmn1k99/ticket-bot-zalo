@@ -357,6 +357,21 @@ async function updateUserPassword(username, newPasswordHash) {
   return false;
 }
 
+async function updateUser(username, updateData) {
+  const db = readDB();
+  if (!db.settings.users) return false;
+  const user = db.settings.users.find(u => u.username === username);
+  if (user) {
+    if (updateData.passwordHash) user.passwordHash = updateData.passwordHash;
+    if (updateData.role) user.role = updateData.role;
+    if (updateData.displayName) user.displayName = updateData.displayName;
+    if (updateData.zaloId !== undefined) user.zaloId = updateData.zaloId;
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -387,5 +402,6 @@ module.exports = {
   getUserByUsername,
   createUser,
   deleteUser,
-  updateUserPassword
+  updateUserPassword,
+  updateUser
 };

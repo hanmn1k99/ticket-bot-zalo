@@ -1603,6 +1603,34 @@ app.post('/api/users/delete', checkAuth, async (req, res) => {
   else res.status(400).json({ error: 'Tài khoản không tồn tại' });
 });
 
+app.post('/api/users/edit', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
+  const { username, password, role, displayName, zaloId } = req.body;
+  if (!username) return res.status(400).json({ error: 'Thiếu username' });
+  
+  const users = await db.getUsers();
+  const targetUser = users.find(u => u.username === username);
+  if (!targetUser) return res.status(400).json({ error: 'Tài khoản không tồn tại' });
+  
+  // Prevent changing the role of the last SUPER_ADMIN
+  if (targetUser.role === 'SUPER_ADMIN' && role !== 'SUPER_ADMIN') {
+    const superAdmins = users.filter(u => u.role === 'SUPER_ADMIN');
+    if (superAdmins.length <= 1) {
+      return res.status(400).json({ error: 'Không thể hạ quyền SUPER_ADMIN duy nhất còn lại!' });
+    }
+  }
+
+  const updateData = {};
+  if (password) updateData.passwordHash = await bcrypt.hash(password, 10);
+  if (role) updateData.role = role;
+  if (displayName) updateData.displayName = displayName;
+  if (zaloId !== undefined) updateData.zaloId = zaloId;
+
+  const success = await db.updateUser(username, updateData);
+  if (success) res.json({ success: true });
+  else res.status(400).json({ error: 'Lỗi khi cập nhật' });
+});
+
 // SETTINGS PAGE
 app.get('/settings', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.redirect('/report');
@@ -1847,8 +1875,8 @@ ${systemPromptPreview}
           </div>
           <div style="display: flex; gap: 16px; align-items: center;">
             <select id="newWebRole" style="flex: 1; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-               <option value="ADMIN">🛡️ ADMIN (Chỉ vận hành)</option>
-               <option value="SUPER_ADMIN">👑 SUPER_ADMIN (Toàn quyền)</option>
+               <option value="ADMIN">🛡️ Vận hành (ADMIN)</option>
+               <option value="SUPER_ADMIN">👑 Quản trị viên (SUPER_ADMIN)</option>
             </select>
             <button class="btn-primary" onclick="createWebUser()" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
               <span style="display: flex; align-items: center; gap: 6px;">
@@ -1874,6 +1902,35 @@ ${systemPromptPreview}
              </tbody>
           </table>
         </div>
+
+        <!-- Edit Modal Overlay -->
+        <div id="editUserModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+          <div style="background: var(--card-bg); padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--text-main);">Sửa Tài Khoản</h3>
+            <input type="hidden" id="editWebUsername">
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Mật khẩu mới (Để trống nếu không đổi)</label>
+            <input type="password" id="editWebPassword" placeholder="Nhập mật khẩu mới..." style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
+            
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Tên hiển thị</label>
+            <input type="text" id="editWebDisplayName" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
+            
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Vai trò</label>
+            <select id="editWebRole" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
+               <option value="ADMIN">🛡️ Vận hành (ADMIN)</option>
+               <option value="SUPER_ADMIN">👑 Quản trị viên (SUPER_ADMIN)</option>
+            </select>
+            
+            <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Liên kết Zalo Account</label>
+            <select id="editWebZaloId" style="width:100%; padding:10px 14px; margin-bottom:24px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
+               <option value="">-- Bỏ liên kết --</option>
+            </select>
+            
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+              <button onclick="document.getElementById('editUserModal').style.display='none'" style="padding: 8px 16px; font-weight: 500; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); cursor: pointer;">Hủy</button>
+              <button class="btn-primary" onclick="updateWebUser()" style="padding: 8px 16px; font-weight: 500; border-radius: 8px;">Cập nhật</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       </div>
@@ -1881,6 +1938,7 @@ ${systemPromptPreview}
       <script>
         // Web Users Logic
         let activeZaloAdminsForDropdown = [];
+        let webUsersData = [];
         
         async function loadWebUsers() {
           try {
@@ -1894,21 +1952,73 @@ ${systemPromptPreview}
               return;
             }
             
+            webUsersData = data.users;
             let html = '';
             data.users.forEach(u => {
               const linkedZalo = activeZaloAdminsForDropdown.find(a => a.id === u.zaloId);
               const zaloName = linkedZalo ? linkedZalo.name : (u.zaloId ? 'ID: ' + u.zaloId : 'Chưa liên kết');
+              const roleDisplay = u.role === 'SUPER_ADMIN' ? '👑 Quản trị viên' : '🛡️ Vận hành';
+              const roleColor = u.role === 'SUPER_ADMIN' ? '#991b1b' : '#166534';
+              const roleBg = u.role === 'SUPER_ADMIN' ? '#fee2e2' : '#dcfce7';
+              
               html += \`<tr>
                 <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); color: var(--text-main);"><strong>\${u.username}</strong></td>
-                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color);"><span style="background:\${u.role==='SUPER_ADMIN'?'#fee2e2':'#dcfce7'}; color:\${u.role==='SUPER_ADMIN'?'#991b1b':'#166534'}; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:bold;">\${u.role}</span></td>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color);"><span style="background:\${roleBg}; color:\${roleColor}; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:bold;">\${roleDisplay}</span></td>
                 <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); color: var(--text-main);">\${u.displayName}<br><small style="color:var(--text-muted); font-size: 12px;">Zalo: \${zaloName}</small></td>
-                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); text-align: right;">
-                  <button onclick="deleteWebUser('\${u.username}')" style="background:#fee2e2; color:#dc2626; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">Xóa bỏ</button>
+                <td style="padding:14px 16px; border-bottom:1px solid var(--border-color); text-align: right; white-space: nowrap;">
+                  <button onclick="openEditModal('\${u.username}')" style="background:#e0f2fe; color:#0369a1; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); margin-right: 6px;" onmouseover="this.style.background='#bae6fd'" onmouseout="this.style.background='#e0f2fe'">Sửa</button>
+                  <button onclick="deleteWebUser('\${u.username}')" style="background:#fee2e2; color:#dc2626; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px; font-weight: 500; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">Xóa</button>
                 </td>
               </tr>\`;
             });
             tbody.innerHTML = html;
           } catch(e) {}
+        }
+
+        function openEditModal(username) {
+          const user = webUsersData.find(u => u.username === username);
+          if (!user) return;
+          document.getElementById('editWebUsername').value = user.username;
+          document.getElementById('editWebDisplayName').value = user.displayName;
+          document.getElementById('editWebRole').value = user.role;
+          document.getElementById('editWebPassword').value = '';
+          
+          const select = document.getElementById('editWebZaloId');
+          select.innerHTML = '<option value="">-- Bỏ liên kết --</option>' + 
+             activeZaloAdminsForDropdown.map(a => \`<option value="\${a.id}">\${a.name}</option>\`).join('');
+          select.value = user.zaloId || '';
+          
+          document.getElementById('editUserModal').style.display = 'flex';
+        }
+
+        async function updateWebUser() {
+          const username = document.getElementById('editWebUsername').value;
+          const displayName = document.getElementById('editWebDisplayName').value.trim();
+          const role = document.getElementById('editWebRole').value;
+          const zaloId = document.getElementById('editWebZaloId').value;
+          const password = document.getElementById('editWebPassword').value.trim();
+          
+          if (!displayName) {
+             alert('Tên hiển thị không được để trống!');
+             return;
+          }
+          
+          const payload = { username, displayName, role, zaloId };
+          if (password) payload.password = password;
+          
+          const res = await fetch('/api/users/edit', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification('Cập nhật thành công');
+            document.getElementById('editUserModal').style.display = 'none';
+            loadWebUsers();
+          } else {
+            alert('Lỗi: ' + (data.error || 'Không thể cập nhật'));
+          }
         }
 
         async function createWebUser() {
