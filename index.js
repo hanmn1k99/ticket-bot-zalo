@@ -238,8 +238,12 @@ setupCronJobs(sendZaloMessage);
 
 // Default route
 app.get('/', (req, res) => {
-  res.send('Zalo Ticket Bot is running!');
+  res.redirect('/report');
 });
+
+// PWA routes
+app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
+app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'sw.js')));
 
 async function renderTableRows() {
   const requests = await db.getAllRequests();
@@ -440,6 +444,8 @@ app.get('/report', checkAuth, async (req, res) => {
       </script>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
+      <link rel="manifest" href="/manifest.json">
+      <meta name="theme-color" content="#2563eb">
       <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
           :root {
@@ -1078,6 +1084,13 @@ app.get('/report', checkAuth, async (req, res) => {
                   btn.innerHTML = originalHTML;
                   btn.disabled = false;
               }
+          }
+
+          // Register Service Worker for PWA
+          if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js');
+              });
           }
       </script>
   </body>
