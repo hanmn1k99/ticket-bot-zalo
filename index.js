@@ -1498,7 +1498,7 @@ app.post('/api/admins/approve', checkAuth, async (req, res) => {
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
   const success = await db.approveAdmin(id);
   if (success) {
-    await sendZaloMessage(id, "✅ Yêu cầu cấp quyền Quản trị viên (Admin) Zalo của bạn đã được CHẤP THUẬN! Bạn sẽ bắt đầu nhận được thông báo sự cố từ bây giờ.");
+    await sendZaloMessage(id, "✅ Yêu cầu cấp quyền Zalo Admin của bạn đã được CHẤP THUẬN! Bạn sẽ bắt đầu nhận được thông báo sự cố từ bây giờ.");
     return res.json({ success: true });
   }
   return res.status(400).json({ error: 'Không tìm thấy yêu cầu' });
@@ -1520,7 +1520,7 @@ app.post('/api/admins/remove', checkAuth, async (req, res) => {
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
   const success = await db.removeAdmin(id);
   if (success) {
-    await sendZaloMessage(id, "⚠️ Quyền Quản trị viên Zalo của bạn đã bị THU HỒI bởi hệ thống.");
+    await sendZaloMessage(id, "⚠️ Quyền Zalo Admin của bạn đã bị THU HỒI bởi hệ thống.");
     return res.json({ success: true });
   }
   return res.status(400).json({ error: 'Không tìm thấy admin' });
@@ -1629,7 +1629,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
               background: var(--bg-color);
               color: var(--text-main);
               padding: 20px;
-              max-width: 900px;
+              max-width: 1400px;
               margin: 0 auto;
           }
           .card {
@@ -1720,8 +1720,8 @@ ${systemPromptPreview}
       </div>
 
       <div class="card">
-        <h3>Quản lý Quản trị viên Zalo</h3>
-        <p style="color:#666; font-size: 14px;"><i>Quyền duyệt tối cao thuộc về tài khoản Web Admin. Những người dùng Zalo được duyệt dưới đây sẽ có quyền sử dụng các lệnh Zalo và nhận thông báo khi có sự kiện.</i></p>
+        <h3>Zalo Admin</h3>
+        <p style="color:#666; font-size: 14px;"><i>Quyền duyệt tối cao thuộc về tài khoản Super Admin. Những người dùng Zalo được duyệt dưới đây sẽ có quyền sử dụng các lệnh Zalo và nhận thông báo khi có sự kiện.</i></p>
         
         <h4>Yêu cầu đang chờ duyệt</h4>
         <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom: 20px;">
@@ -1737,7 +1737,7 @@ ${systemPromptPreview}
            </tbody>
         </table>
 
-        <h4>Admin chính thức hiện tại</h4>
+        <h4>Danh sách Zalo Admin</h4>
         <table style="width:100%; border-collapse:collapse; text-align:left;">
            <thead>
              <tr>
@@ -2030,12 +2030,12 @@ app.post('/webhook', async (req, res) => {
       if (cleanTextForCmd === '/install') {
         const added = await db.addPendingAdmin(senderId, senderName);
         if (added) {
-          await sendZaloMessage(chatId, `✅ Đã gửi yêu cầu cấp quyền Admin Zalo cho tài khoản của bạn (${senderName}). Vui lòng báo Web Admin phê duyệt.`);
+          await sendZaloMessage(chatId, `✅ Đã gửi yêu cầu cấp quyền Zalo Admin cho tài khoản của bạn (${senderName}). Vui lòng báo Super Admin phê duyệt.`);
         } else {
           await sendZaloMessage(chatId, `⚠️ Yêu cầu của bạn đang chờ duyệt. Vui lòng không gửi lại.`);
         }
       } else {
-        await sendZaloMessage(chatId, "⚠️ Bạn chưa có quyền thao tác trên hệ thống. Vui lòng gõ lệnh /install để yêu cầu cấp quyền và chờ Web Admin phê duyệt.");
+        await sendZaloMessage(chatId, "⚠️ Bạn chưa có quyền thao tác trên hệ thống. Vui lòng gõ lệnh /install để yêu cầu cấp quyền và chờ Super Admin phê duyệt.");
       }
       return; // Dừng xử lý tất cả các lệnh khác nếu không phải Admin trong CHAT RIÊNG
     }
@@ -2270,9 +2270,9 @@ app.post('/webhook', async (req, res) => {
       const helpMsg = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý hệ thống:
-1️⃣ /install : Đăng ký quyền Quản trị viên Zalo.
-2️⃣ /admin : Xem danh sách Quản trị viên.
-3️⃣ /uninstall : Tự xóa quyền Quản trị viên cá nhân.
+1️⃣ /install : Đăng ký quyền Zalo Admin.
+2️⃣ /admin : Xem danh sách Zalo Admin.
+3️⃣ /uninstall : Tự xóa quyền Zalo Admin cá nhân.
 4️⃣ /report : Lấy link truy cập Trang quản trị Web.
 5️⃣ /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
 6️⃣ /test : Tạo sự cố thử nghiệm tự xóa sau 1 phút.
@@ -2296,9 +2296,9 @@ app.post('/webhook', async (req, res) => {
     if (text.trim() === '/admin') {
       const admins = await db.getAdmins();
       if (admins.length === 0) {
-        await sendZaloMessage(chatId, "Danh sách Quản trị viên hiện đang trống.");
+        await sendZaloMessage(chatId, "Danh sách Zalo Admin hiện đang trống.");
       } else {
-        let msg = "👥 DANH SÁCH QUẢN TRỊ VIÊN:\n------------------------------\n";
+        let msg = "👥 DANH SÁCH ZALO ADMIN:\n------------------------------\n";
         admins.forEach((a, idx) => {
           msg += `${idx + 1}. ${a.name}\n`;
         });
