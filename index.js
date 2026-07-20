@@ -1296,11 +1296,13 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       
       <div class="card">
         <details>
-          <summary style="font-size: 1.17em; font-weight: bold; cursor: pointer; outline: none; list-style: none;">
+          <summary style="font-size: 1.17em; font-weight: bold; cursor: pointer; outline: none; list-style: none; color: var(--primary);">
             🔍 Xem Quy tắc Cốt lõi của AI (System Prompt)
           </summary>
-          <p style="font-size:14px; opacity:0.8; margin-top: 10px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
-          <textarea readonly style="background-color: var(--border-color); cursor: not-allowed; margin-top: 10px;">${systemPromptPreview}</textarea>
+          <p style="font-size:14px; opacity:0.8; margin-top: 10px; margin-bottom: 12px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
+          <div style="background-color: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-y: auto; max-height: 400px; color: var(--text-main);">
+${systemPromptPreview}
+          </div>
         </details>
       </div>
 
