@@ -102,18 +102,24 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
 
   // 2. Kiểm tra Ticket Keywords
+  let isForcedTicket = false;
   try {
     const ticketKeywords = fs.readFileSync(path.join(__dirname, 'ticket_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of ticketKeywords) {
       if (lowerText.includes(word)) {
+        isForcedTicket = true;
         userContexts.delete(uId); // Xóa lịch sử khi tạo ticket
-        return { type: 'TICKET' };
+        break;
       }
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
 
   // Đẩy câu hỏi hiện tại vào lịch sử
-  history.push({ role: 'user', content: text });
+  if (isForcedTicket) {
+    history.push({ role: 'user', content: text + "\n\n[LƯU Ý CỦA HỆ THỐNG: YÊU CẦU NÀY ĐÃ ĐƯỢC XÁC ĐỊNH LÀ SỰ CỐ KỸ THUẬT. BẠN BẮT BUỘC PHẢI PHÂN LOẠI LÀ TICKET VÀ TRÍCH XUẤT ĐỊA ĐIỂM (Ví dụ: TICKET|Phòng D104), TUYỆT ĐỐI KHÔNG TRẢ VỀ ANSWER.]" });
+  } else {
+    history.push({ role: 'user', content: text });
+  }
 
   // Xây dựng mảng messages gửi cho Groq
   const messages = [
