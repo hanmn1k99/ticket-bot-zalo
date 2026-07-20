@@ -2218,8 +2218,8 @@ ${systemPromptPreview}
           </div>
           <div style="display: flex; gap: 16px; align-items: center;">
             <select id="newWebRole" style="flex: 1; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none; cursor: pointer; transition: border 0.2s;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='var(--border-color)'">
-               <option value="ADMIN">🛡️ Vận hành (ADMIN)</option>
-               <option value="SUPER_ADMIN">👑 Quản trị viên (SUPER_ADMIN)</option>
+               <option value="ADMIN">🛡️ Vận hành</option>
+               <option value="SUPER_ADMIN">👑 Quản trị viên</option>
             </select>
             <button class="btn-primary" onclick="createWebUser()" style="padding: 10px 24px; font-weight: 600; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3); transition: all 0.2s;">
               <span style="display: flex; align-items: center; gap: 6px;">
@@ -2259,8 +2259,8 @@ ${systemPromptPreview}
             
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Vai trò</label>
             <select id="editWebRole" style="width:100%; padding:10px 14px; margin-bottom:16px; border-radius:8px; border:1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; outline: none; box-sizing:border-box;">
-               <option value="ADMIN">🛡️ Vận hành (ADMIN)</option>
-               <option value="SUPER_ADMIN">👑 Quản trị viên (SUPER_ADMIN)</option>
+               <option value="ADMIN">🛡️ Vận hành</option>
+               <option value="SUPER_ADMIN">👑 Quản trị viên</option>
             </select>
             
             <label style="display:block; margin-bottom:6px; font-size:13px; font-weight:500; color:var(--text-main);">Liên kết Zalo Account</label>
