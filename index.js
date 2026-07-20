@@ -1683,7 +1683,7 @@ app.post('/webhook', async (req, res) => {
         return;
       }
       
-      const ticketId = parseInt(text.replace('/nhan ', '').trim(), 10);
+      const ticketId = parseInt(text.replace('/nhan ', '').trim().replace('#', ''), 10);
       if (isNaN(ticketId)) {
         await sendZaloMessage(chatId, "⚠️ Cú pháp sai. Vui lòng nhập: /nhan [Mã sự cố]");
         return;
@@ -1726,10 +1726,10 @@ app.post('/webhook', async (req, res) => {
       
       let ticketId, replyText;
       if (firstSpace === -1) {
-        ticketId = parseInt(params, 10);
+        ticketId = parseInt(params.replace('#', ''), 10);
         replyText = 'Đã xử lý xong';
       } else {
-        ticketId = parseInt(params.substring(0, firstSpace), 10);
+        ticketId = parseInt(params.substring(0, firstSpace).replace('#', ''), 10);
         replyText = params.substring(firstSpace + 1).trim();
       }
       
@@ -1775,10 +1775,10 @@ app.post('/webhook', async (req, res) => {
       
       let ticketId, replyText;
       if (firstSpace === -1) {
-        ticketId = parseInt(params, 10);
+        ticketId = parseInt(params.replace('#', ''), 10);
         replyText = 'Lý do không được cung cấp';
       } else {
-        ticketId = parseInt(params.substring(0, firstSpace), 10);
+        ticketId = parseInt(params.substring(0, firstSpace).replace('#', ''), 10);
         replyText = params.substring(firstSpace + 1).trim();
       }
       
@@ -1835,8 +1835,8 @@ app.post('/webhook', async (req, res) => {
 🔹 Xử lý sự cố:
 5️⃣ /nhan [Mã số] 
    👉 Nhận xử lý sự cố. (VD: /nhan 15)
-6️⃣ /dong [Mã số] [Nội dung] 
-   👉 Đóng sự cố. (VD: /dong 15 Đã cắm lại cáp)
+6️⃣ /xong [Mã số] [Nội dung] 
+   👉 Đóng sự cố. (VD: /xong 15 Đã cắm lại cáp)
 7️⃣ /tuchoi [Mã số] [Lý do] 
    👉 Từ chối yêu cầu. (VD: /tuchoi 15 Máy in hết mực)
 
