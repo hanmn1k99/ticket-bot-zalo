@@ -998,7 +998,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   }
               } catch (e) {}
           }
-          setInterval(fetchAndRenderRows, 10000);
+          setInterval(fetchAndRenderRows, 2000);
 
           // Hàm Nhận yêu cầu
           async function acceptTicket(ticketId, event) {
