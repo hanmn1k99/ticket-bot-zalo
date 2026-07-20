@@ -3000,18 +3000,28 @@ app.post('/webhook', async (req, res) => {
         const helpMsgSuperAdmin = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý hệ thống:
-1. /install : Đăng ký quyền Quản trị viên Zalo.
-2. /admin : Xem danh sách Quản trị viên.
-3. /uninstall : Tự xóa quyền Quản trị viên cá nhân.
-4. /report : Lấy link truy cập Trang quản trị Web.
-5. /clean : (Nguy hiểm) Xóa toàn bộ dữ liệu.
-6. /test : Tạo sự cố thử nghiệm tự xóa sau 1 phút.
+1. /install 
+   👉 Đăng ký quyền Quản trị viên Zalo.
+2. /admin 
+   👉 Xem danh sách Quản trị viên.
+3. /uninstall 
+   👉 Tự xóa quyền Quản trị viên cá nhân.
+4. /report 
+   👉 Lấy link truy cập Trang quản trị Web.
+5. /clean 
+   👉 (Nguy hiểm) Xóa toàn bộ dữ liệu.
+6. /test 
+   👉 Tạo sự cố thử nghiệm tự xóa sau 1 phút.
 
 🔹 Quản lý thông báo (Broadcast):
-7. /addgroup : Đăng ký nhóm nhận thông báo.
-8. /removegroup : Gỡ nhóm khỏi danh sách nhận.
-9. /setname [Tên] : Đổi tên hiển thị của nhóm.
-10. /thongbao [Nội dung] : Gửi thông báo hàng loạt.
+7. /addgroup 
+   👉 Đăng ký nhóm nhận thông báo.
+8. /removegroup 
+   👉 Gỡ nhóm khỏi danh sách nhận.
+9. /setname [Tên] 
+   👉 Đổi tên hiển thị của nhóm.
+10. /thongbao [Nội dung] 
+   👉 Gửi thông báo hàng loạt.
 
 🔹 Xử lý sự cố:
 11. /nhan [Mã số] 
@@ -3027,9 +3037,12 @@ app.post('/webhook', async (req, res) => {
         const helpMsgAdmin = `🤖 DANH SÁCH LỆNH CỦA BOT HỖ TRỢ IT 🤖
 ------------------------------
 🔹 Quản lý cá nhân & Hệ thống:
-1. /install : Đăng ký quyền Quản trị viên Zalo.
-2. /uninstall : Tự xóa quyền Quản trị viên cá nhân.
-3. /report : Lấy link truy cập Trang quản trị Web.
+1. /install 
+   👉 Đăng ký quyền Quản trị viên Zalo.
+2. /uninstall 
+   👉 Tự xóa quyền Quản trị viên cá nhân.
+3. /report 
+   👉 Lấy link truy cập Trang quản trị Web.
 
 🔹 Xử lý sự cố:
 4. /nhan [Mã số] 
