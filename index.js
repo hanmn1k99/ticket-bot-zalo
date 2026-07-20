@@ -1586,7 +1586,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
          groupRows += `
            <div style="padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px; background: var(--bg-color);">
              <div style="display: flex; justify-content: space-between; align-items: center;">
-               <span style="font-family: monospace; font-size: 13px; color: #64748b; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);">ID: ${groupId}</span>
+               <span style="font-family: monospace; font-size: 13px; color: #64748b; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);" title="${groupId}">ID: ${String(groupId).substring(0,4)}****${String(groupId).slice(-3)}</span>
                <div style="display: flex; gap: 8px;">
                  <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Lưu</button>
                  <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Xóa</button>
@@ -1867,9 +1867,10 @@ ${systemPromptPreview}
           const res = await fetch('/api/admins');
           const data = await res.json();
           if (data.success) {
+            const maskId = (id) => { const s = String(id); return s.length <= 4 ? s : s.substring(0,4) + '****' + s.slice(-3); };
             const pendingHtml = data.pending.map(a => 
               \`<tr>
-                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;">\${a.id}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;" title="\${a.id}">\${maskId(a.id)}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">\${a.name}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">
                   <button class="btn-primary" style="background:#10b981; padding: 4px 8px; font-size:12px; margin-right:4px;" onclick="approveAdmin('\${a.id}')">Duyệt</button>
@@ -1880,7 +1881,7 @@ ${systemPromptPreview}
             
             const activeHtml = data.admins.map(a => 
               \`<tr>
-                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;">\${a.id}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;" title="\${a.id}">\${maskId(a.id)}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">\${a.name}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">
                   <button class="btn-danger" style="background:#991b1b; padding: 4px 8px; font-size:12px;" onclick="removeAdmin('\${a.id}')">Xóa quyền</button>
