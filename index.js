@@ -1123,6 +1123,13 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
   const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý');
   if (updatedReq) {
+    const targetChat = updatedReq.chat_id || updatedReq.sender_id;
+    const userMsg = `🟡 SỰ CỐ ĐANG ĐƯỢC XỬ LÝ!
+------------------------------
+🛠️ Sự cố #${id} của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT TIẾP NHẬN và đang tiến hành kiểm tra/sửa chữa.
+------------------------------
+😊 Bộ phận IT sẽ cập nhật khi hoàn tất!`;
+    await sendZaloMessage(targetChat, userMsg);
     return res.json({ success: true });
   }
   return res.status(400).json({ error: 'Không thể cập nhật' });
