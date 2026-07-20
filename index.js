@@ -488,6 +488,43 @@ app.get('/report', checkAuth, async (req, res) => {
               color: var(--text-main);
           }
           .print-title { display: none; }
+          
+          /* Dropdown CSS */
+          .dropdown {
+              position: relative;
+              display: inline-block;
+          }
+          .dropdown-content {
+              display: none;
+              position: absolute;
+              right: 0;
+              background-color: var(--card-bg);
+              min-width: 180px;
+              box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+              z-index: 1;
+              border-radius: 6px;
+              border: 1px solid var(--border-color);
+          }
+          .dropdown-content button {
+              color: var(--text-main);
+              padding: 10px 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              width: 100%;
+              border: none;
+              background: none;
+              text-align: left;
+              cursor: pointer;
+              font-size: 14px;
+          }
+          .dropdown-content button:hover {
+              background-color: var(--table-hover-bg);
+          }
+          .dropdown:hover .dropdown-content {
+              display: block;
+          }
+
           .controls {
               display: flex;
               gap: 15px;
@@ -663,7 +700,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   max-width: 100%;
               }
               td div[id^="actionBox_"] button {
-                  width: 100%;
+                  width: 100%; 
                   justify-content: center;
               }
           }
@@ -732,15 +769,6 @@ app.get('/report', checkAuth, async (req, res) => {
                   </button>
                   <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                  </button>
-                  <button class="btn-secondary" onclick="cleanData()" title="Xóa toàn bộ báo cáo" style="color:#ef4444;">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                  <button class="btn-secondary" onclick="window.location.href='/settings'" title="Cài đặt" style="color:#2563eb;">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                  </button>
-                  <button class="btn-secondary" onclick="window.location.href='/logout'" title="Đăng xuất" style="color:#475569;">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                   </button>
                   <button onclick="window.print()">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -1096,7 +1124,10 @@ app.get('/api/tickets/rows', checkAuth, async (req, res) => {
 
 // SETTINGS PAGE
 app.get('/settings', checkAuth, async (req, res) => {
-  const faqContent = await db.getSetting('faq_content') || '';
+  const defaultFaq = `1. Mật khẩu mạng wifi "Meyschool - Giáo Viên" là: Mey@2024\n2. Mạng wifi "Meyschool - Guest" là mạng mở, không có mật khẩu.\n3. Liên hệ khẩn cấp Phòng IT (Phòng D102): 0909.123.456 (Mr. Nghĩa) hoặc 0988.789.123 (Mr. Nam).\n4. Nếu máy in hết mực, máy tính không lên nguồn, vui lòng tạo TICKET báo lỗi.`;
+  let faqContent = await db.getSetting('faq_content');
+  if (!faqContent) faqContent = defaultFaq;
+
   const groupNames = await db.getAllGroupNames();
   
   let groupRows = '';
@@ -1184,7 +1215,7 @@ app.get('/settings', checkAuth, async (req, res) => {
       
       <div class="card">
         <h3>Huấn luyện AI (Nội dung FAQ)</h3>
-        <p style="font-size:14px; opacity:0.8;">Nhập các dữ liệu bạn muốn AI học (VD: mật khẩu wifi, hướng dẫn xử lý). Không cần nhập cấu trúc lệnh gốc.</p>
+        <p style="font-size:14px; opacity:0.8;">Nhập các dữ liệu bạn muốn AI học. Mỗi dòng một ý.<br><i>Ví dụ: 1. Pass wifi phòng họp là 123456... AI sẽ tự đọc hiểu văn bản này.</i></p>
         <textarea id="faqContent">${faqContent}</textarea>
         <br><br>
         <button class="btn-primary" onclick="saveFaq()">Lưu FAQ</button>
