@@ -1031,11 +1031,15 @@ app.get('/report', checkAuth, async (req, res) => {
           function rejectTicket(ticketId, event) {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
+                  const isRejecting = event && event.currentTarget && event.currentTarget.textContent.includes('Từ chối');
+                  const placeholder = isRejecting ? "Lý do từ chối..." : "Lý do thay đổi trạng thái...";
+                  const btnColor = isRejecting ? "#ef4444" : "#3b82f6";
+
                   actionBox.innerHTML = \`
                     <div style="display:flex; flex-direction:column; gap:8px;">
-                        <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="Lý do thay đổi trạng thái..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
+                        <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="\${placeholder}" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
                         <div style="display:flex; gap:6px; justify-content:flex-start;">
-                            <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Xác nhận</button>
+                            <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:\${btnColor}; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Xác nhận</button>
                             <button onclick="fetchAndRenderRows()" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
                         </div>
                     </div>
