@@ -292,6 +292,44 @@ async function removeAdmin(id) {
   return false;
 }
 
+// --- Web Users API ---
+async function getUsers() {
+  const db = readDB();
+  return db.settings.users || [];
+}
+
+async function getUserByUsername(username) {
+  const users = await getUsers();
+  return users.find(u => u.username === username);
+}
+
+async function createUser(username, passwordHash, recoveryKeyHash) {
+  const db = readDB();
+  if (!db.settings.users) db.settings.users = [];
+  if (db.settings.users.find(u => u.username === username)) return false;
+  
+  db.settings.users.push({
+    username,
+    passwordHash,
+    recoveryKeyHash,
+    createdAt: Date.now()
+  });
+  writeDB(db);
+  return true;
+}
+
+async function updateUserPassword(username, newPasswordHash) {
+  const db = readDB();
+  if (!db.settings.users) return false;
+  const user = db.settings.users.find(u => u.username === username);
+  if (user) {
+    user.passwordHash = newPasswordHash;
+    writeDB(db);
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getSetting,
   setSetting,
@@ -317,5 +355,9 @@ module.exports = {
   addPendingAdmin,
   approveAdmin,
   rejectAdmin,
-  removeAdmin
+  removeAdmin,
+  getUsers,
+  getUserByUsername,
+  createUser,
+  updateUserPassword
 };

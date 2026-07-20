@@ -7,6 +7,7 @@ const db = require('./database');
 const setupCronJobs = require('./cronjobs');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const AI_API_KEY = process.env.AI_API_KEY;
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_please_change_in_env';
@@ -324,17 +325,25 @@ async function renderTableRows() {
 }
 
 // Auth Middleware
-function checkAuth(req, res, next) {
+// Auth Middleware
+async function checkAuth(req, res, next) {
+  const users = await db.getUsers();
+  if (users.length === 0) {
+    if (req.path === '/setup' || req.path === '/api/auth/setup') return next();
+    if (req.path.startsWith('/api/')) return res.status(403).json({ error: 'System not setup' });
+    return res.redirect('/setup');
+  }
+
   const token = req.cookies.auth_token;
   if (!token) {
-    if (req.path === '/report') return res.redirect('/login');
+    if (req.path === '/report' || req.path === '/settings') return res.redirect('/login');
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
     jwt.verify(token, JWT_SECRET);
     next();
   } catch (err) {
-    if (req.path === '/report') return res.redirect('/login');
+    if (req.path === '/report' || req.path === '/settings') return res.redirect('/login');
     return res.status(401).json({ error: 'Unauthorized' });
   }
 }
@@ -430,17 +439,173 @@ app.get('/login', (req, res) => {
 });
 
 // Xử lý Đăng nhập
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const expectedUser = process.env.ADMIN_USERNAME || 'admin';
-  const expectedPass = process.env.ADMIN_PASSWORD || '123456';
-  
-  if (username === expectedUser && password === expectedPass) {
-    const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '7d' });
+  const user = await db.getUserByUsername(username);
+  if (!user) return res.status(401).json({ error: 'Sai tài khoản hoặc mật khẩu' });
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (valid) {
+    const token = jwt.sign({ admin: true, username }, JWT_SECRET, { expiresIn: '7d' });
     res.cookie('auth_token', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
     return res.json({ success: true });
   }
-  res.status(401).json({ error: 'Invalid credentials' });
+  res.status(401).json({ error: 'Sai tài khoản hoặc mật khẩu' });
+});
+
+// GET /setup HTML
+app.get('/setup', async (req, res) => {
+  const users = await db.getUsers();
+  if (users.length > 0) return res.redirect('/login');
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Khởi tạo Web Admin</title>
+      <style>
+        body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
+        h2 { margin-top: 0; color: #1e293b; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .recovery-box { display: none; background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; margin-top: 20px; color: #b45309; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h2>Khởi tạo Hệ thống</h2>
+        <p style="text-align:center; color:#64748b; font-size:14px;">Tạo tài khoản quản trị tối cao</p>
+        <form id="setupForm" onsubmit="doSetup(event)">
+          <div class="input-group"><label>Tên đăng nhập</label><input type="text" id="username" required></div>
+          <div class="input-group"><label>Mật khẩu</label><input type="password" id="password" required></div>
+          <button type="submit" class="btn">Tạo tài khoản</button>
+        </form>
+        <div id="recoveryBox" class="recovery-box">
+          <strong>QUAN TRỌNG: LƯU LẠI MÃ NÀY!</strong><br>
+          Mã phục hồi của bạn là:<br><br>
+          <code id="recCode" style="font-size:18px; font-weight:bold; letter-spacing:1px; background:#fff; padding:4px 8px; border-radius:4px; display:block; text-align:center;"></code><br>
+          Mã này dùng để lấy lại mật khẩu nếu bạn quên. Nó chỉ hiện 1 lần duy nhất.<br><br>
+          <button class="btn" onclick="window.location.href='/login'" style="background:#10b981;">Đã lưu, tới trang Đăng nhập</button>
+        </div>
+      </div>
+      <script>
+        async function doSetup(e) {
+          e.preventDefault();
+          const u = document.getElementById('username').value;
+          const p = document.getElementById('password').value;
+          const res = await fetch('/api/auth/setup', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: u, password: p})
+          });
+          const data = await res.json();
+          if (res.ok) {
+            document.getElementById('setupForm').style.display = 'none';
+            document.getElementById('recoveryBox').style.display = 'block';
+            document.getElementById('recCode').innerText = data.recoveryKey;
+          } else alert(data.error);
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// POST /api/auth/setup
+app.post('/api/auth/setup', async (req, res) => {
+  const users = await db.getUsers();
+  if (users.length > 0) return res.status(403).json({ error: 'System is already setup' });
+
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Missing fields' });
+
+  const rawRecoveryKey = 'TICKET-' + crypto.randomBytes(4).toString('hex').toUpperCase() + '-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+  const passwordHash = await bcrypt.hash(password, 10);
+  const recoveryKeyHash = await bcrypt.hash(rawRecoveryKey, 10);
+
+  const created = await db.createUser(username, passwordHash, recoveryKeyHash);
+  if (created) {
+    return res.status(201).json({ success: true, recoveryKey: rawRecoveryKey });
+  }
+  res.status(500).json({ error: 'Failed to create user' });
+});
+
+// GET /forgot-password
+app.get('/forgot-password', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Khôi phục mật khẩu</title>
+      <style>
+        body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
+        h2 { margin-top: 0; color: #1e293b; text-align: center; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h2>Khôi phục Mật khẩu</h2>
+        <form id="forgotForm" onsubmit="doRecover(event)">
+          <div class="input-group"><label>Tên đăng nhập</label><input type="text" id="username" required></div>
+          <div class="input-group"><label>Mã phục hồi (Recovery Key)</label><input type="text" id="recoveryKey" required></div>
+          <div class="input-group"><label>Mật khẩu mới</label><input type="password" id="newPassword" required></div>
+          <button type="submit" class="btn">Đổi Mật Khẩu</button>
+        </form>
+        <p style="text-align:center; margin-top:20px; color:#64748b; font-size:13px;">*Nếu bạn quên cả mã phục hồi, hãy chạy lệnh <code>npm run reset-auth</code> trên máy chủ.</p>
+        <p style="text-align:center;"><a href="/login" style="color:#3b82f6; text-decoration:none; font-size:14px;">Quay lại đăng nhập</a></p>
+      </div>
+      <script>
+        async function doRecover(e) {
+          e.preventDefault();
+          const u = document.getElementById('username').value;
+          const k = document.getElementById('recoveryKey').value;
+          const p = document.getElementById('newPassword').value;
+          const res = await fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: u, recoveryKey: k, newPassword: p})
+          });
+          const data = await res.json();
+          if (res.ok) {
+            alert('Khôi phục thành công! Hãy đăng nhập lại.');
+            window.location.href = '/login';
+          } else alert(data.error);
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+// POST /api/auth/forgot-password
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { username, recoveryKey, newPassword } = req.body;
+  if (!username || !recoveryKey || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+
+  const user = await db.getUserByUsername(username);
+  if (!user || !user.recoveryKeyHash) return res.status(404).json({ error: 'Tài khoản không tồn tại' });
+
+  const valid = await bcrypt.compare(recoveryKey, user.recoveryKeyHash);
+  if (!valid) return res.status(401).json({ error: 'Mã phục hồi không đúng' });
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  const success = await db.updateUserPassword(username, hashed);
+  if (success) {
+    res.json({ success: true, message: 'Password reset successfully' });
+  } else {
+    res.status(500).json({ error: 'Lỗi hệ thống' });
+  }
 });
 
 // Xử lý Đăng xuất
@@ -1497,6 +1662,20 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           }
           .btn-primary { background: #2563eb; color: white; }
           .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+          .grid-container {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+              gap: 20px;
+          }
+          .card {
+              background: var(--card-bg);
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              padding: 20px;
+              margin-bottom: 0;
+              height: 100%;
+              box-sizing: border-box;
+          }
       </style>
     </head>
     <body>
@@ -1505,7 +1684,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
       </div>
       
-      <div class="card">
+      <div class="grid-container">
+        <div class="card">
         <details>
           <summary style="font-size: 1.17em; font-weight: bold; cursor: pointer; outline: none; list-style: none; color: var(--primary);">
             🔍 Xem Quy tắc Cốt lõi của AI (System Prompt)
@@ -1572,6 +1752,7 @@ ${systemPromptPreview}
              <tr><td colspan="3" style="padding:10px; text-align:center;">Đang tải...</td></tr>
            </tbody>
         </table>
+        </div>
       </div>
 
       <script>
@@ -1841,6 +2022,30 @@ app.post('/webhook', async (req, res) => {
       await db.addGroup(chatId);
     }
 
+    // --- KIỂM TRA QUYỀN ADMIN ZALO ---
+    const activeAdmins = await db.getAdmins();
+    const isAdmin = activeAdmins.some(a => a.id === senderId);
+
+    if (!isAdmin) {
+      if (cleanTextForCmd === '/install') {
+        const added = await db.addPendingAdmin(senderId, senderName);
+        if (added) {
+          await sendZaloMessage(chatId, `✅ Đã gửi yêu cầu cấp quyền Admin Zalo cho tài khoản của bạn (${senderName}). Vui lòng báo Web Admin phê duyệt.`);
+        } else {
+          await sendZaloMessage(chatId, `⚠️ Yêu cầu của bạn đang chờ duyệt. Vui lòng không gửi lại.`);
+        }
+      } else {
+        await sendZaloMessage(chatId, "⚠️ Bạn chưa có quyền thao tác trên hệ thống. Vui lòng gõ lệnh /install để yêu cầu cấp quyền và chờ Web Admin phê duyệt.");
+      }
+      return; // Dừng xử lý tất cả các lệnh khác nếu không phải Admin
+    }
+
+    // NẾU ĐÃ LÀ ADMIN, XỬ LÝ CÁC LỆNH BÊN DƯỚI
+    if (cleanTextForCmd === '/install') {
+      await sendZaloMessage(chatId, "✅ Bạn đã là Admin Zalo của hệ thống rồi.");
+      return;
+    }
+
     // Handle /addgroup
     if (cleanTextForCmd === '/addgroup') {
       await db.addGroup(chatId);
@@ -2079,21 +2284,6 @@ app.post('/webhook', async (req, res) => {
       return;
     }
 
-    // Handle /install command
-    if (text.trim() === '/install') {
-      const isAlreadyAdmin = await isAdmin(senderId);
-      if (isAlreadyAdmin) {
-        await sendZaloMessage(chatId, "⚠️ Bạn đã là Quản trị viên Zalo rồi.");
-        return;
-      }
-      const added = await db.addPendingAdmin(senderId, senderName);
-      if (added) {
-        await sendZaloMessage(chatId, "✅ Yêu cầu cấp quyền Admin Zalo đã được gửi. Vui lòng chờ Quản trị viên Web phê duyệt.");
-      } else {
-        await sendZaloMessage(chatId, "⚠️ Yêu cầu của bạn đã tồn tại trong hàng đợi và đang chờ phê duyệt.");
-      }
-      return;
-    }
 
     // Handle /admin command
     if (text.trim() === '/admin') {
