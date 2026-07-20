@@ -993,10 +993,6 @@ app.get('/report', checkAuth, async (req, res) => {
                   <button onclick="window.print()" title="In báo cáo">
                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                   </button>
-                  <button onclick="window.location.href='/settings'" title="Cài đặt hệ thống">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                  </button>
-                  
                   <div class="dropdown">
                       <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:5px;">
                           <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -1585,21 +1581,23 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
 
   const groupNames = await db.getAllGroupNames();
   
-  let groupRows = '';
-  for (const [groupId, name] of Object.entries(groupNames)) {
-     groupRows += `
-       <tr>
-         <td style="padding:10px; border-bottom:1px solid var(--border-color);">${groupId}</td>
-         <td style="padding:10px; border-bottom:1px solid var(--border-color);">
-            <input type="text" id="gname_${groupId}" value="${name}" style="width:100%; padding:6px; border:1px solid var(--border-color); border-radius:4px; background:var(--bg-color); color:var(--text-main);">
-         </td>
-         <td style="padding:10px; border-bottom:1px solid var(--border-color);">
-            <button onclick="updateGroup('${groupId}')" style="background:#2563eb; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Lưu</button>
-            <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin-left:6px;">Xóa</button>
-         </td>
-       </tr>
-     `;
-  }
+      let groupRows = '';
+      for (const [groupId, name] of Object.entries(groupNames)) {
+         groupRows += `
+           <tr>
+             <td style="padding:12px; border-bottom:1px solid var(--border-color); font-family:monospace; color:#64748b;">${groupId}</td>
+             <td style="padding:12px; border-bottom:1px solid var(--border-color);">
+                <input type="text" id="gname_${groupId}" value="${name}" style="width:100%; padding:8px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--bg-color); color:var(--text-main); font-size:14px;">
+             </td>
+             <td style="padding:12px; border-bottom:1px solid var(--border-color);">
+                <div style="display:flex; gap:8px;">
+                  <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:500; font-size:13px; transition:0.2s;">Lưu</button>
+                  <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:500; font-size:13px; transition:0.2s;">Xóa</button>
+                </div>
+             </td>
+           </tr>
+         `;
+      }
   
   const html = `
     <!DOCTYPE html>
@@ -1665,17 +1663,31 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           .grid-container {
               display: grid;
               grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-              gap: 20px;
+              gap: 24px;
           }
           .card {
               background: var(--card-bg);
               border: 1px solid var(--border-color);
-              border-radius: 8px;
-              padding: 20px;
+              border-radius: 12px;
+              padding: 24px;
               margin-bottom: 0;
               height: 100%;
               box-sizing: border-box;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+              transition: transform 0.2s, box-shadow 0.2s;
           }
+          .card:hover {
+              box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+          }
+          .card h3 {
+              margin-top: 0;
+              font-size: 18px;
+              color: var(--text-main);
+              border-bottom: 2px solid #f1f5f9;
+              padding-bottom: 12px;
+              margin-bottom: 16px;
+          }
+          [data-theme="dark"] .card h3 { border-bottom-color: #334155; }
       </style>
     </head>
     <body>
@@ -1686,16 +1698,12 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       
       <div class="grid-container">
         <div class="card">
-        <details>
-          <summary style="font-size: 1.17em; font-weight: bold; cursor: pointer; outline: none; list-style: none; color: var(--primary);">
-            🔍 Xem Quy tắc Cốt lõi của AI (System Prompt)
-          </summary>
-          <p style="font-size:14px; opacity:0.8; margin-top: 10px; margin-bottom: 12px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
-          <div style="background-color: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-y: auto; max-height: 400px; color: var(--text-main);">
+          <h3>🔍 Xem Quy tắc Cốt lõi của AI</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 16px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
+          <div style="background-color: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-y: auto; height: 300px; color: var(--text-main);">
 ${systemPromptPreview}
           </div>
-        </details>
-      </div>
+        </div>
 
       <div class="card">
         <h3>Huấn luyện AI (Nội dung FAQ)</h3>
