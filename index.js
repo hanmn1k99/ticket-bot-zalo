@@ -2376,7 +2376,7 @@ ${systemPromptPreview}
           document.getElementById('editWebPassword').value = '';
           
           const select = document.getElementById('editWebZaloId');
-          select.innerHTML = '<option value="">-- Bỏ liên kết --</option>' + 
+          select.innerHTML = '<option value="">-- Bắt buộc chọn Zalo Account --</option>' + 
              activeZaloAdminsForDropdown.map(a => \`<option value="\${a.id}">\${a.name}</option>\`).join('');
           select.value = user.zaloId || '';
           
