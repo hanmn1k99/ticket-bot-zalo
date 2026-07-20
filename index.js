@@ -1022,24 +1022,41 @@ app.get('/report', checkAuth, async (req, res) => {
               }
           }
 
-          async function rejectTicket(ticketId, event) {
-              const reason = prompt('Nhập lý do từ chối:');
-              if (reason === null) return;
-              if (!reason.trim()) {
+          function rejectTicket(ticketId, event) {
+              const actionBox = document.getElementById('actionBox_' + ticketId);
+              if (actionBox) {
+                  actionBox.innerHTML = `
+                    <input type="text" id="rejectInput_${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(${ticketId})" placeholder="Lý do từ chối..." style="flex:1; padding:6px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none;">
+                    <button onclick="submitReject(${ticketId})" style="padding:6px 16px; font-size:13px; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: background 0.2s;">Gửi</button>
+                    <button onclick="fetchAndRenderRows()" style="padding:6px 12px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap;">Hủy</button>
+                  `;
+                  setTimeout(() => {
+                      const input = document.getElementById('rejectInput_' + ticketId);
+                      if (input) input.focus();
+                  }, 50);
+              }
+          }
+
+          async function submitReject(ticketId) {
+              const input = document.getElementById('rejectInput_' + ticketId);
+              const reason = input ? input.value.trim() : '';
+              if (!reason) {
                   alert('Vui lòng nhập lý do từ chối!');
+                  if (input) input.focus();
                   return;
               }
 
-              const btn = event.target;
+              const btn = input.nextElementSibling;
               const originalBtnText = btn.textContent;
-              btn.textContent = 'Đang xử lý...';
+              btn.textContent = 'Đang xử...';
               btn.disabled = true;
+              input.disabled = true;
 
               try {
                   const response = await fetch('/api/tickets/reject', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ id: ticketId, replyText: reason.trim() })
+                      body: JSON.stringify({ id: ticketId, replyText: reason })
                   });
                   const data = await response.json();
                   if (response.ok && data.success) {
@@ -1048,11 +1065,13 @@ app.get('/report', checkAuth, async (req, res) => {
                       alert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
+                      input.disabled = false;
                   }
               } catch (err) {
                   alert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
+                  input.disabled = false;
               }
           }
 
