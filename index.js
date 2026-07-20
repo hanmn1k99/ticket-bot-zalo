@@ -2032,9 +2032,10 @@ app.post('/webhook', async (req, res) => {
 
     // --- KIỂM TRA QUYỀN ADMIN ZALO ---
     const activeAdmins = await db.getAdmins();
-    const isAdmin = activeAdmins.some(a => a.id === senderId);
+    const isAdminUser = activeAdmins.some(a => a.id === senderId);
+    const isPrivateChat = (chatId === senderId && eventName !== 'group_send_text');
 
-    if (!isAdmin) {
+    if (isPrivateChat && !isAdminUser) {
       if (cleanTextForCmd === '/install') {
         const added = await db.addPendingAdmin(senderId, senderName);
         if (added) {
@@ -2045,17 +2046,22 @@ app.post('/webhook', async (req, res) => {
       } else {
         await sendZaloMessage(chatId, "⚠️ Bạn chưa có quyền thao tác trên hệ thống. Vui lòng gõ lệnh /install để yêu cầu cấp quyền và chờ Web Admin phê duyệt.");
       }
-      return; // Dừng xử lý tất cả các lệnh khác nếu không phải Admin
+      return; // Dừng xử lý tất cả các lệnh khác nếu không phải Admin trong CHAT RIÊNG
     }
 
-    // NẾU ĐÃ LÀ ADMIN, XỬ LÝ CÁC LỆNH BÊN DƯỚI
+    // XỬ LÝ LỆNH /install NẾU KHÔNG PHẢI TRƯỜNG HỢP TRÊN
     if (cleanTextForCmd === '/install') {
-      await sendZaloMessage(chatId, "✅ Bạn đã là Admin Zalo của hệ thống rồi.");
+      if (isAdminUser) {
+        await sendZaloMessage(chatId, "✅ Bạn đã là Admin Zalo của hệ thống rồi.");
+      } else {
+        await sendZaloMessage(chatId, "⚠️ Lệnh /install chỉ hỗ trợ trong Chat Riêng với Bot.");
+      }
       return;
     }
 
     // Handle /addgroup
     if (cleanTextForCmd === '/addgroup') {
+      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       await db.addGroup(chatId);
       await sendZaloMessage(chatId, "✅ Đã đăng ký nhóm này vào danh sách nhận thông báo (Broadcast).");
       return;
@@ -2063,6 +2069,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /setname
     if (cleanTextForCmd.startsWith('/setname ')) {
+      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       const newName = cleanTextForCmd.replace('/setname ', '').trim();
       if (!newName) {
         await sendZaloMessage(chatId, "⚠️ Vui lòng nhập tên nhóm. VD: /setname Tổ Toán");
@@ -2075,6 +2082,7 @@ app.post('/webhook', async (req, res) => {
 
     // Handle /removegroup
     if (cleanTextForCmd === '/removegroup') {
+      if (!isAdminUser) { await sendZaloMessage(chatId, "❌ Bạn không có quyền thực hiện lệnh này."); return; }
       await db.removeGroup(chatId);
       await sendZaloMessage(chatId, "⚠️ Đã gỡ nhóm này khỏi danh sách nhận thông báo.");
       return;
