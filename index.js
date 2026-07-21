@@ -385,7 +385,7 @@ app.get('/login', (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${process.env.PAGE_TITLE || 'Đăng nhập - Phần mềm quản trị'}</title>
+      <title>Hệ thống quản lý IT - minhhan.net</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -600,7 +600,7 @@ app.get('/setup', async (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Khởi tạo Web Admin</title>
+      <title>Hệ thống quản lý IT - minhhan.net</title>
       <style>
         body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
@@ -728,7 +728,7 @@ app.get('/forgot-password', (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Khôi phục mật khẩu</title>
+      <title>Hệ thống quản lý IT - minhhan.net</title>
       <style>
         body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
@@ -865,7 +865,7 @@ app.get('/report', checkAuth, async (req, res) => {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${process.env.PAGE_TITLE || 'Phần mềm quản trị hệ thống - minhhan.net'}</title>
+      <title>Hệ thống quản lý IT - minhhan.net</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -1217,6 +1217,7 @@ app.get('/report', checkAuth, async (req, res) => {
 
           /* Định dạng khi in (Print) */
           @media print {
+              @page { size: landscape; margin: 10mm; }
               :root, [data-theme="dark"], body {
                   --bg-color: #ffffff !important;
                   --card-bg: #ffffff !important;
@@ -1233,7 +1234,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   print-color-adjust: exact !important;
               }
               .screen-title { display: none !important; }
-              .print-title { display: inline !important; }
+              .print-title { display: block !important; }
               body { background: white; padding: 0 !important; }
               .container { max-width: 100%; width: 100%; margin: 0; }
               .controls { display: none !important; }
@@ -1256,12 +1257,15 @@ app.get('/report', checkAuth, async (req, res) => {
               ${printTemplateHtml}
           </div>
           <div class="header">
-              <h2>
-                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none;">
+              <h2 style="display:flex; align-items:center; gap:12px; margin:0;">
+                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex;">
                       <img src="/assets/logo.png" alt="Logo" style="height: 40px; object-fit: contain;" onerror="this.style.display='none'">
                   </a>
-                  <span class="screen-title">${process.env.HEADER_TITLE || `BÁO CÁO AI BOT THÁNG ${monthStr}`}</span>
-                  <span class="print-title">Báo cáo tháng ${monthStr}</span>
+                  <div style="display:flex; flex-direction:column; justify-content:center;">
+                      <span class="screen-title" style="font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ thống quản lý IT - minhhan.net</span>
+                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ thống quản lý IT - minhhan.net</span>
+                      <span class="print-title" style="display:none; font-size: 14px; font-weight: 400; color: var(--text-muted); margin-top: 4px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
+                  </div>
               </h2>
               <div class="controls">
                   <select id="statusFilter">
@@ -2063,7 +2067,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Cài đặt Hệ thống</title>
+      <title>Hệ thống quản lý IT - minhhan.net</title>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <script>
