@@ -2676,7 +2676,7 @@ ${systemPromptPreview}
                 <td style="padding:10px; border-bottom:1px solid #eee; font-family: monospace;" title="\${a.id}">\${maskId(a.id)}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">\${a.name}</td>
                 <td style="padding:10px; border-bottom:1px solid #eee;">
-                  <button class="btn-danger" style="background:#991b1b; padding: 4px 8px; font-size:12px;" onclick="removeAdmin('\${a.id}')">Xóa quyền</button>
+                  <button class="btn-danger" style="background:#991b1b; color:#ffffff; padding: 4px 8px; font-size:12px;" onclick="removeAdmin('\${a.id}')">Xóa quyền</button>
                 </td>
               </tr>\`
             ).join('') || '<tr><td colspan="3" style="padding:10px; text-align:center; color:#999;">Chưa có Admin nào được duyệt</td></tr>';
@@ -2687,12 +2687,15 @@ ${systemPromptPreview}
             // Populate Zalo dropdown for Web Users creation
             const zaloSelect = document.getElementById('newWebZaloId');
             if (zaloSelect) {
-                zaloSelect.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>';
-                data.admins.forEach(a => {
-                    zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
-                });
-                activeZaloAdminsForDropdown = data.admins;
-                loadWebUsers(); // Refresh web users to update linked zalo names
+                const currentOptionsHtml = data.admins.map(a => \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`).join('');
+                if (zaloSelect.getAttribute('data-last-html') !== currentOptionsHtml) {
+                    const currentVal = zaloSelect.value;
+                    zaloSelect.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>' + currentOptionsHtml;
+                    zaloSelect.value = currentVal;
+                    zaloSelect.setAttribute('data-last-html', currentOptionsHtml);
+                    activeZaloAdminsForDropdown = data.admins;
+                    loadWebUsers(); // Refresh web users to update linked zalo names only when Zalo list changes
+                }
             }
           }
         }
