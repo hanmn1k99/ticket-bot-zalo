@@ -1944,8 +1944,22 @@ app.post('/api/users/create', checkAuth, async (req, res) => {
   const passwordHash = await bcrypt.hash(password, 10);
   const recoveryKeyHash = await bcrypt.hash(rawRecoveryKey, 10);
   const created = await db.createUser(username, passwordHash, recoveryKeyHash, role, displayName, zaloId || '');
-  if (created) res.json({ success: true, recoveryKey: rawRecoveryKey });
-  else res.status(400).json({ error: 'Tên đăng nhập đã tồn tại' });
+  if (created) {
+    if (zaloId) {
+      const loginMsg = `🎉 TÀI KHOẢN ADMIN ĐÃ ĐƯỢC KHỞI TẠO!
+------------------------------
+👤 Tên hiển thị: ${displayName || 'Bộ phận IT'}
+🔑 Tên đăng nhập: ${username}
+🔒 Mật khẩu: ${password}
+------------------------------
+Vui lòng đăng nhập vào Web Admin bằng tài khoản trên để quản lý sự cố.
+(⚠️ Lời khuyên: Đổi mật khẩu sau khi đăng nhập thành công)`;
+      sendZaloMessage(zaloId, loginMsg).catch(err => console.error("Error sending Zalo message:", err));
+    }
+    res.json({ success: true, recoveryKey: rawRecoveryKey });
+  } else {
+    res.status(400).json({ error: 'Tên đăng nhập đã tồn tại' });
+  }
 });
 
 app.post('/api/users/delete', checkAuth, async (req, res) => {
