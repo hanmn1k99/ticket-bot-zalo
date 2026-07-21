@@ -81,11 +81,13 @@ async function rejectRequest(id, adminReply, completedAt) {
   return null;
 }
 
-async function updateRequestStatus(id, newStatus) {
+async function updateRequestStatus(id, newStatus, assigneeId = null, assigneeName = null) {
   const db = readDB();
   const index = db.requests.findIndex(r => r.id === id);
   if (index !== -1) {
     db.requests[index].status = newStatus;
+    if (assigneeId) db.requests[index].assignee_id = assigneeId;
+    if (assigneeName) db.requests[index].assignee_name = assigneeName;
     writeDB(db);
     return db.requests[index];
   }

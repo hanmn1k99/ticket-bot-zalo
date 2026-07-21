@@ -246,6 +246,21 @@ async function isAdmin(senderId) {
   return admins.some(a => a.id === senderId);
 }
 
+async function isSuperAdmin(senderId) {
+  const users = await db.getUsers();
+  const linkedUser = users.find(u => u.zaloId === senderId);
+  return linkedUser && linkedUser.role === 'SUPER_ADMIN';
+}
+
+async function getWebDisplayNameForZalo(senderId, fallbackName) {
+  const users = await db.getUsers();
+  const linkedUser = users.find(u => u.zaloId === senderId);
+  if (linkedUser) {
+    return linkedUser.displayName || linkedUser.username || fallbackName;
+  }
+  return fallbackName;
+}
+
 // Init cron jobs
 setupCronJobs(sendToAdmins);
 
@@ -1708,11 +1723,19 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     return res.status(400).json({ error: `Sự cố #${id} đã được đánh dấu hoàn thành trước đó.` });
   }
 
+  const userId = req.user.zaloId || req.user.username;
+  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+
+  if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
+    if (req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: `Sự cố này đang được xử lý bởi IT ${existingReq.assignee_name || 'khác'}, bạn không thể thao tác.` });
+    }
+  }
+
   const updatedReq = await db.updateRequest(id, replyText, Date.now());
   if (updatedReq) {
     // Thông báo về nhóm/người dùng gốc
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${id}]
 ------------------------------
 👤 Giáo viên: ${updatedReq.sender_name}
@@ -1724,8 +1747,13 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
-    // Thông báo cho Admin
-    await sendToAdmins(`✅ Sự cố #${id} đã hoàn thành qua web`);
+    // Thông báo cho các Admin khác
+    const admins = await db.getAdmins();
+    for (const a of admins) {
+        if (a.id !== req.user.zaloId) {
+            await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
+        }
+    }
 
     return res.json({ success: true });
   } else {
@@ -1748,10 +1776,18 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     return res.status(400).json({ error: `Chỉ có thể từ chối sự cố ở trạng thái Đang chờ hoặc Đang xử lý.` });
   }
 
+  const userId = req.user.zaloId || req.user.username;
+  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+
+  if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
+    if (req.user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: `Sự cố này đang được xử lý bởi IT ${existingReq.assignee_name || 'khác'}, bạn không thể thao tác.` });
+    }
+  }
+
   const updatedReq = await db.rejectRequest(id, replyText, Date.now());
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     let userMsg = '';
     if (existingReq.status === 'Đang chờ') {
         userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${id}]
@@ -1775,7 +1811,13 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
-    await sendToAdmins(`⛔ Sự cố #${id} đã bị từ chối qua web`);
+    // Thông báo cho các Admin khác
+    const admins = await db.getAdmins();
+    for (const a of admins) {
+        if (a.id !== req.user.zaloId) {
+            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
+        }
+    }
 
     return res.json({ success: true });
   } else {
@@ -1787,10 +1829,11 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
 app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   const { id } = req.body;
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
-  const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý');
+  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+  const assigneeId = (req.user && req.user.zaloId) ? req.user.zaloId : ((req.user && req.user.username) ? req.user.username : null);
+  const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý', assigneeId, itName);
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-    const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${id}]
 ------------------------------
 👤 Giáo viên: ${updatedReq.sender_name}
@@ -2870,7 +2913,8 @@ app.post('/webhook', async (req, res) => {
         return;
       }
       
-      const updated = await db.updateRequestStatus(ticketId, 'Đang xử lý');
+      const itName = await getWebDisplayNameForZalo(senderId, senderName);
+      const updated = await db.updateRequestStatus(ticketId, 'Đang xử lý', senderId, itName);
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã tiếp nhận sự cố #${ticketId}. Đang xử lý...`);
         const targetChat = updated.chat_id || updated.sender_id;
@@ -2878,7 +2922,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Giáo viên: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${senderName}
+👨‍💻 Phụ trách: IT ${itName}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
 
@@ -2886,7 +2930,7 @@ app.post('/webhook', async (req, res) => {
         const admins = await db.getAdmins();
         for (const a of admins) {
             if (a.id !== senderId) {
-                await sendZaloMessage(a.id, `ℹ️ IT ${senderName} đã tiếp nhận sự cố #${ticketId}`);
+                await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
             }
         }
       }
@@ -2926,20 +2970,36 @@ app.post('/webhook', async (req, res) => {
         await sendZaloMessage(chatId, `⚠️ Sự cố #${ticketId} đã được báo hoàn thành từ trước.`);
         return;
       }
+
+      if (reqTicket.assignee_id && reqTicket.assignee_id !== senderId) {
+        if (!(await isSuperAdmin(senderId))) {
+          await sendZaloMessage(chatId, `⚠️ Sự cố này đang được xử lý bởi IT ${reqTicket.assignee_name || 'khác'}, bạn không thể thao tác.`);
+          return;
+        }
+      }
       
       const updated = await db.updateRequest(ticketId, replyText, Date.now());
       if (updated) {
+        const itName = await getWebDisplayNameForZalo(senderId, senderName);
         await sendZaloMessage(chatId, `✅ Đã đánh dấu hoàn thành sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
         await sendZaloMessage(targetChat, `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${ticketId}]
 ------------------------------
 👤 Giáo viên: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${senderName}
+👨‍💻 Phụ trách: IT ${itName}
 💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
         scheduleTestDeletion(ticketId, updated.content);
+
+        // Notify other admins
+        const admins = await db.getAdmins();
+        for (const a of admins) {
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${ticketId}`);
+            }
+        }
       }
       return;
     }
@@ -2978,8 +3038,16 @@ app.post('/webhook', async (req, res) => {
         return;
       }
       
+      if (reqTicket.assignee_id && reqTicket.assignee_id !== senderId) {
+        if (!(await isSuperAdmin(senderId))) {
+          await sendZaloMessage(chatId, `⚠️ Sự cố này đang được xử lý bởi IT ${reqTicket.assignee_name || 'khác'}, bạn không thể thao tác.`);
+          return;
+        }
+      }
+
       const updated = await db.rejectRequest(ticketId, replyText, Date.now());
       if (updated) {
+        const itName = await getWebDisplayNameForZalo(senderId, senderName);
         await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
         let userMsg = '';
@@ -2988,7 +3056,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Giáo viên: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${senderName}
+👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -2997,13 +3065,21 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Giáo viên: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${senderName}
+👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
         }
         await sendZaloMessage(targetChat, userMsg);
         scheduleTestDeletion(ticketId, updated.content);
+
+        // Notify other admins
+        const admins = await db.getAdmins();
+        for (const a of admins) {
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
+            }
+        }
       }
       return;
     }
