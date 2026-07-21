@@ -1747,12 +1747,10 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
-    // Thông báo cho các Admin khác
+    // Thông báo cho tất cả Admin
     const admins = await db.getAdmins();
     for (const a of admins) {
-        if (a.id !== req.user.zaloId) {
-            await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
-        }
+        await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
     }
 
     return res.json({ success: true });
@@ -1811,12 +1809,10 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
-    // Thông báo cho các Admin khác
+    // Thông báo cho tất cả Admin
     const admins = await db.getAdmins();
     for (const a of admins) {
-        if (a.id !== req.user.zaloId) {
-            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
-        }
+        await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
     }
 
     return res.json({ success: true });
@@ -1843,13 +1839,10 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
 
-    // Notify other admins, but since Web could be linked, we exclude the linked Zalo ID if present
+    // Notify all admins (including the one who clicked, for audit trail)
     const admins = await db.getAdmins();
-    const webUserZaloId = req.user && req.user.zaloId ? req.user.zaloId : null;
     for (const a of admins) {
-        if (a.id !== webUserZaloId) {
-            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
-        }
+        await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
     }
 
     return res.json({ success: true });
@@ -2926,12 +2919,10 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
 
-        // Notify other admins
+        // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            if (a.id !== senderId) {
-                await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
-            }
+            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
         }
       }
       return;
@@ -2993,12 +2984,10 @@ app.post('/webhook', async (req, res) => {
 😊 Xin cảm ơn Thầy/Cô!`);
         scheduleTestDeletion(ticketId, updated.content);
 
-        // Notify other admins
+        // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            if (a.id !== senderId) {
-                await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${ticketId}`);
-            }
+            await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${ticketId}`);
         }
       }
       return;
@@ -3073,12 +3062,10 @@ app.post('/webhook', async (req, res) => {
         await sendZaloMessage(targetChat, userMsg);
         scheduleTestDeletion(ticketId, updated.content);
 
-        // Notify other admins
+        // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            if (a.id !== senderId) {
-                await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
-            }
+            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
         }
       }
       return;
