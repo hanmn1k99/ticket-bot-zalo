@@ -291,7 +291,7 @@ async function renderTableRows() {
      const day = String(d.getDate()).padStart(2, '0');
      const month = String(d.getMonth() + 1).padStart(2, '0');
      const year = d.getFullYear();
-     const time = d.toLocaleTimeString('en-US', { hour12: false });
+     const time = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
      
      let statusBadge = '';
      if (r.status === 'Đã xong') {
@@ -304,14 +304,14 @@ async function renderTableRows() {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
      }
 
-     let timeHtml = `<div style="font-size:13px; white-space:nowrap;">🕒 ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}/${year}</span></div>`;
+     let timeHtml = `<div style="font-size:13px; white-space:nowrap;">🕒 ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
      if ((r.status === 'Đã xong' || r.status === 'Từ chối') && r.completed_at) {
        const cd = new Date(r.completed_at);
        const cday = String(cd.getDate()).padStart(2, '0');
        const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
        const cyear = cd.getFullYear();
-       const ctime = cd.toLocaleTimeString('en-US', { hour12: false });
-       timeHtml += `<div style="font-size:13px; margin-top:4px; white-space:nowrap; color:#16a34a;">🏁 ${ctime} <span style="color:var(--text-muted); font-size:12px;">${cday}/${cmonth}/${cyear}</span></div>`;
+       const ctime = cd.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+       timeHtml += `<div style="font-size:13px; margin-top:4px; white-space:nowrap; color:#16a34a;">🏁 ${ctime} <span style="color:var(--text-muted); font-size:12px;">${cday}/${cmonth}</span></div>`;
      }
        
      let adminReplyCell = '';
@@ -340,7 +340,7 @@ async function renderTableRows() {
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
-        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:6px; font-size:12px; display:inline-block; word-break:break-word; white-space:normal; line-height:1.4;">${currentChatName}</span></td>
+        <td><span style="background:var(--btn-secondary-bg); padding:4px 10px; border-radius:9999px; font-size:12px; display:inline-block; word-break:break-word; white-space:normal; line-height:1.4;">${currentChatName}</span></td>
         <td style="min-width:130px;">${timeHtml}</td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
