@@ -1951,6 +1951,7 @@ app.post('/api/users/create', checkAuth, async (req, res) => {
 👤 Tên hiển thị: ${displayName || 'Bộ phận IT'}
 🔑 Tên đăng nhập: ${username}
 🔒 Mật khẩu: ${password}
+🌐 Link đăng nhập: ${PUBLIC_URL}
 ------------------------------
 Vui lòng đăng nhập vào Web Admin bằng tài khoản trên để quản lý sự cố.
 (⚠️ Lời khuyên: Đổi mật khẩu sau khi đăng nhập thành công)`;
