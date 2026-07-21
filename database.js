@@ -232,7 +232,19 @@ async function getAdmins() {
     writeDB(db);
   }
 
-  return db.settings.admins || [];
+  let admins = db.settings.admins || [];
+  
+  // Fallback to process.env.ADMIN_CHAT_ID if it exists
+  const envAdmin = process.env.ADMIN_CHAT_ID;
+  if (envAdmin && !admins.find(a => a.id === envAdmin)) {
+      admins.push({
+          id: envAdmin,
+          name: 'Admin Zalo (Từ .env)',
+          timestamp: Date.now()
+      });
+  }
+
+  return admins;
 }
 
 async function getPendingAdmins() {
