@@ -3253,19 +3253,25 @@ ${requestContent}
       console.log('--- NHẬN YÊU CẦU MỚI ---');
       console.log(adminMessage);
 
-      const adminId = await db.getSetting('admin_chat_id') || process.env.ADMIN_CHAT_ID;
-      if (adminId) {
+      const admins = await db.getAdmins();
+      const activeAdmins = admins.filter(a => a.active);
+
+      if (activeAdmins.length > 0) {
         const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG!
 ------------------------------
 🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} (Mã số: #${newId}) đã được hệ thống ghi nhận và chuyển đến bộ phận IT.
 👨‍💻 Các kỹ thuật viên sẽ nhanh chóng kiểm tra và xử lý trong thời gian sớm nhất.
 ------------------------------
 😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
-        await sendZaloMessage(adminId, adminMessage);
+        
+        // Forward to all active admins
+        for (const admin of activeAdmins) {
+            await sendZaloMessage(admin.id, adminMessage);
+        }
         await sendZaloMessage(chatId, userMessage);
       } else {
-        console.warn('ADMIN_CHAT_ID is not configured. Cannot forward message.');
-        await sendZaloMessage(chatId, "Yêu cầu đã được nhận nhưng hệ thống chưa được cấu hình người nhận.");
+        console.warn('No active admins configured. Cannot forward message.');
+        await sendZaloMessage(chatId, "Yêu cầu đã được nhận nhưng hệ thống chưa có Quản trị viên Zalo nào trực để nhận thông báo. Vui lòng dùng lệnh /install để đăng ký.");
       }
     }
   }
