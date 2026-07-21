@@ -1921,7 +1921,18 @@ app.post('/api/admins/remove', checkAuth, async (req, res) => {
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
   const success = await db.removeAdmin(id);
   if (success) {
-    await sendZaloMessage(id, "⚠️ Quyền Zalo Admin của bạn đã bị THU HỒI bởi hệ thống.");
+    // Delete associated web account if it exists
+    const users = await db.getUsers();
+    const targetUser = users.find(u => u.zaloId === id);
+    if (targetUser) {
+      if (targetUser.username !== req.user.username) {
+        if (targetUser.role !== 'SUPER_ADMIN' || users.filter(u => u.role === 'SUPER_ADMIN').length > 1) {
+          await db.deleteUser(targetUser.username);
+        }
+      }
+    }
+    
+    await sendZaloMessage(id, "⚠️ Quyền Zalo Admin của bạn đã bị THU HỒI. Tài khoản Web Admin tương ứng (nếu có) cũng đã bị xóa.");
     return res.json({ success: true });
   }
   return res.status(400).json({ error: 'Không tìm thấy admin' });
