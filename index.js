@@ -1797,10 +1797,17 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${itName}
 ------------------------------
-🕒 Xin vui lòng chờ trong giây lát!`;
+😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
 
-    await sendToAdmins(`✅ Sự cố #${id} đã được tiếp nhận qua web`);
+    // Notify other admins, but since Web could be linked, we exclude the linked Zalo ID if present
+    const admins = await db.getAdmins();
+    const webUserZaloId = req.user && req.user.zaloId ? req.user.zaloId : null;
+    for (const a of admins) {
+        if (a.id !== webUserZaloId) {
+            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
+        }
+    }
 
     return res.json({ success: true });
   }
@@ -2873,7 +2880,15 @@ app.post('/webhook', async (req, res) => {
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${senderName}
 ------------------------------
-🕒 Xin vui lòng chờ trong giây lát!`);
+😊 Xin cảm ơn Thầy/Cô!`);
+
+        // Notify other admins
+        const admins = await db.getAdmins();
+        for (const a of admins) {
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `ℹ️ IT ${senderName} đã tiếp nhận sự cố #${ticketId}`);
+            }
+        }
       }
       return;
     }
