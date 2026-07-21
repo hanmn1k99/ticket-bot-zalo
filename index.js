@@ -1861,7 +1861,7 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
     const admins = await db.getAdmins();
     for (const a of admins) {
         if (a.id !== assigneeId) {
-            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
+            await sendZaloMessage(a.id, `🔔 IT ${itName} đã tiếp nhận sự cố #${id}`);
         }
     }
 
@@ -2943,7 +2943,7 @@ app.post('/webhook', async (req, res) => {
         const admins = await db.getAdmins();
         for (const a of admins) {
             if (a.id !== senderId) {
-                await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
+                await sendZaloMessage(a.id, `🔔 IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
             }
         }
       }
