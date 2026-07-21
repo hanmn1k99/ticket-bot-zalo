@@ -3254,9 +3254,8 @@ ${requestContent}
       console.log(adminMessage);
 
       const admins = await db.getAdmins();
-      const activeAdmins = admins.filter(a => a.active);
-
-      if (activeAdmins.length > 0) {
+      
+      if (admins.length > 0) {
         const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG!
 ------------------------------
 🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} (Mã số: #${newId}) đã được hệ thống ghi nhận và chuyển đến bộ phận IT.
@@ -3265,7 +3264,7 @@ ${requestContent}
 😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
         
         // Forward to all active admins
-        for (const admin of activeAdmins) {
+        for (const admin of admins) {
             await sendZaloMessage(admin.id, adminMessage);
         }
         await sendZaloMessage(chatId, userMessage);
