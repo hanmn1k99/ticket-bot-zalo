@@ -294,6 +294,7 @@ async function renderTableRows() {
      const time = d.toLocaleTimeString('en-US', { hour12: false });
      
      let statusBadge = '';
+     let completedTimeHtml = '';
      if (r.status === 'Đã xong') {
        statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
      } else if (r.status === 'Từ chối') {
@@ -302,6 +303,15 @@ async function renderTableRows() {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
      } else {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
+     }
+
+     if ((r.status === 'Đã xong' || r.status === 'Từ chối') && r.completed_at) {
+       const cd = new Date(r.completed_at);
+       const cday = String(cd.getDate()).padStart(2, '0');
+       const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
+       const cyear = cd.getFullYear();
+       const ctime = cd.toLocaleTimeString('en-US', { hour12: false });
+       completedTimeHtml = `<br><small style="color:var(--text-muted); display:inline-block; margin-top:6px; font-size:11px;">Xong lúc: ${ctime}<br>${cday}/${cmonth}/${cyear}</small>`;
      }
        
      let adminReplyCell = '';
@@ -333,7 +343,7 @@ async function renderTableRows() {
         <td><span style="background:var(--btn-secondary-bg); padding:4px 10px; border-radius:9999px; font-size:12px;">${currentChatName}</span></td>
         <td>${time}<br><small style="color:var(--text-muted)">${day}/${month}/${year}</small></td>
         <td>${r.content}</td>
-        <td id="statusCell_${r.id}">${statusBadge}</td>
+        <td id="statusCell_${r.id}" style="text-align:center;">${statusBadge}${completedTimeHtml}</td>
         <td id="replyCell_${r.id}">${adminReplyCell}</td>
       </tr>`;
   }).join('');
@@ -1305,7 +1315,7 @@ app.get('/report', checkAuth, async (req, res) => {
                           <th width="5%">STT</th>
                           <th width="12%">Người Yêu Cầu</th>
                           <th width="13%">Nhóm</th>
-                          <th width="15%">Thời gian</th>
+                          <th width="15%">Giờ Tạo</th>
                           <th width="20%">Mô tả sự cố</th>
                           <th width="15%">Trạng thái</th>
                           <th width="20%">Phản hồi của IT</th>
