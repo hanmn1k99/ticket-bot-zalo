@@ -1713,9 +1713,11 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     // Thông báo về nhóm/người dùng gốc
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
-    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
+    const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${id}]
 ------------------------------
-🛠️ Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được ${itName} xử lý hoàn tất.
+👤 Giáo viên: ${updatedReq.sender_name}
+📍 Vị trí: ${updatedReq.location || 'Không xác định'}
+👨‍💻 Phụ trách: IT ${itName}
 💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
@@ -1752,16 +1754,20 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
     let userMsg = '';
     if (existingReq.status === 'Đang chờ') {
-        userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU
+        userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${id}]
 ------------------------------
-🛠️ Xin lỗi Thầy/Cô ${updatedReq.sender_name}, ${itName} xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${id}) tại ${updatedReq.location || 'Không xác định'}.
+👤 Giáo viên: ${updatedReq.sender_name}
+📍 Vị trí: ${updatedReq.location || 'Không xác định'}
+👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
     } else {
-        userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
+        userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${id}]
 ------------------------------
-🛠️ Sau khi kiểm tra, ${itName} xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} thành Từ chối.
+👤 Giáo viên: ${updatedReq.sender_name}
+📍 Vị trí: ${updatedReq.location || 'Không xác định'}
+👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1785,12 +1791,13 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const itName = req.user && req.user.displayName ? req.user.displayName : 'Bộ phận IT';
-    const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ!
+    const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${id}]
 ------------------------------
-👨‍💻 Sự cố (Mã số: #${id}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được ${itName} tiếp nhận.
-🔧 Kỹ thuật viên đang tiến hành kiểm tra và khắc phục.
+👤 Giáo viên: ${updatedReq.sender_name}
+📍 Vị trí: ${updatedReq.location || 'Không xác định'}
+👨‍💻 Phụ trách: IT ${itName}
 ------------------------------
-😊 Sẽ có thông báo gửi đến Thầy/Cô ngay khi hoàn tất!`;
+🕒 Xin vui lòng chờ trong giây lát!`;
     await sendZaloMessage(targetChat, userMsg);
 
     await sendToAdmins(`✅ Sự cố #${id} đã được tiếp nhận qua web`);
@@ -2860,10 +2867,11 @@ app.post('/webhook', async (req, res) => {
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã tiếp nhận sự cố #${ticketId}. Đang xử lý...`);
         const targetChat = updated.chat_id || updated.sender_id;
-        await sendZaloMessage(targetChat, `🟡 IT ĐANG XỬ LÝ SỰ CỐ!
+        await sendZaloMessage(targetChat, `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${ticketId}]
 ------------------------------
-👨‍💻 Sự cố (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã được Bộ phận IT tiếp nhận.
-🔧 Kỹ thuật viên đang tiến hành kiểm tra và khắc phục.
+👤 Giáo viên: ${updated.sender_name}
+📍 Vị trí: ${updated.location || 'Không xác định'}
+👨‍💻 Phụ trách: IT ${senderName}
 ------------------------------
 🕒 Xin vui lòng chờ trong giây lát!`);
       }
@@ -2908,10 +2916,12 @@ app.post('/webhook', async (req, res) => {
       if (updated) {
         await sendZaloMessage(chatId, `✅ Đã đánh dấu hoàn thành sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
-        await sendZaloMessage(targetChat, `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
+        await sendZaloMessage(targetChat, `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${ticketId}]
 ------------------------------
-🛠️ Sự cố (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
-💬 Phản hồi từ IT: ${replyText}
+👤 Giáo viên: ${updated.sender_name}
+📍 Vị trí: ${updated.location || 'Không xác định'}
+👨‍💻 Phụ trách: IT ${senderName}
+💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
         scheduleTestDeletion(ticketId, updated.content);
@@ -2959,16 +2969,20 @@ app.post('/webhook', async (req, res) => {
         const targetChat = updated.chat_id || updated.sender_id;
         let userMsg = '';
         if (reqTicket.status === 'Đang chờ') {
-            userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU
+            userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${ticketId}]
 ------------------------------
-🛠️ Xin lỗi Thầy/Cô ${updated.sender_name}, bộ phận IT xin phép từ chối tiếp nhận yêu cầu hỗ trợ (Mã số: #${ticketId}) tại ${updated.location || 'Không xác định'}.
+👤 Giáo viên: ${updated.sender_name}
+📍 Vị trí: ${updated.location || 'Không xác định'}
+👨‍💻 Người từ chối: IT ${senderName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
         } else {
-            userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI YÊU CẦU
+            userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${ticketId}]
 ------------------------------
-🛠️ Sau khi kiểm tra, bộ phận IT xin phép thay đổi trạng thái yêu cầu hỗ trợ (Mã số: #${ticketId}) của Thầy/Cô ${updated.sender_name} tại ${updated.location || 'Không xác định'} thành Từ chối.
+👤 Giáo viên: ${updated.sender_name}
+📍 Vị trí: ${updated.location || 'Không xác định'}
+👨‍💻 Người từ chối: IT ${senderName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -3256,12 +3270,12 @@ ${requestContent}
       const admins = await db.getAdmins();
       
       if (admins.length > 0) {
-        const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG!
+        const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG! [#${newId}]
 ------------------------------
-🛠️ Sự cố của ${BOT_PRONOUN_USER_DEFAULT} ${senderName} (Mã số: #${newId}) đã được hệ thống ghi nhận và chuyển đến bộ phận IT.
-👨‍💻 Các kỹ thuật viên sẽ nhanh chóng kiểm tra và xử lý trong thời gian sớm nhất.
+👤 Giáo viên: ${senderName}
+📍 Vị trí: ${location}
 ------------------------------
-😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
+👨‍💻 Sự cố đã được chuyển đến bộ phận IT. Xin chờ xử lý!`;
         
         // Forward to all active admins
         for (const admin of admins) {
