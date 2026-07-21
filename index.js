@@ -340,7 +340,7 @@ async function renderTableRows() {
       <tr>
         <td><strong>#${r.id}</strong></td>
         <td>${r.sender_name}</td>
-        <td><span style="background:var(--btn-secondary-bg); padding:4px 10px; border-radius:9999px; font-size:12px;">${currentChatName}</span></td>
+        <td><span style="background:var(--btn-secondary-bg); padding:4px 8px; border-radius:6px; font-size:12px; display:inline-block; word-break:break-word; white-space:normal; line-height:1.4;">${currentChatName}</span></td>
         <td style="min-width:130px;">${timeHtml}</td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
