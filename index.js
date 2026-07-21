@@ -256,7 +256,7 @@ async function getWebDisplayNameForZalo(senderId, fallbackName) {
   const users = await db.getUsers();
   const linkedUser = users.find(u => u.zaloId === senderId);
   if (linkedUser) {
-    return linkedUser.displayName || linkedUser.username || fallbackName;
+    return linkedUser.displayName || fallbackName;
   }
   return fallbackName;
 }
@@ -385,7 +385,7 @@ app.get('/login', (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hệ thống quản lý IT - minhhan.net</title>
+      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -600,7 +600,7 @@ app.get('/setup', async (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hệ thống quản lý IT - minhhan.net</title>
+      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
       <style>
         body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
@@ -728,7 +728,7 @@ app.get('/forgot-password', (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hệ thống quản lý IT - minhhan.net</title>
+      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
       <style>
         body { font-family: sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); width: 100%; max-width: 400px; }
@@ -865,7 +865,7 @@ app.get('/report', checkAuth, async (req, res) => {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hệ thống quản lý IT - minhhan.net</title>
+      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -1262,8 +1262,8 @@ app.get('/report', checkAuth, async (req, res) => {
                       <img src="/assets/logo.png" alt="Logo" style="height: 40px; object-fit: contain;" onerror="this.style.display='none'">
                   </a>
                   <div style="display:flex; flex-direction:column; justify-content:center;">
-                      <span class="screen-title" style="font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ thống quản lý IT - minhhan.net</span>
-                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ thống quản lý IT - minhhan.net</span>
+                      <span class="screen-title" style="font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
+                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
                       <span class="print-title" style="display:none; font-size: 14px; font-weight: 400; color: var(--text-muted); margin-top: 4px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
                   </div>
               </h2>
@@ -1764,7 +1764,9 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     // Thông báo cho tất cả Admin
     const admins = await db.getAdmins();
     for (const a of admins) {
-        await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
+        if (a.id !== userId) {
+            await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
+        }
     }
 
     return res.json({ success: true });
@@ -1826,7 +1828,9 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     // Thông báo cho tất cả Admin
     const admins = await db.getAdmins();
     for (const a of admins) {
-        await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
+        if (a.id !== userId) {
+            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
+        }
     }
 
     return res.json({ success: true });
@@ -1853,10 +1857,12 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
 
-    // Notify all admins (including the one who clicked, for audit trail)
+    // Notify all admins (excluding the one who clicked)
     const admins = await db.getAdmins();
     for (const a of admins) {
-        await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
+        if (a.id !== assigneeId) {
+            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${id}`);
+        }
     }
 
     return res.json({ success: true });
@@ -2936,7 +2942,9 @@ app.post('/webhook', async (req, res) => {
         // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `ℹ️ IT ${itName} đã tiếp nhận sự cố #${ticketId}`);
+            }
         }
       }
       return;
@@ -3001,7 +3009,9 @@ app.post('/webhook', async (req, res) => {
         // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${ticketId}`);
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${ticketId}`);
+            }
         }
       }
       return;
@@ -3079,7 +3089,9 @@ app.post('/webhook', async (req, res) => {
         // Notify all admins
         const admins = await db.getAdmins();
         for (const a of admins) {
-            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
+            if (a.id !== senderId) {
+                await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
+            }
         }
       }
       return;
