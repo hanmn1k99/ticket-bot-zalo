@@ -1242,7 +1242,7 @@ app.get('/report', checkAuth, async (req, res) => {
               .print-title { display: block !important; }
               body { background: white; padding: 0 !important; }
               .container { max-width: 100%; width: 100%; margin: 0; }
-              .controls { display: none !important; }
+              .controls, .action-bar { display: none !important; }
               .table-wrapper { 
                   box-shadow: none; 
                   border: none;
@@ -1261,60 +1261,68 @@ app.get('/report', checkAuth, async (req, res) => {
           <div class="print-header">
               ${printTemplateHtml}
           </div>
-          <div class="header">
-              <h2 style="display:flex; align-items:center; gap:14px; margin:0;">
-                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex; align-items:center;">
-                      <img src="/assets/logo.png" alt="Logo" style="height: 42px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
-                  </a>
-                  <div style="display:flex; flex-direction:column; justify-content:center;">
-                      <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
-                      <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
-                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
-                      <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
+          <div class="header" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
+              <!-- Tầng 1: Thương hiệu (Trái) & Nút Thao tác + Tài khoản (Phải) -->
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
+                  <h2 style="display:flex; align-items:center; gap:14px; margin:0;">
+                      <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex; align-items:center;">
+                          <img src="/assets/logo.png" alt="Logo" style="height: 44px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
+                      </a>
+                      <div style="display:flex; flex-direction:column; justify-content:center;">
+                          <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
+                          <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
+                          <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
+                          <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
+                      </div>
+                  </h2>
+                  
+                  <div class="action-bar" style="display:flex; align-items:center; gap:10px;">
+                      <button class="btn-secondary" onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng" style="padding: 9px 12px; border-radius: 8px;">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                      </button>
+                      <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang" style="padding: 9px 12px; border-radius: 8px;">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                      </button>
+                      <button onclick="window.print()" title="In báo cáo" style="padding: 9px 14px; border-radius: 8px;">
+                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                      </button>
+                      <div class="dropdown">
+                          <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:6px; padding: 9px 14px; border-radius: 8px;">
+                              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                              Tài khoản
+                          </button>
+                          <div class="dropdown-content">
+                              ${req.user.role === 'SUPER_ADMIN' ? `
+                              <button onclick="window.location.href='/settings'" style="color:#2563eb;">
+                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                  Cài đặt & AI
+                              </button>
+                              <button onclick="cleanData()" style="color:#ef4444;">
+                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                  Xóa toàn bộ CSDL
+                              </button>
+                              ` : ''}
+                              <button onclick="window.location.href='/logout'" style="color:#475569;">
+                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                  Đăng xuất
+                              </button>
+                          </div>
+                      </div>
                   </div>
-              </h2>
-              <div class="controls">
-                  <select id="statusFilter">
+              </div>
+
+              <!-- Tầng 2: Thanh tìm kiếm & Bộ lọc -->
+              <div class="controls" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; width:100%;">
+                  <select id="statusFilter" style="flex:1; min-width:160px; max-width:220px;">
                       <option value="">-- Tất cả trạng thái --</option>
                       <option value="đã xong">🟢 Đã xong</option>
                       <option value="đang xử lý">🟡 Đang xử lý</option>
                       <option value="đang chờ">🔴 Đang chờ</option>
                   </select>
-                  <select id="nameFilter">
+                  <select id="nameFilter" style="flex:1; min-width:180px; max-width:240px;">
                       <option value="">-- Tất cả người báo --</option>
                   </select>
-                  <input type="text" id="searchInput" placeholder="Tìm kiếm tự do...">
-                  <button class="btn-secondary" onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                  </button>
-                  <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                  </button>
-                  <button onclick="window.print()" title="In báo cáo">
-                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                  </button>
-                  <div class="dropdown">
-                      <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:5px;">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                          Tài khoản
-                      </button>
-                      <div class="dropdown-content">
-                          ${req.user.role === 'SUPER_ADMIN' ? `
-                          <button onclick="window.location.href='/settings'" style="color:#2563eb;">
-                              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                              Cài đặt & AI
-                          </button>
-                          <button onclick="cleanData()" style="color:#ef4444;">
-                              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                              Xóa toàn bộ CSDL
-                          </button>
-                          ` : ''}
-                          <button onclick="window.location.href='/logout'" style="color:#475569;">
-                              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                              Đăng xuất
-                          </button>
-                      </div>
-                  </div>
+                  <input type="text" id="searchInput" placeholder="Tìm kiếm tự do..." style="flex:2; min-width:220px;">
               </div>
           </div>
 
