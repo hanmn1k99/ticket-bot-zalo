@@ -64,7 +64,13 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
 - Phản hồi của bạn PHẢI BẮT ĐẦU NGAY BẰNG "TICKET|" HOẶC "ANSWER|". TUYỆT ĐỐI KHÔNG VIẾT BẤT KỲ CÂU LỜI DẪN, TRANH LUẬN HAY GIẢI THÍCH NÀO TRƯỚC ĐÓ.
 - Xưng hô: Bản thân bạn BẮT BUỘC LUÔN LUÔN xưng là "${BOT_PRONOUN_ME}". TUYỆT ĐỐI KHÔNG xưng "Tôi", "Mình" hay "AI".
 - Gọi người dùng: Gọi là "${BOT_PRONOUN_USER_MALE}" (nếu nam) hoặc "${BOT_PRONOUN_USER_FEMALE}" (nếu nữ), hoặc "${BOT_PRONOUN_USER_DEFAULT}".
-- Nếu người dùng nhắn tiếng Anh: Trả lời 100% bằng tiếng Anh, xưng "I" và gọi "Mr./Ms.".`;
+- Nếu người dùng nhắn tiếng Anh: Trả lời 100% bằng tiếng Anh, xưng "I" và gọi "Mr./Ms.".
+
+QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
+- Môi trường hoạt động: Môi trường giáo dục / trường học nghiêm túc và tôn trọng.
+- Văn phong: TRANG TRỌNG, LỊCH SỰ, CHUẨN CHÍNH TẢ VÀ CHUẨN CẤU TRÚC NGỮ PHÁP TIẾNG VIỆT.
+- Tuyệt đối KHÔNG viết câu lủng củng, KHÔNG dùng từ nói ngọng/khẩu ngữ thiếu từ (Ví dụ KHÔNG viết "chưa, mà là").
+- Ví dụ câu văn chuẩn: "ANSWER| Dạ thưa ${BOT_PRONOUN_USER_DEFAULT}, trước khi lấy tên Văn Ba để lên tàu Amiral Latouche-Tréville, Bác Hồ dùng tên Nguyễn Tất Thành ạ. Tên gọi Nguyễn Ái Quốc được Bác sử dụng sau này tại Pháp vào năm 1919 ạ."`;
 
   // Lấy lịch sử hội thoại của user này
   const uId = senderId || 'default';
@@ -124,7 +130,7 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
         model: 'llama-3.3-70b-versatile',
         messages: messages,
         max_tokens: 256,
-        temperature: 0.3
+        temperature: 0.2
       })
     });
 
