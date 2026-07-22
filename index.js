@@ -47,8 +47,9 @@ ${faqContent}
 
 NHIỆM VỤ CỦA BẠN: Phân loại tin nhắn của ${BOT_USER_ROLE} thành đúng 1 trong 2 định dạng:
 
-1. TICKET|[Địa điểm] -> Áp dụng cho: BÁO SỰ CỐ KỸ THUẬT IT HOẶC CƠ SỞ VẬT CHẤT (máy tính, wifi, máy in, camera (cam), phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
-- CHỈ CẦN BÁO LỖI (như "bảo vệ mất cam rồi", "máy chiếu không lên", "hư đèn", "mất mạng"), ĐÓ CŨNG LÀ TICKET.
+1. TICKET|[Địa điểm] -> Áp dụng cho: BÁO SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, email, M365, wifi, máy in, camera (cam), phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
+- TẤT CẢ VẤN ĐỀ LIÊN QUAN ĐẾN EMAIL / M365 (quên mật khẩu email, quên mk, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365,...) BẮT BUỘC KHÔNG TRẢ VỀ ANSWER MÀ PHẢI LÀ TICKET (vì tài khoản M365 do IT trực tiếp quản lý và hỗ trợ).
+- CHỈ CẦN BÁO LỖI HOẶC YÊU CẦN HỖ TRỢ TÀI KHOẢN/KỸ THUẬT (như "bảo vệ mất cam rồi", "máy chiếu không lên", "hư đèn", "mất mạng", "quên mật khẩu email", "mất 2FA"), ĐÓ CŨNG LÀ TICKET.
 - Từ "cam" 100% là "camera an ninh", tuyệt đối không hiểu là quả cam.
 - "mất wifi", "wifi hỏng" -> TICKET. Hỏi "Pass wifi là gì?" -> ANSWER.
 - TUYỆT ĐỐI KHÔNG TẠO TICKET cho câu hỏi kiến thức chung, lịch sử, toán học, địa lý (Ví dụ: "Hồ chủ tịch ra đi năm nào", "1+1 bằng mấy"). Những câu này BẮT BUỘC là ANSWER.
@@ -2062,8 +2063,9 @@ Quy tắc ngôn ngữ (QUAN TRỌNG NHẤT):
 - NẾU NGƯỜI DÙNG NHẮN BẰNG TIẾNG ANH, BẠN PHẢI TRẢ LỜI 100% BẰNG TIẾNG ANH. KHÔNG ĐƯỢC PHÉP CHÈN BẤT KỲ TỪ TIẾNG VIỆT NÀO. Bỏ qua quy tắc xưng hô "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}".
 
 Quy tắc phân loại (RẤT QUAN TRỌNG - KHÔNG ĐƯỢC BỎ LỠ TICKET CỦA ADMIN):
-1. TICKET - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT HOẶC CƠ SỞ VẬT CHẤT (máy tính, mạng wifi, máy in, camera, phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
-- Các dấu hiệu nhận biết: "coi dùm", "xem giúp", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "bị đơ", "không in được", "rè", "không lên", "cháy", "rò rỉ", "gãy", "chập"...
+1. TICKET - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, mạng wifi, máy in, camera, phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
+- TẤT CẢ VẤN ĐỀ EMAIL / M365: Quên mật khẩu email, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365... BẮT BUỘC LÀ TICKET (vì M365 do IT trực tiếp quản lý).
+- Các dấu hiệu nhận biết: "coi dùm", "xem giúp", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "bị đơ", "không in được", "rè", "không lên", "cháy", "rò rỉ", "gãy", "chập", "quên mk", "mất 2fa"...
 - ĐẶC BIỆT LƯU Ý VỀ WIFI: Nếu người dùng kêu "mất wifi", "không có wifi", "wifi hỏng", "không kết nối được wifi" -> CHẮC CHẮN LÀ TICKET (Báo lỗi). CHỈ phân loại là ANSWER khi người dùng thực sự hỏi "Mật khẩu wifi là gì?", "Cho xin pass wifi".
 - LƯU Ý ĐẶC BIỆT: KHÔNG TẠO TICKET đối với các nhờ vả cá nhân, sai vặt không liên quan đến sửa chữa kỹ thuật. Những câu này phân loại là ANSWER để từ chối khéo léo.
 - Khi quyết định là TICKET, HÃY TRÍCH XUẤT ĐỊA ĐIỂM (vị trí) sự cố nếu có trong câu hỏi. Trả về đúng định dạng: TICKET|[Địa điểm]. Nếu không xác định được địa điểm, trả về: TICKET|Không xác định.
