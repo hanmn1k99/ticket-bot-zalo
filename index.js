@@ -1262,14 +1262,15 @@ app.get('/report', checkAuth, async (req, res) => {
               ${printTemplateHtml}
           </div>
           <div class="header">
-              <h2 style="display:flex; align-items:center; gap:12px; margin:0;">
-                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex;">
-                      <img src="/assets/logo.png" alt="Logo" style="height: 40px; object-fit: contain;" onerror="this.style.display='none'">
+              <h2 style="display:flex; align-items:center; gap:14px; margin:0;">
+                  <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex; align-items:center;">
+                      <img src="/assets/logo.png" alt="Logo" style="height: 42px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
                   </a>
                   <div style="display:flex; flex-direction:column; justify-content:center;">
-                      <span class="screen-title" style="font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
-                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 600; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
-                      <span class="print-title" style="display:none; font-size: 14px; font-weight: 400; color: var(--text-muted); margin-top: 4px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
+                      <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
+                      <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
+                      <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
+                      <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
                   </div>
               </h2>
               <div class="controls">
