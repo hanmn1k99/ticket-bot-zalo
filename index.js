@@ -1757,7 +1757,7 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${itName}
+👨‍💻 Phụ trách: ${itName}
 💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
@@ -1855,7 +1855,7 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${itName}
+👨‍💻 Phụ trách: ${itName}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
     await sendZaloMessage(targetChat, userMsg);
@@ -2967,7 +2967,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${itName}
+👨‍💻 Phụ trách: ${itName}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
 
@@ -3032,7 +3032,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Phụ trách: IT ${itName}
+👨‍💻 Phụ trách: ${itName}
 💬 Phản hồi: ${replyText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`);
