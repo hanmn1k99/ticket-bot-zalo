@@ -1755,7 +1755,7 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
   }
 
   const userId = req.user.zaloId || req.user.username;
-  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+  const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
 
   if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
     if (req.user.role !== 'SUPER_ADMIN') {
@@ -1808,7 +1808,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
   }
 
   const userId = req.user.zaloId || req.user.username;
-  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+  const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
 
   if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
     if (req.user.role !== 'SUPER_ADMIN') {
@@ -1816,7 +1816,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     }
   }
 
-  const updatedReq = await db.rejectRequest(id, replyText, Date.now());
+  const updatedReq = await db.rejectRequest(id, replyText, Date.now(), userId, itName);
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     let userMsg = '';
@@ -1825,7 +1825,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${itName}
+👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1834,7 +1834,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${itName}
+👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -1860,7 +1860,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
 app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   const { id } = req.body;
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
-  const itName = (req.user && req.user.displayName) ? req.user.displayName : ((req.user && req.user.username) ? req.user.username : 'Bộ phận IT');
+  const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
   const assigneeId = (req.user && req.user.zaloId) ? req.user.zaloId : ((req.user && req.user.username) ? req.user.username : null);
   const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý', assigneeId, itName);
   if (updatedReq) {
@@ -3104,9 +3104,9 @@ app.post('/webhook', async (req, res) => {
         }
       }
 
-      const updated = await db.rejectRequest(ticketId, replyText, Date.now());
+      const itName = await getWebDisplayNameForZalo(senderId, senderName);
+      const updated = await db.rejectRequest(ticketId, replyText, Date.now(), senderId, itName);
       if (updated) {
-        const itName = await getWebDisplayNameForZalo(senderId, senderName);
         await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
         let userMsg = '';
@@ -3115,7 +3115,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${itName}
+👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;
@@ -3124,7 +3124,7 @@ app.post('/webhook', async (req, res) => {
 ------------------------------
 👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: IT ${itName}
+👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong Thầy/Cô thông cảm!`;

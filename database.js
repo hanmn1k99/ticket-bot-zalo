@@ -68,13 +68,15 @@ async function updateRequest(id, adminReply, completedAt) {
   return null;
 }
 
-async function rejectRequest(id, adminReply, completedAt) {
+async function rejectRequest(id, adminReply, completedAt, assigneeId = null, assigneeName = null) {
   const db = readDB();
   const index = db.requests.findIndex(r => r.id === id);
   if (index !== -1) {
     db.requests[index].status = 'Từ chối';
     db.requests[index].admin_reply = adminReply;
     db.requests[index].completed_at = completedAt;
+    if (assigneeId) db.requests[index].assignee_id = assigneeId;
+    if (assigneeName) db.requests[index].assignee_name = assigneeName;
     writeDB(db);
     return db.requests[index];
   }
