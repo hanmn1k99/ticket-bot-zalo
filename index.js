@@ -38,7 +38,7 @@ async function analyzeWithAI(text, senderName, senderId) {
     }
   }
 
-  const systemPrompt = `Bạn là Trợ lý IT Ảo (phần mềm AI) của ${BOT_ORG_NAME}. ${BOT_USER_ROLE} vừa gửi tin nhắn: "${text}"
+  const systemPrompt = `Bạn là Trợ lý IT Ảo (phần mềm AI) của ${BOT_ORG_NAME}.
 
 Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
 ${faqContent}
@@ -172,8 +172,8 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
     }
     
     // Bộ lọc làm sạch văn bản AI:
-    // 1. Loại bỏ các câu tranh luận phân loại hệ thống lọt vào (VD: Xin lỗi, nhưng... Tuy nhiên...)
-    answerText = answerText.replace(/^(Xin lỗi|Tuy nhiên|Để tuân thủ|Theo yêu cầu)[^.\n]*[.\n]/gi, '').trim();
+    // 1. Loại bỏ các câu tranh luận phân loại hệ thống lọt vào (VD: Tuy nhiên, theo quy định hệ thống...)
+    answerText = answerText.replace(/^(Tuy nhiên|Để tuân thủ|Theo quy định hệ thống)[^.\n]*[.\n]/gi, '').trim();
     // 2. Bảo vệ từ xưng hô: Thay thế tuyệt đối từ "Tôi" hoặc "tôi" thành xưng hô chuẩn ("Em")
     answerText = answerText.replace(/\b(Tôi|tôi)\b/g, BOT_PRONOUN_ME);
     
@@ -3307,13 +3307,7 @@ app.post('/webhook', async (req, res) => {
       }
 
       if (foundId) {
-        await db.removeGroup(foundId);
-        // Delete alias
-        const dbJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'database.json'), 'utf8'));
-        if (dbJson.groupNames && dbJson.groupNames[foundId]) {
-          delete dbJson.groupNames[foundId];
-          fs.writeFileSync(path.join(__dirname, 'database.json'), JSON.stringify(dbJson, null, 2));
-        }
+        await db.removeGroupCompletely(foundId);
         await sendZaloMessage(chatId, `✅ Đã gỡ nhóm "${nameToRemove}" khỏi hệ thống.`);
       } else {
         await sendZaloMessage(chatId, `❌ Không tìm thấy nhóm nào có tên "${nameToRemove}". Vui lòng dùng lệnh /groups để xem danh sách.`);
@@ -3364,18 +3358,21 @@ app.post('/webhook', async (req, res) => {
          // Xóa mã #ID khỏi nội dung trả lời nếu Admin có gõ vào
          const cleanText = text.replace(/#\d+\s*/g, '').trim() || 'Hoàn thành';
 
+         const itName = await getWebDisplayNameForZalo(senderId, senderName);
+
          if (existingReq.status === 'Đang chờ') {
-             await db.updateRequestStatus(targetTicketId, 'Đang xử lý');
-             await sendZaloMessage(chatId, `🟡 Hệ thống đã ghi nhận bạn đang xử lý sự cố #${targetTicketId}. (Nhắn/Reply lần nữa để hoàn thành)`);
+             await db.updateRequestStatus(targetTicketId, 'Đang xử lý', senderId, itName);
+             await sendZaloMessage(chatId, `🟡 Hệ thống đã ghi nhận IT ${itName} đang xử lý sự cố #${targetTicketId}. (Nhắn/Reply lần nữa để hoàn thành)`);
          } else if (existingReq.status === 'Đang xử lý') {
              const updatedReq = await db.updateRequest(targetTicketId, cleanText, Date.now());
              if (updatedReq) {
-                await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành.`);
+                await db.updateRequestStatus(targetTicketId, 'Đã xong', senderId, itName);
+                await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành bởi IT ${itName}.`);
                 // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
                 const targetChat = updatedReq.chat_id || updatedReq.sender_id;
                 const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
 ------------------------------
-🛠️ Sự cố (Mã số: #${targetTicketId}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT xử lý hoàn tất.
+🛠️ Sự cố (Mã số: #${targetTicketId}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT (${itName}) xử lý hoàn tất.
 💬 Phản hồi từ IT: ${cleanText}
 ------------------------------
 😊 Xin cảm ơn Thầy/Cô!`;
