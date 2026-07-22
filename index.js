@@ -88,6 +88,10 @@ Ví dụ: "ANSWER| Dạ wifi dành cho khách là abc, mạng mở không cần 
 Ví dụ: "ANSWER| Dạ căn bậc 2 của 178 là khoảng 13.34 ạ."
 Ví dụ (Nếu hỏi tiếng Anh): "ANSWER| The guest wifi is abc, it is an open network without a password."
 
+CẤU TRÚC PHẢN HỒI BẮT BUỘC (TUYỆT ĐỐI TUÂN THỦ):
+- Phản hồi của bạn PHẢI BẮT ĐẦU NGAY BẰNG "TICKET|" HOẶC "ANSWER|".
+- TUYỆT ĐỐI KHÔNG VIẾT các câu lời dẫn giải thích, phân tích hệ thống hay tranh luận (như "Xin lỗi, tôi sẽ...", "Để tuân thủ yêu cầu...").
+- LUÔN LUÔN tuân thủ xưng hô "${BOT_PRONOUN_ME}" và gọi người dùng là "${BOT_PRONOUN_USER_MALE}/${BOT_PRONOUN_USER_FEMALE}". TUYỆT ĐỐI KHÔNG BAO GIỜ XƯNG "Tôi" HAY "Mình".
 Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc.`;
 
   // Lấy lịch sử hội thoại của user này
@@ -120,17 +124,21 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
 
-  // Đẩy câu hỏi hiện tại vào lịch sử
-  if (isForcedTicket) {
-    history.push({ role: 'user', content: text + "\n\n[LƯU Ý CỦA HỆ THỐNG: YÊU CẦU NÀY ĐÃ ĐƯỢC XÁC ĐỊNH LÀ SỰ CỐ KỸ THUẬT. BẠN BẮT BUỘC PHẢI PHÂN LOẠI LÀ TICKET VÀ TRÍCH XUẤT ĐỊA ĐIỂM (Ví dụ: TICKET|Phòng D104), TUYỆT ĐỐI KHÔNG TRẢ VỀ ANSWER.]" });
-  } else {
-    history.push({ role: 'user', content: text });
-  }
+  // Đẩy câu hỏi hiện tại vào lịch sử (không đẩy lưu ý hệ thống để tránh nhiễm bẩn bộ nhớ)
+  history.push({ role: 'user', content: text });
 
   // Xây dựng mảng messages gửi cho Groq
+  const currentMessages = [...history];
+  if (isForcedTicket) {
+    currentMessages[currentMessages.length - 1] = {
+      role: 'user',
+      content: text + "\n\n[LƯU Ý CỦA HỆ THỐNG: YÊU CẦU NÀY ĐÃ ĐƯỢC XÁC ĐỊNH LÀ SỰ CỐ KỸ THUẬT. BẠN BẮT BUỘC PHẢI PHÂN LOẠI LÀ TICKET VÀ TRÍCH XUẤT ĐỊA ĐIỂM (Ví dụ: TICKET|Phòng D104), TUYỆT ĐỐI KHÔNG TRẢ VỀ ANSWER.]"
+    };
+  }
+
   const messages = [
     { role: 'system', content: systemPrompt },
-    ...history
+    ...currentMessages
   ];
 
   try {
@@ -156,20 +164,28 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     }
 
     const data = await response.json();
-    const result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
+    let result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
     
-    // Nếu AI trả về TICKET
-    if (result.startsWith('TICKET')) {
+    // Nếu AI trả về hoặc chứa TICKET| trong văn bản
+    if (result.includes('TICKET|') || result.startsWith('TICKET')) {
       userContexts.delete(uId);
-      const parts = result.split('|');
-      return { type: 'TICKET', location: parts.length > 1 ? parts[1].trim() : "Không xác định" };
+      const ticketIndex = result.indexOf('TICKET|');
+      const ticketStr = ticketIndex !== -1 ? result.substring(ticketIndex) : result;
+      const parts = ticketStr.split('|');
+      return { type: 'TICKET', location: parts.length > 1 ? parts[1].trim().split('\n')[0] : "Không xác định" };
     }
     
-    // Còn lại mặc định là ANSWER (kể cả khi AI quên ghi chữ ANSWER|)
+    // Còn lại là ANSWER
     let answerText = result;
-    if (result.startsWith('ANSWER|')) {
-      answerText = result.replace('ANSWER|', '').trim();
+    if (answerText.includes('ANSWER|')) {
+      answerText = answerText.substring(answerText.indexOf('ANSWER|') + 7).trim();
     }
+    
+    // Bộ lọc làm sạch văn bản AI:
+    // 1. Loại bỏ các câu tranh luận phân loại hệ thống lọt vào (VD: Xin lỗi, nhưng... Tuy nhiên...)
+    answerText = answerText.replace(/^(Xin lỗi|Tuy nhiên|Để tuân thủ|Theo yêu cầu)[^.\n]*[.\n]/gi, '').trim();
+    // 2. Bảo vệ từ xưng hô: Thay thế tuyệt đối từ "Tôi" hoặc "tôi" thành xưng hô chuẩn ("Em")
+    answerText = answerText.replace(/\b(Tôi|tôi)\b/g, BOT_PRONOUN_ME);
     
     // Lưu lại câu trả lời vào lịch sử
     history.push({ role: 'assistant', content: answerText });
