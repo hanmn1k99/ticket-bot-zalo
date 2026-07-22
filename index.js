@@ -1755,7 +1755,7 @@ app.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${id}]
 ------------------------------
-👤 Giáo viên: ${updatedReq.sender_name}
+👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${itName}
 💬 Phản hồi: ${replyText}
@@ -1809,7 +1809,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     if (existingReq.status === 'Đang chờ') {
         userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${id}]
 ------------------------------
-👤 Giáo viên: ${updatedReq.sender_name}
+👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
@@ -1818,7 +1818,7 @@ app.post('/api/tickets/reject', checkAuth, async (req, res) => {
     } else {
         userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${id}]
 ------------------------------
-👤 Giáo viên: ${updatedReq.sender_name}
+👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
@@ -1853,7 +1853,7 @@ app.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${id}]
 ------------------------------
-👤 Giáo viên: ${updatedReq.sender_name}
+👤 Thầy/Cô: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${itName}
 ------------------------------
@@ -2965,7 +2965,7 @@ app.post('/webhook', async (req, res) => {
         const targetChat = updated.chat_id || updated.sender_id;
         await sendZaloMessage(targetChat, `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${ticketId}]
 ------------------------------
-👤 Giáo viên: ${updated.sender_name}
+👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${itName}
 ------------------------------
@@ -3030,7 +3030,7 @@ app.post('/webhook', async (req, res) => {
         const targetChat = updated.chat_id || updated.sender_id;
         await sendZaloMessage(targetChat, `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${ticketId}]
 ------------------------------
-👤 Giáo viên: ${updated.sender_name}
+👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Phụ trách: IT ${itName}
 💬 Phản hồi: ${replyText}
@@ -3099,7 +3099,7 @@ app.post('/webhook', async (req, res) => {
         if (reqTicket.status === 'Đang chờ') {
             userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${ticketId}]
 ------------------------------
-👤 Giáo viên: ${updated.sender_name}
+👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
@@ -3108,7 +3108,7 @@ app.post('/webhook', async (req, res) => {
         } else {
             userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${ticketId}]
 ------------------------------
-👤 Giáo viên: ${updated.sender_name}
+👤 Thầy/Cô: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Người từ chối: IT ${itName}
 💬 Lý do: ${replyText}
@@ -3391,7 +3391,7 @@ app.post('/webhook', async (req, res) => {
       // Format the message to send to Admin
       const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
-👤 Giáo viên: ${senderName}
+👤 Thầy/Cô: ${senderName}
 🏫 Nhóm: ${chatName}
 📍 Vị trí: ${location}
 🕒 Thời gian: ${timeStr} - ${dateStr}
@@ -3408,7 +3408,7 @@ ${requestContent}
       if (admins.length > 0) {
         const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG! [#${newId}]
 ------------------------------
-👤 Giáo viên: ${senderName}
+👤 Thầy/Cô: ${senderName}
 📍 Vị trí: ${location}
 ------------------------------
 👨‍💻 Sự cố đã được chuyển đến bộ phận IT. Xin chờ xử lý!`;
