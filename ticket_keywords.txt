@@ -1,6 +1,14 @@
 coi dùm
 xem giúp
-sửa
+sửa giúp
+sửa cho
+sửa máy
+sửa điều hòa
+sửa máy in
+sửa loa
+sửa mic
+báo sửa
+cần sửa
 hư hỏng
 không vào được mạng
 mất mạng
@@ -8,18 +16,41 @@ chập chờn
 không in được
 lên phòng xem
 kiểm tra giúp
-rè
+loa rè
+mic rè
+âm thanh rè
 không lên
 mất tiếng
 không kêu
-điều hòa
-máy lạnh
-đèn
-nước
-cháy
+hỏng điều hòa
+hư điều hòa
+điều hòa không mát
+chảy nước điều hòa
+hỏng máy lạnh
+hư máy lạnh
+máy lạnh không mát
+hư đèn
+hỏng đèn
+cháy đèn
+mất đèn
+mất nước
+rò rỉ nước
+hỏng ống nước
+tràn nước
+vỡ ống nước
+hư ống nước
+cháy ổ điện
+cháy thiết bị
+cháy nổ
+cháy bóng đèn
+bị cháy
 rò rỉ
-gãy
-chập
+bị gãy
+gãy ghế
+gãy bàn
+gãy vòi
+chập điện
+chập cháy
 quên mật khẩu
 quên mk
 quên pass

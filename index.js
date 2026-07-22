@@ -92,16 +92,27 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
 
   // 2. Kiểm tra Ticket Keywords
   let isForcedTicket = false;
-  try {
-    const ticketKeywords = fs.readFileSync(path.join(__dirname, 'ticket_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
-    for (const word of ticketKeywords) {
-      if (lowerText.includes(word)) {
-        isForcedTicket = true;
-        userContexts.delete(uId); // Xóa lịch sử khi tạo ticket
-        break;
+  // Cụm từ hỏi kiến thức chung, lịch sử, toán học, tra cứu KHÔNG bao giờ ép tạo ticket cứng
+  const generalKnowledgeExclusions = [
+    'cứu nước', 'tìm đường cứu nước', 'ra đi năm nào', 'thành lập năm nào',
+    'bao nhiêu', 'năm nào', 'là ai', 'tại sao', 'ở đâu', 'như thế nào',
+    'hồ chủ tịch', 'bác hồ', 'bác ra đi', 'lịch sử', 'địa lý', 'toán học',
+    'là gì', 'mật khẩu wifi', 'pass wifi'
+  ];
+  const isGeneralQuery = generalKnowledgeExclusions.some(k => lowerText.includes(k));
+
+  if (!isGeneralQuery) {
+    try {
+      const ticketKeywords = fs.readFileSync(path.join(__dirname, 'ticket_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
+      for (const word of ticketKeywords) {
+        if (lowerText.includes(word)) {
+          isForcedTicket = true;
+          userContexts.delete(uId); // Xóa lịch sử khi tạo ticket
+          break;
+        }
       }
-    }
-  } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
+    } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
+  }
 
   // Đẩy câu hỏi hiện tại vào lịch sử (không đẩy lưu ý hệ thống để tránh nhiễm bẩn bộ nhớ)
   history.push({ role: 'user', content: text });
