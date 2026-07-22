@@ -318,6 +318,7 @@ async function renderTableRows() {
      }
        
      let adminReplyCell = '';
+     const handlerName = r.assignee_name || '-';
      if (r.status === 'Đã xong' || r.status === 'Từ chối') {
          adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
      } else if (r.status === 'Đang xử lý') {
@@ -347,6 +348,7 @@ async function renderTableRows() {
         <td style="min-width:130px;">${timeHtml}</td>
         <td>${r.content}</td>
         <td id="statusCell_${r.id}">${statusBadge}</td>
+        <td style="max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.assignee_name || ''}">${handlerName}</td>
         <td id="replyCell_${r.id}">${adminReplyCell}</td>
       </tr>`;
   }).join('');
@@ -1319,13 +1321,14 @@ app.get('/report', checkAuth, async (req, res) => {
               <table id="reportTable">
                   <thead>
                       <tr>
-                          <th width="5%">STT</th>
+                          <th width="4%">STT</th>
                           <th width="12%">Người Yêu Cầu</th>
-                          <th width="13%">Nhóm</th>
-                          <th width="18%">Thời gian</th>
+                          <th width="12%">Nhóm</th>
+                          <th width="16%">Thời gian</th>
                           <th width="20%">Mô tả sự cố</th>
-                          <th width="12%">Trạng thái</th>
-                          <th width="20%">Phản hồi của IT</th>
+                          <th width="11%">Trạng thái</th>
+                          <th width="11%">Người xử lý</th>
+                          <th width="14%">Phản hồi của IT</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -1452,7 +1455,7 @@ app.get('/report', checkAuth, async (req, res) => {
               for (let i = 0; i < rows.length; i++) {
                   const text = rows[i].textContent || rows[i].innerText;
                   const nameCell = rows[i].getElementsByTagName('td')[1];
-                  const statusCell = rows[i].getElementsByTagName('td')[4];
+                  const statusCell = rows[i].getElementsByTagName('td')[5];
                   if (!nameCell || !statusCell) continue;
 
                   const nameCellText = nameCell.textContent.trim().toLowerCase();
