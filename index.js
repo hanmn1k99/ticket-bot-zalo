@@ -1123,35 +1123,30 @@ app.get('/report', checkAuth, async (req, res) => {
           /* Responsive (Giao diện Mobile) */
           @media screen and (max-width: 768px) {
               .grid-container { grid-template-columns: 1fr; }
-              .header {
-                  flex-direction: column;
-                  align-items: flex-start;
-              }
+              .header { gap: 12px; }
               .header h2 {
                   font-size: 18px;
-                  flex-wrap: wrap;
-                  justify-content: center;
-                  text-align: center;
+                  text-align: left;
                   width: 100%;
               }
-              .header {
-                  justify-content: center;
+              .action-bar {
+                  width: 100%;
+                  justify-content: flex-start;
               }
               .controls {
                   width: 100%;
                   display: flex;
-                  flex-wrap: wrap;
-                  gap: 10px;
+                  flex-direction: column;
+                  gap: 8px;
               }
               input[type="text"], select {
-                  max-width: 100%;
-                  width: 100%;
-                  flex: 1 1 100%;
+                  max-width: 100% !important;
+                  width: 100% !important;
+                  box-sizing: border-box;
               }
               .controls button {
-                  flex: 1;
-                  justify-content: center;
-                  padding: 12px 10px;
+                  width: 100%;
+                  padding: 10px;
               }
               #pdf-content {
                   padding: 5px;
@@ -1264,10 +1259,7 @@ app.get('/report', checkAuth, async (req, res) => {
           <div class="header" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
               <!-- Tầng 1: Thương hiệu (Trái) & Nút Thao tác + Tài khoản (Phải) -->
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
-                  <h2 style="display:flex; align-items:center; gap:14px; margin:0;">
-                      <a href="https://minhhan.net" target="_blank" style="text-decoration:none; display:flex; align-items:center;">
-                          <img src="/assets/logo.png" alt="Logo" style="height: 44px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
-                      </a>
+                  <h2 style="display:flex; align-items:center; margin:0;">
                       <div style="display:flex; flex-direction:column; justify-content:center;">
                           <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
                           <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
@@ -1404,6 +1396,8 @@ app.get('/report', checkAuth, async (req, res) => {
                   const now = new Date();
                   const timeStr = now.toLocaleTimeString('vi-VN', { hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });
                   const dateStr = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' });
+                  timeEl.style.fontVariantNumeric = 'tabular-nums';
+                  timeEl.style.whiteSpace = 'nowrap';
                   timeEl.textContent = \`\${timeStr}, \${dateStr}\`;
               }
           }
@@ -1533,6 +1527,7 @@ app.get('/report', checkAuth, async (req, res) => {
 
 
           // Cơ chế đồng bộ thời gian thực (Real-time Polling)
+          let lastRenderedHtml = '';
           async function fetchAndRenderRows() {
               try {
                   // Ngừng cập nhật nếu người dùng đang focus vào ô input HOẶC ô input đã có chữ (chưa gửi)
@@ -1546,7 +1541,8 @@ app.get('/report', checkAuth, async (req, res) => {
                   const res = await fetch('/api/tickets/rows');
                   if (res.ok) {
                       const data = await res.json();
-                      if (data.success) {
+                      if (data.success && data.html !== lastRenderedHtml) {
+                          lastRenderedHtml = data.html;
                           table.getElementsByTagName('tbody')[0].innerHTML = data.html;
                           updateNameDropdown();
                           filterData();
@@ -1554,7 +1550,7 @@ app.get('/report', checkAuth, async (req, res) => {
                   }
               } catch (e) {}
           }
-          setInterval(fetchAndRenderRows, 500);
+          setInterval(fetchAndRenderRows, 2000);
 
           // Hàm Nhận yêu cầu
           async function acceptTicket(ticketId, event) {
