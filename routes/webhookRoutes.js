@@ -318,7 +318,7 @@ router.post('/webhook', async (req, res) => {
         return;
       }
       if (reqTicket.status !== 'Đang chờ' && reqTicket.status !== 'Đang xử lý') {
-        await sendZaloMessage(chatId, `⚠️ Không thể từ chối sự cố #${ticketId} (trạng thái hiện tại: ${reqTicket.status}).`);
+        await sendZaloMessage(chatId, `⚠️ Không thể thay đổi trạng thái sự cố #${ticketId} (trạng thái hiện tại: ${reqTicket.status}).`);
         return;
       }
       
@@ -332,24 +332,24 @@ router.post('/webhook', async (req, res) => {
       const itName = await getWebDisplayNameForZalo(senderId, senderName);
       const updated = await db.rejectRequest(ticketId, replyText, Date.now(), senderId, itName);
       if (updated) {
-        await sendZaloMessage(chatId, `✅ Đã từ chối sự cố #${ticketId}.`);
+        await sendZaloMessage(chatId, `✅ Đã thay đổi trạng thái sự cố #${ticketId}.`);
         const targetChat = updated.chat_id || updated.sender_id;
         let userMsg = '';
         if (reqTicket.status === 'Đang chờ') {
-          userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${ticketId}]
+          userMsg = `⛔ THAY ĐỔI TRẠNG THÁI YÊU CẦU [#${ticketId}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: ${itName}
+👨‍💻 Cập nhật bởi: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
         } else {
-          userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${ticketId}]
+          userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI SỰ CỐ [#${ticketId}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
-👨‍💻 Người từ chối: ${itName}
+👨‍💻 Cập nhật bởi: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
@@ -361,7 +361,7 @@ router.post('/webhook', async (req, res) => {
         const admins = await db.getAdmins();
         for (const a of admins) {
           if (a.id !== senderId) {
-            await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${ticketId}`);
+            await sendZaloMessage(a.id, `⛔ IT ${itName} đã thay đổi trạng thái sự cố #${ticketId}`);
           }
         }
       }
@@ -379,7 +379,7 @@ router.post('/webhook', async (req, res) => {
         content = 'Kiểm tra hệ thống';
       }
       const ticketId = await db.addRequest(Date.now(), senderName, senderId, chatId, chatName, `[TEST] ${content}`, "[TEST]");
-      await sendZaloMessage(chatId, `✅ Đã tạo sự cố TEST (Mã số: #${ticketId}). Sẽ tự động xóa sau 1 phút kể từ khi thao tác xong (Đóng/Từ chối).`);
+      await sendZaloMessage(chatId, `✅ Đã tạo sự cố TEST (Mã số: #${ticketId}). Sẽ tự động xóa sau 1 phút kể từ khi thao tác xong (Đóng/Thay đổi).`);
       return;
     }
 
@@ -405,7 +405,7 @@ router.post('/webhook', async (req, res) => {
 🔹 Xử lý sự cố:
 11. /nhan [Mã] 👉 Nhận xử lý. (VD: /nhan 15)
 12. /xong [Mã] [ND] 👉 Đóng sự cố. (VD: /xong 15 Đã sửa)
-13. /tuchoi [Mã] [Lý do] 👉 Từ chối. (VD: /tuchoi 15 Hỏng nặng)
+13. /tuchoi [Mã] [Lý do] 👉 Thay đổi trạng thái. (VD: /tuchoi 15 Chuyển thợ ngoài)
 
 💡 Mẹo: Nên dùng Trang quản trị Web để thao tác trực quan hơn.`;
         await sendZaloMessage(chatId, helpMsgSuperAdmin);
@@ -420,7 +420,7 @@ router.post('/webhook', async (req, res) => {
 🔹 Xử lý sự cố:
 4. /nhan [Mã] 👉 Nhận xử lý. (VD: /nhan 15)
 5. /xong [Mã] [ND] 👉 Đóng sự cố. (VD: /xong 15 Đã sửa)
-6. /tuchoi [Mã] [Lý do] 👉 Từ chối. (VD: /tuchoi 15 Hỏng nặng)
+6. /tuchoi [Mã] [Lý do] 👉 Thay đổi trạng thái. (VD: /tuchoi 15 Chuyển thợ)
 
 💡 Mẹo: Nên dùng Trang quản trị Web để thao tác trực quan hơn.`;
         await sendZaloMessage(chatId, helpMsgAdmin);
@@ -578,11 +578,11 @@ router.post('/webhook', async (req, res) => {
 
         const itName = await getWebDisplayNameForZalo(senderId, senderName);
 
-        const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject') || cleanText.toLowerCase().startsWith('thay đổi') || cleanText.toLowerCase().startsWith('thay doi');
+        const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject');
         
         if (isReject) {
-          const reason = cleanText.replace(/^(từ chối|tu choi|reject|thay đổi|thay doi)\s*/i, '').trim() || 'Không có lý do cụ thể';
-          await db.updateRequestStatus(targetTicketId, 'Đã thay đổi', senderId, itName);
+          const reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim() || 'Không có lý do cụ thể';
+          await db.updateRequestStatus(targetTicketId, 'Từ chối', senderId, itName);
           await db.updateRequest(targetTicketId, reason, Date.now());
           
           await sendZaloMessage(chatId, `⛔ Đã thay đổi trạng thái sự cố #${targetTicketId}.`);

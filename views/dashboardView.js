@@ -17,8 +17,8 @@ async function renderTableRows() {
      let statusBadge = '';
      if (r.status === 'Đã xong') {
        statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
-     } else if (r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;"><i class="icon ion-md-swap"></i> Đã thay đổi</span>`;
+     } else if (r.status === 'Từ chối') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">⛔ Từ chối</span>`;
      } else if (r.status === 'Đang xử lý') {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
      } else {
@@ -53,7 +53,7 @@ async function renderTableRows() {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
               <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Đổi trạng thái</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
            </div>
          `;
      }
