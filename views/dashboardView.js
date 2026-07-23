@@ -378,7 +378,11 @@ async function getDashboardHtml(user) {
                   background: transparent;
                   overflow-x: hidden;
               }
-              table { min-width: 100%; }
+              table { 
+                  min-width: 0 !important; 
+                  width: 100% !important; 
+                  table-layout: auto !important;
+              }
               table, thead, tbody, th, td, tr { 
                   display: block; 
               }
@@ -402,6 +406,10 @@ async function getDashboardHtml(user) {
                   position: relative;
                   padding: 12px 10px 12px 130px; 
                   text-align: right;
+                  width: auto !important;
+                  max-width: none !important;
+                  white-space: normal !important;
+                  word-break: break-word;
               }
               td:last-child { border-bottom: 0; }
               td::before { 
