@@ -45,7 +45,7 @@ async function renderTableRows() {
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
               <div style="display:flex; gap:6px; justify-content:flex-start;">
                   <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Gửi</button>
-                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Chuyển trạng thái</button>
+                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Hoãn</button>
               </div>
            </div>
          `;
