@@ -4,7 +4,7 @@ const db = require('../database');
 const { checkAuth } = require('../middleware/authMiddleware');
 const { sendZaloMessage, sendToAdmins } = require('../services/zaloService');
 const { renderTableRows } = require('../views/dashboardView');
-const { BOT_PRONOUN_USER_DEFAULT } = require('../config/constants');
+const { getBotConfig } = require('../services/botConfigService');
 
 function scheduleTestDeletion(ticketId, content) {
   if (content && content.startsWith('[TEST]')) {
@@ -31,6 +31,7 @@ router.post('/api/tickets/resolve', checkAuth, async (req, res) => {
 
   const userId = req.user.zaloId || req.user.username;
   const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
+  const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
 
   if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
     if (req.user.role !== 'SUPER_ADMIN') {
@@ -84,6 +85,7 @@ router.post('/api/tickets/reject', checkAuth, async (req, res) => {
 
   const userId = req.user.zaloId || req.user.username;
   const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
+  const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
 
   if (existingReq.assignee_id && existingReq.assignee_id !== userId) {
     if (req.user.role !== 'SUPER_ADMIN') {
@@ -137,6 +139,8 @@ router.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   if (!id) return res.status(400).json({ error: 'Thiếu ID' });
   const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
   const assigneeId = (req.user && req.user.zaloId) ? req.user.zaloId : ((req.user && req.user.username) ? req.user.username : null);
+  const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
+
   const updatedReq = await db.updateRequestStatus(id, 'Đang xử lý', assigneeId, itName);
   if (updatedReq) {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
@@ -165,10 +169,7 @@ router.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 // ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
 router.post('/api/tickets/clean', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
-  // Chạy lệnh dọn dẹp
   const count = await db.deleteAllRequests();
-  
-  // Gửi thông báo cho Admin qua Zalo
   await sendToAdmins(`🧹 [WEB DASHBOARD] Đã dọn dẹp hệ thống. Xóa thành công ${count} sự cố. Bộ đếm ID đã được reset về #1.`);
   return res.json({ success: true, deletedCount: count });
 });

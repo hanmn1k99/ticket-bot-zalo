@@ -1,8 +1,19 @@
 const db = require('../database');
-const { BOT_ORG_NAME, BOT_USER_ROLE, BOT_ENVIRONMENT, BOT_PRONOUN_USER_MALE, BOT_PRONOUN_USER_FEMALE, BOT_PRONOUN_USER_DEFAULT, BOT_PRONOUN_ME } = require('../config/constants');
+const { getBotConfig } = require('../services/botConfigService');
 
 async function getSettingsHtml(user) {
   if (!user || user.role !== 'SUPER_ADMIN') return null;
+
+  const botConfig = await getBotConfig();
+  const {
+    BOT_ORG_NAME,
+    BOT_USER_ROLE,
+    BOT_ENVIRONMENT,
+    BOT_PRONOUN_USER_MALE,
+    BOT_PRONOUN_USER_FEMALE,
+    BOT_PRONOUN_USER_DEFAULT,
+    BOT_PRONOUN_ME
+  } = botConfig;
 
   const defaultFaq = `1. Mật khẩu mạng wifi "Meyschool - Giáo Viên" là: Mey@2024\n2. Mạng wifi "Meyschool - Guest" là mạng mở, không có mật khẩu.\n3. Liên hệ khẩn cấp Phòng IT (Phòng D102): 0909.123.456 (Mr. Nghĩa) hoặc 0988.789.123 (Mr. Nam).\n4. Nếu máy in hết mực, máy tính không lên nguồn, vui lòng tạo TICKET báo lỗi.`;
   let faqContent = await db.getSetting('faq_content');
@@ -613,6 +624,36 @@ ${systemPromptPreview}
           box.appendChild(btns);
           overlay.appendChild(box);
           document.body.appendChild(overlay);
+        }
+
+        async function saveBotConfig() {
+          const bot_org_name = document.getElementById('cfg_bot_org_name').value;
+          const bot_user_role = document.getElementById('cfg_bot_user_role').value;
+          const bot_pronoun_me = document.getElementById('cfg_bot_pronoun_me').value;
+          const bot_pronoun_user_male = document.getElementById('cfg_bot_pronoun_user_male').value;
+          const bot_pronoun_user_female = document.getElementById('cfg_bot_pronoun_user_female').value;
+          const bot_pronoun_user_default = document.getElementById('cfg_bot_pronoun_user_default').value;
+          const bot_environment = document.getElementById('cfg_bot_environment').value;
+
+          const res = await fetch('/api/settings/bot-config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              bot_org_name,
+              bot_user_role,
+              bot_pronoun_me,
+              bot_pronoun_user_male,
+              bot_pronoun_user_female,
+              bot_pronoun_user_default,
+              bot_environment
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification('Đã lưu cấu hình văn phong & xưng hô AI!');
+          } else {
+            showAlert('Lỗi: ' + (data.error || 'Không thể lưu cấu hình'));
+          }
         }
 
         async function saveFaq() {

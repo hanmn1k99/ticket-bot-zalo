@@ -1,15 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('../database');
-const {
-  AI_API_KEY,
-  BOT_ORG_NAME,
-  BOT_USER_ROLE,
-  BOT_PRONOUN_ME,
-  BOT_PRONOUN_USER_MALE,
-  BOT_PRONOUN_USER_FEMALE,
-  BOT_PRONOUN_USER_DEFAULT
-} = require('../config/constants');
+const { AI_API_KEY } = require('../config/constants');
+const { getBotConfig } = require('./botConfigService');
 
 // Bộ nhớ ngữ cảnh hội thoại cho từng user (lưu trên RAM)
 const userContexts = new Map();
@@ -17,6 +10,17 @@ const userContexts = new Map();
 async function analyzeWithAI(text, senderName, senderId) {
   if (!AI_API_KEY) return { type: 'TICKET' };
   
+  const botConfig = await getBotConfig();
+  const {
+    BOT_ORG_NAME,
+    BOT_USER_ROLE,
+    BOT_PRONOUN_ME,
+    BOT_PRONOUN_USER_MALE,
+    BOT_PRONOUN_USER_FEMALE,
+    BOT_PRONOUN_USER_DEFAULT,
+    BOT_ENVIRONMENT
+  } = botConfig;
+
   // Đọc nội dung FAQ
   let faqContent = await db.getSetting('faq_content');
   if (!faqContent) {
@@ -45,7 +49,7 @@ NHIỆM VỤ CỦA BẠN: Phân loại tin nhắn của ${BOT_USER_ROLE} thành 
 - TUYỆT ĐỐI KHÔNG TẠO TICKET cho câu hỏi kiến thức chung, lịch sử, toán học, địa lý (Ví dụ: "Hồ chủ tịch ra đi năm nào", "1+1 bằng mấy"). Những câu này BẮT BUỘC là ANSWER.
 - Trích xuất địa điểm nếu có. Định dạng chuẩn: TICKET|Phòng D102 hoặc TICKET|Bảo vệ hoặc TICKET|Không xác định.
 
-2. ANSWER|[Nội dung trả lời] -> Áp dụng cho: CÂU HỎI TRA CỨU THÔNG TIN, FAQ, CÂU HỎI KIẾN THỨC CHUNG (LỊCH SỬ, TOÁN, VĂN...), CHÀO HỎI, XÃ GIAO.
+2. ANSWER|[Nội dung trả lời] -> Áp dụng cho: CÂU HỎI TRA CỨU THÔNG TIN, FAQ, CÂU HỎI KIẾN THỨC CHUNG (LỊCH SỬ, TO├üN, VĂN...), CHÀO HỎI, XÃ GIAO.
 - Với câu hỏi kiến thức chung/lịch sử/toán học (Ví dụ: "Hồ chủ tịch ra đi tìm đường cứu nước năm nào..."): TRẢ LỜI TRỰC TIẾP NỘI DUNG CHÍNH XÁC, NGẮN GỌN. KHÔNG ĐƯỢC TỪ CHỐI, KHÔNG ĐƯỢC GIẢI THÍCH LAN MAN HAY TRANH LUẬN VỀ QUY TẮC.
   Ví dụ: "ANSWER| Dạ Bác Hồ ra đi tìm đường cứu nước vào ngày 5/6/1911 tại bến cảng Nhà Rồng (Sài Gòn) trên con tàu Amiral Latouche-Tréville với tên gọi Văn Ba ạ."
 - Với câu hỏi FAQ (wifi, máy in...): Trả lời ngắn gọn 1-2 câu đúng trọng tâm.
@@ -58,10 +62,10 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
 - Nếu người dùng nhắn tiếng Anh: Trả lời 100% bằng tiếng Anh, xưng "I" và gọi "Mr./Ms.".
 
 QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
-- Môi trường hoạt động: Môi trường giáo dục / trường học nghiêm túc và tôn trọng.
+- Môi trường hoạt động: ${BOT_ENVIRONMENT}.
 - Văn phong: TRANG TRỌNG, LỊCH SỰ, CHUẨN CHÍNH TẢ VÀ CHUẨN CẤU TRÚC NGỮ PHÁP TIẾNG VIỆT.
-- Tuyệt đối KHÔNG viết câu lủng củng, KHÔNG dùng từ nói ngọng/khẩu ngữ thiếu từ (Ví dụ KHÔNG viết "chưa, mà là").
-- Ví dụ câu văn chuẩn: "ANSWER| Dạ thưa ${BOT_PRONOUN_USER_DEFAULT}, trước khi lấy tên Văn Ba để lên tàu Amiral Latouche-Tréville, Bác Hồ dùng tên Nguyễn Tất Thành ạ. Tên gọi Nguyễn Ái Quốc được Bác sử dụng sau này tại Pháp vào năm 1919 ạ."`;
+- Tuyệt đối KHÔNG viết câu lủng củng, KHÔNG dùng từ nói ngọng/khẩu ngữ thiếu từ.
+- Ví dụ câu văn chuẩn: "ANSWER| Dạ thưa ${BOT_PRONOUN_USER_DEFAULT}, trước khi lấy tên Văn Ba để lên tàu Amiral Latouche-Tréville, Bác Hồ dùng tên Nguyễn Tất Thành ạ."`;
 
   // Lấy lịch sử hội thoại của user này
   const uId = senderId || 'default';
@@ -104,7 +108,7 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
     } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
   }
 
-  // Đẩy câu hỏi hiện tại vào lịch sử (không đẩy lưu ý hệ thống để tránh nhiễm bẩn bộ nhớ)
+  // Đẩy câu hỏi hiện tại vào lịch sử
   history.push({ role: 'user', content: text });
 
   // Xây dựng mảng messages gửi cho Groq
@@ -138,7 +142,7 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('DeepSeek API Error HTTP', response.status, ':', errText);
+      console.error('AI API Error HTTP', response.status, ':', errText);
       userContexts.delete(uId);
       return { type: 'TICKET', location: "Không xác định" };
     }
@@ -162,14 +166,11 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
     }
     
     // Bộ lọc làm sạch văn bản AI:
-    // 1. Loại bỏ các câu tranh luận phân loại hệ thống lọt vào (VD: Tuy nhiên, theo quy định hệ thống...)
     answerText = answerText.replace(/^(Tuy nhiên|Để tuân thủ|Theo quy định hệ thống)[^.\n]*[.\n]/gi, '').trim();
-    // 2. Bảo vệ từ xưng hô: Thay thế tuyệt đối từ "Tôi" hoặc "tôi" thành xưng hô chuẩn ("Em")
     answerText = answerText.replace(/\b(Tôi|tôi)\b/g, BOT_PRONOUN_ME);
     
     // Lưu lại câu trả lời vào lịch sử
     history.push({ role: 'assistant', content: answerText });
-    // Giữ tối đa 10 tin nhắn gần nhất (5 lượt)
     if (history.length > 10) history = history.slice(history.length - 10);
     userContexts.set(uId, history);
 

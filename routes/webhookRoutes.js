@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { WEBHOOK_SECRET_TOKEN, BOT_NAME, PUBLIC_URL, BOT_PRONOUN_USER_DEFAULT } = require('../config/constants');
+const { WEBHOOK_SECRET_TOKEN, BOT_NAME, PUBLIC_URL } = require('../config/constants');
 const { sendZaloMessage, isAdmin, isSuperAdmin, getWebDisplayNameForZalo } = require('../services/zaloService');
 const { analyzeWithAI } = require('../services/aiService');
+const { getBotConfig } = require('../services/botConfigService');
 
 function scheduleTestDeletion(ticketId, content) {
   if (content && content.startsWith('[TEST]')) {
@@ -48,6 +49,7 @@ router.post('/webhook', async (req, res) => {
   console.log('Event name:', eventName);
 
   if (message) {
+    const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
     const text = message.text || '';
     let cleanTextForCmd = text.replace(new RegExp(`@?${BOT_NAME}`, 'gi'), '').replace(/@?Bot/gi, '').trim();
     cleanTextForCmd = cleanTextForCmd.replace(/^@\s*/, '').replace(/@\s*$/, '').trim();
