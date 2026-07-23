@@ -17,8 +17,8 @@ async function renderTableRows() {
      let statusBadge = '';
      if (r.status === 'Đã xong') {
        statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
-     } else if (r.status === 'Từ chối') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟠 Từ chối</span>`;
+     } else if (r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;"><i class="icon ion-md-swap"></i> Đã thay đổi</span>`;
      } else if (r.status === 'Đang xử lý') {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
      } else {
@@ -26,7 +26,7 @@ async function renderTableRows() {
      }
 
      let timeHtml = `<div style="font-size:13px; white-space:nowrap;">🕒 ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
-     if ((r.status === 'Đã xong' || r.status === 'Từ chối') && r.completed_at) {
+     if ((r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') && r.completed_at) {
        const cd = new Date(r.completed_at);
        const cday = String(cd.getDate()).padStart(2, '0');
        const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
@@ -37,7 +37,7 @@ async function renderTableRows() {
        
      let adminReplyCell = '';
      const handlerName = r.assignee_name || '-';
-     if (r.status === 'Đã xong' || r.status === 'Từ chối') {
+     if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
          adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
      } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
@@ -53,7 +53,7 @@ async function renderTableRows() {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
               <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#ef4444; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Đổi trạng thái</button>
            </div>
          `;
      }
@@ -803,8 +803,8 @@ async function getDashboardHtml(user) {
           function rejectTicket(ticketId, event) {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
-                  const isRejecting = event && event.currentTarget && event.currentTarget.textContent.includes('Từ chối');
-                  const placeholder = isRejecting ? "Lý do từ chối..." : "Lý do thay đổi trạng thái...";
+                  const isRejecting = event && event.currentTarget && event.currentTarget.textContent.includes('Đổi trạng thái');
+                  const placeholder = isRejecting ? "Lý do thay đổi..." : "Lý do thay đổi trạng thái...";
                   const btnColor = isRejecting ? "#ef4444" : "#3b82f6";
 
                   actionBox.innerHTML = \`

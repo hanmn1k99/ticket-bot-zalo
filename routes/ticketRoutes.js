@@ -98,20 +98,20 @@ router.post('/api/tickets/reject', checkAuth, async (req, res) => {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     let userMsg = '';
     if (existingReq.status === 'Đang chờ') {
-      userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${id}]
+      userMsg = `⛔ THAY ĐỔI TRẠNG THÁI YÊU CẦU [#${id}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Người từ chối: ${itName}
+👨‍💻 Cập nhật bởi: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
     } else {
-      userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${id}]
+      userMsg = `⛔ CẬP NHẬT: THAY ĐỔI TRẠNG THÁI SỰ CỐ [#${id}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
-👨‍💻 Người từ chối: ${itName}
+👨‍💻 Cập nhật bởi: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
 😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
@@ -123,7 +123,7 @@ router.post('/api/tickets/reject', checkAuth, async (req, res) => {
     const admins = await db.getAdmins();
     for (const a of admins) {
       if (a.id !== userId) {
-        await sendZaloMessage(a.id, `⛔ IT ${itName} đã từ chối sự cố #${id}`);
+        await sendZaloMessage(a.id, `⛔ IT ${itName} đã thay đổi trạng thái sự cố #${id}`);
       }
     }
 
