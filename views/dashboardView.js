@@ -301,11 +301,14 @@ async function getDashboardHtml(user) {
               width: 100%; 
               border-collapse: collapse; 
               min-width: 800px;
+              table-layout: fixed;
           }
           th, td { 
               padding: 16px; 
               text-align: left; 
-              border-bottom: 1px solid var(--border-color); 
+              border-bottom: 1px solid var(--border-color);
+              overflow: hidden;
+              text-overflow: ellipsis;
           }
           th { 
               background-color: var(--table-header-bg); 
@@ -540,16 +543,26 @@ async function getDashboardHtml(user) {
 
           <div class="table-wrapper" id="pdf-content">
               <table id="reportTable">
+                  <colgroup>
+                      <col style="width:4%">
+                      <col style="width:12%">
+                      <col style="width:12%">
+                      <col style="width:14%">
+                      <col style="width:20%">
+                      <col style="width:11%">
+                      <col style="width:11%">
+                      <col style="width:16%">
+                  </colgroup>
                   <thead>
                       <tr>
-                          <th width="4%">STT</th>
-                          <th width="12%">Người Yêu Cầu</th>
-                          <th width="12%">Nhóm</th>
-                          <th width="16%">Thời gian</th>
-                          <th width="20%">Mô tả sự cố</th>
-                          <th width="11%">Trạng thái</th>
-                          <th width="11%">Người xử lý</th>
-                          <th width="14%">Phản hồi của IT</th>
+                          <th>STT</th>
+                          <th>Người Yêu Cầu</th>
+                          <th>Nhóm</th>
+                          <th>Thời gian</th>
+                          <th>Mô tả sự cố</th>
+                          <th>Trạng thái</th>
+                          <th>Người xử lý</th>
+                          <th>Phản hồi của IT</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -763,9 +776,22 @@ async function getDashboardHtml(user) {
                       const data = await res.json();
                       if (data.success && data.html !== lastRenderedHtml) {
                           lastRenderedHtml = data.html;
-                          table.getElementsByTagName('tbody')[0].innerHTML = data.html;
+                          
+                          // Lưu lại scroll position của wrapper để tránh nhảy
+                          const wrapper = document.querySelector('.table-wrapper');
+                          const scrollTop = wrapper ? wrapper.scrollTop : 0;
+                          const scrollLeft = wrapper ? wrapper.scrollLeft : 0;
+
+                          const tbody = table.getElementsByTagName('tbody')[0];
+                          tbody.innerHTML = data.html;
                           updateNameDropdown();
                           filterData();
+
+                          // Restore lại scroll position
+                          if (wrapper) {
+                              wrapper.scrollTop = scrollTop;
+                              wrapper.scrollLeft = scrollLeft;
+                          }
                       }
                   }
               } catch (e) {}
