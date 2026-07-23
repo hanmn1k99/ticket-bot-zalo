@@ -424,9 +424,10 @@ async function getDashboardHtml(user) {
                   min-width: calc(100vw - 80px) !important;
                   white-space: normal !important;
                   word-break: break-word !important;
-                  flex-direction: row !important;
-                  align-items: center;
-                  justify-content: flex-end;
+                  flex-direction: column !important;
+                  align-items: flex-end;
+                  justify-content: center;
+                  gap: 4px;
                   min-height: 45px;
               }
               td:last-child { border-bottom: 0; }
