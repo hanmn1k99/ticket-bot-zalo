@@ -406,7 +406,8 @@ async function getDashboardHtml(user) {
                   position: relative;
                   padding: 12px 10px 12px 130px; 
                   text-align: right;
-                  width: auto !important;
+                  width: 100% !important;
+                  box-sizing: border-box !important;
                   max-width: none !important;
                   white-space: normal !important;
                   word-break: break-word;
