@@ -578,17 +578,18 @@ router.post('/webhook', async (req, res) => {
 
         const itName = await getWebDisplayNameForZalo(senderId, senderName);
 
-        if (existingReq.status === 'Đang chờ') {
-          const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject');
+        const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject');
+        
+        if (isReject) {
+          const reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim() || 'Không có lý do cụ thể';
+          await db.updateRequestStatus(targetTicketId, 'Từ chối', senderId, itName);
+          await db.updateRequest(targetTicketId, reason, Date.now());
           
-          if (isReject) {
-            const reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim() || 'Không có lý do cụ thể';
-            await db.updateRequestStatus(targetTicketId, 'Từ chối', senderId, itName);
-            await db.updateRequest(targetTicketId, reason, Date.now());
-            
-            await sendZaloMessage(chatId, `⛔ Đã từ chối sự cố #${targetTicketId}.`);
-            const targetChat = existingReq.chat_id || existingReq.sender_id;
-            const userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${targetTicketId}]
+          await sendZaloMessage(chatId, `⛔ Đã từ chối sự cố #${targetTicketId}.`);
+          const targetChat = existingReq.chat_id || existingReq.sender_id;
+          let userMsg = '';
+          if (existingReq.status === 'Đang chờ') {
+            userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${targetTicketId}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${existingReq.sender_name}
 📍 Vị trí: ${existingReq.location || 'Không xác định'}
@@ -596,10 +597,21 @@ router.post('/webhook', async (req, res) => {
 💬 Lý do: ${reason}
 ------------------------------
 😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
-            await sendZaloMessage(targetChat, userMsg);
-            return;
+          } else {
+            userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${targetTicketId}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${existingReq.sender_name}
+📍 Vị trí: ${existingReq.location || 'Không xác định'}
+👨‍💻 Người từ chối: ${itName}
+💬 Lý do: ${reason}
+------------------------------
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
           }
+          await sendZaloMessage(targetChat, userMsg);
+          return;
+        }
 
+        if (existingReq.status === 'Đang chờ') {
           await db.updateRequestStatus(targetTicketId, 'Đang xử lý', senderId, itName);
           
           // Gửi thông báo đang xử lý cho nhóm IT
