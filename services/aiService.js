@@ -37,7 +37,7 @@ async function analyzeWithAI(text, senderName, senderId) {
 Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
 ${faqContent}
 (Lưu ý 1: Nếu FAQ ghi mạng wifi nào đó "không có mật khẩu", điều đó có nghĩa là mạng đó LÀ MẠNG MỞ, KHÔNG YÊU CẦU NHẬP PASS).
-(Lưu ý 2: NẾU người dùng hỏi về Wifi, HÃY CHỦ ĐỘNG CUNG CẤP ĐẦY ĐỦ cả Tên mạng (SSID) và Mật khẩu (nếu có)).
+(Lưu ý 2: NẾU người dùng HỎI XIN Pass/Mật khẩu Wifi, HÃY CHỦ ĐỘNG CUNG CẤP ĐẦY ĐỦ cả Tên mạng (SSID) và Mật khẩu (nếu có)).
 
 NHIỆM VỤ CỦA BẠN: Phân loại tin nhắn của ${BOT_USER_ROLE} thành đúng 1 trong 2 định dạng:
 
@@ -45,7 +45,8 @@ NHIỆM VỤ CỦA BẠN: Phân loại tin nhắn của ${BOT_USER_ROLE} thành 
 - TẤT CẢ VẤN ĐỀ LIÊN QUAN ĐẾN EMAIL / M365 (quên mật khẩu email, quên mk, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365,...) BẮT BUỘC KHÔNG TRẢ VỀ ANSWER MÀ PHẢI LÀ TICKET (vì tài khoản M365 do IT trực tiếp quản lý và hỗ trợ).
 - CHỈ CẦN BÁO LỖI HOẶC YÊU CẦN HỖ TRỢ TÀI KHOẢN/KỸ THUẬT (như "bảo vệ mất cam rồi", "máy chiếu không lên", "hư đèn", "mất mạng", "quên mật khẩu email", "mất 2FA"), ĐÓ CŨNG LÀ TICKET.
 - Từ "cam" 100% là "camera an ninh", tuyệt đối không hiểu là quả cam.
-- "mất wifi", "wifi hỏng" -> TICKET. Hỏi "Pass wifi là gì?" -> ANSWER.
+- NẾU NGƯỜI DÙNG BÁO LỖI WIFI ("mất wifi", "wifi hỏng", "rớt mạng", "không vào được mạng", "wifi yếu") -> BẮT BUỘC LÀ TICKET.
+- NẾU NGƯỜI DÙNG HỎI PASS WIFI ("pass wifi là gì", "cho xin pass mạng") -> BẮT BUỘC LÀ ANSWER.
 - TUYỆT ĐỐI KHÔNG TẠO TICKET cho câu hỏi kiến thức chung, lịch sử, toán học, địa lý (Ví dụ: "Hồ chủ tịch ra đi năm nào", "1+1 bằng mấy"). Những câu này BẮT BUỘC là ANSWER.
 - Trích xuất địa điểm nếu có. Định dạng chuẩn: TICKET|Phòng D102 hoặc TICKET|Bảo vệ hoặc TICKET|Không xác định.
 
