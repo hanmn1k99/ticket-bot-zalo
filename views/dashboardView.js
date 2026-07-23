@@ -425,9 +425,7 @@ async function getDashboardHtml(user) {
                   position: relative !important;
                   padding: 12px 10px 12px 130px !important; 
                   text-align: right !important;
-                  width: 100% !important;
                   box-sizing: border-box !important;
-                  max-width: 100% !important;
                   white-space: normal !important;
                   word-break: break-word !important;
                   flex-direction: column !important;
@@ -455,7 +453,8 @@ async function getDashboardHtml(user) {
               td:nth-of-type(4)::before { content: "Thời gian"; }
               td:nth-of-type(5)::before { content: "Mô tả sự cố"; }
               td:nth-of-type(6)::before { content: "Trạng thái"; }
-              td:nth-of-type(7)::before { content: "Phản hồi của IT"; }
+              td:nth-of-type(7)::before { content: "Người xử lý"; }
+              td:nth-of-type(8)::before { content: "Phản hồi của IT"; }
 
               /* Input Box for Action */
               td div[id^="actionBox_"] { 
