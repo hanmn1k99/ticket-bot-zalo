@@ -439,7 +439,8 @@ async function getDashboardHtml(user) {
               td:last-child { border-bottom: 0; }
               td::before { 
                   position: absolute;
-                  top: 12px;
+                  top: 50%;
+                  transform: translateY(-50%);
                   left: 10px;
                   width: 110px; 
                   white-space: nowrap;
