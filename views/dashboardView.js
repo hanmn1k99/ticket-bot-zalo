@@ -305,6 +305,14 @@ async function getDashboardHtml(user) {
               min-width: 800px;
               table-layout: fixed;
           }
+          #reportTable th:nth-child(1) { width: 6%; }
+          #reportTable th:nth-child(2) { width: 12%; }
+          #reportTable th:nth-child(3) { width: 12%; }
+          #reportTable th:nth-child(4) { width: 14%; }
+          #reportTable th:nth-child(5) { width: 18%; }
+          #reportTable th:nth-child(6) { width: 11%; }
+          #reportTable th:nth-child(7) { width: 11%; }
+          #reportTable th:nth-child(8) { width: 16%; }
           th, td { 
               padding: 16px; 
               text-align: left; 
@@ -558,16 +566,6 @@ async function getDashboardHtml(user) {
 
           <div class="table-wrapper" id="pdf-content">
               <table id="reportTable">
-                  <colgroup>
-                      <col style="width:6%">
-                      <col style="width:12%">
-                      <col style="width:12%">
-                      <col style="width:14%">
-                      <col style="width:18%">
-                      <col style="width:11%">
-                      <col style="width:11%">
-                      <col style="width:16%">
-                  </colgroup>
                   <thead>
                       <tr>
                           <th>STT</th>
