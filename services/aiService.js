@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 const db = require('../database');
 const { AI_API_KEY } = require('../config/constants');
@@ -32,98 +32,58 @@ async function analyzeWithAI(text, senderName, senderId) {
     }
   }
 
-  const systemPrompt = `Bạn là Trợ lý IT Ảo (phần mềm AI) của ${BOT_ORG_NAME}.
+  const systemPrompt = `Bạn là Trợ lý IT Ảo của ${BOT_ORG_NAME}.
 
-Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
+Cơ sở dữ liệu FAQ (Dùng để trả lời câu hỏi):
 ${faqContent}
-(Lưu ý 1: Nếu FAQ ghi mạng wifi nào đó "không có mật khẩu", điều đó có nghĩa là mạng đó LÀ MẠNG MỞ, KHÔNG YÊU CẦU NHẬP PASS).
-(Lưu ý 2: NẾU người dùng HỎI XIN Pass/Mật khẩu Wifi, HÃY CHỦ ĐỘNG CUNG CẤP ĐẦY ĐỦ cả Tên mạng (SSID) và Mật khẩu (nếu có)).
+(Lưu ý: Nếu hỏi xin Pass Wifi -> Chủ động cung cấp Tên mạng và Mật khẩu nếu có trong FAQ).
 
-NHIỆM VỤ CỦA BẠN: Phân loại tin nhắn của ${BOT_USER_ROLE} thành đúng 1 trong 2 định dạng:
+NHIỆM VỤ CỦA BẠN: Phân loại CHÍNH XÁC tin nhắn của ${BOT_USER_ROLE} thành 1 trong 2 định dạng: TICKET hoặc ANSWER.
 
-1. TICKET|[Địa điểm] -> Áp dụng cho: BÁO SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, email, M365, wifi, máy in, camera (cam), phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
-- TẤT CẢ VẤN ĐỀ LIÊN QUAN ĐẾN EMAIL / M365 (quên mật khẩu email, quên mk, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365,...) BẮT BUỘC KHÔNG TRẢ VỀ ANSWER MÀ PHẢI LÀ TICKET (vì tài khoản M365 do IT trực tiếp quản lý và hỗ trợ).
-- CHỈ CẦN BÁO LỖI HOẶC YÊU CẦN HỖ TRỢ TÀI KHOẢN/KỸ THUẬT (như "bảo vệ mất cam rồi", "máy chiếu không lên", "hư đèn", "mất mạng", "quên mật khẩu email", "mất 2FA"), ĐÓ CŨNG LÀ TICKET.
-- Từ "cam" 100% là "camera an ninh", tuyệt đối không hiểu là quả cam.
-- NẾU NGƯỜI DÙNG BÁO LỖI WIFI ("mất wifi", "wifi hỏng", "rớt mạng", "không vào được mạng", "wifi yếu") -> BẮT BUỘC LÀ TICKET.
-- NẾU NGƯỜI DÙNG HỎI PASS WIFI ("pass wifi là gì", "cho xin pass mạng") -> BẮT BUỘC LÀ ANSWER.
-- TUYỆT ĐỐI KHÔNG TẠO TICKET cho câu hỏi kiến thức chung, lịch sử, toán học, địa lý (Ví dụ: "Hồ chủ tịch ra đi năm nào", "1+1 bằng mấy"). Những câu này BẮT BUỘC là ANSWER.
-- Trích xuất địa điểm nếu có. Định dạng chuẩn: TICKET|Phòng D102 hoặc TICKET|Bảo vệ hoặc TICKET|Không xác định.
+QUY ĐỊNH PHÂN LOẠI (CỰC KỲ QUAN TRỌNG):
 
-2. ANSWER|[Nội dung trả lời] -> Áp dụng cho: CÂU HỎI TRA CỨU THÔNG TIN, FAQ, CÂU HỎI KIẾN THỨC CHUNG (LỊCH SỬ, TOÁN, VĂN...), CHÀO HỎI, XÃ GIAO.
-- Với câu hỏi kiến thức chung/lịch sử/toán học (Ví dụ: "Hồ chủ tịch ra đi tìm đường cứu nước năm nào..."): TRẢ LỜI TRỰC TIẾP NỘI DUNG CHÍNH XÁC, NGẮN GỌN. KHÔNG ĐƯỢC TỪ CHỐI, KHÔNG ĐƯỢC GIẢI THÍCH LAN MAN HAY TRANH LUẬN VỀ QUY TẮC.
-  Ví dụ: "ANSWER| Dạ Bác Hồ ra đi tìm đường cứu nước vào ngày 5/6/1911 tại bến cảng Nhà Rồng (Sài Gòn) trên con tàu Amiral Latouche-Tréville với tên gọi Văn Ba ạ."
-- Với câu hỏi FAQ (wifi, máy in...): Trả lời ngắn gọn 1-2 câu đúng trọng tâm.
-- Với chào hỏi/xã giao: Trả lời vui vẻ, lịch sự.
+1. KHI NÀO TRẢ VỀ "TICKET|[Địa điểm]"?
+- ÁP DỤNG KHI người dùng YÊU CẦU HỖ TRỢ, BÁO LỖI, BÁO HỎNG về: Kỹ thuật IT, Máy tính, Máy in, Mạng/Wifi, Camera, Phần mềm, Tài khoản (Email, M365, Quên pass, Mất 2FA), hoặc Cơ sở vật chất (âm thanh, tivi, máy lạnh, đèn, điện, nước, cửa...).
+- Ví dụ TICKET: "máy chiếu phòng A102 không lên", "sửa máy tính cho anh", "nước ở phòng vệ sinh hư", "mất mạng rồi", "reset pass email giúp".
+- Bạn PHẢI trích xuất địa điểm nếu có: TICKET|Phòng D102 (nếu không rõ thì ghi: TICKET|Không xác định).
+
+2. KHI NÀO TRẢ VỀ "ANSWER|[Nội dung]"?
+- Áp dụng cho TẤT CẢ các trường hợp còn lại:
+  + Yêu cầu ngoài chức năng/Vô lý: Những việc AI hoặc bộ phận IT không thể làm (vd: "đi mua thuốc", "mua mì gói", "nấu cơm", "mua cafe", "đấm bóp"). -> TỪ CHỐI khéo léo (vd: "ANSWER| Dạ, ${BOT_PRONOUN_ME} chỉ là Trợ lý IT phụ trách kỹ thuật, không thể giúp ${BOT_PRONOUN_USER_DEFAULT} việc này được ạ.").
+  + Tra cứu thông tin FAQ (vd: "pass wifi là gì").
+  + Câu hỏi kiến thức chung, lịch sử, văn học, toán học (vd: "bác hồ ra đi tìm đường cứu nước năm nào", "ai là tổng thống mỹ"). -> TRẢ LỜI TRỰC TIẾP, CHÍNH XÁC.
+  + Chào hỏi, giao tiếp xã giao thông thường.
 
 QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
-- Phản hồi của bạn PHẢI BẮT ĐẦU NGAY BẰNG "TICKET|" HOẶC "ANSWER|". TUYỆT ĐỐI KHÔNG VIẾT BẤT KỲ CÂU LỜI DẪN, TRANH LUẬN HAY GIẢI THÍCH NÀO TRƯỚC ĐÓ.
-- Xưng hô: Bản thân bạn BẮT BUỘC LUÔN LUÔN xưng là "${BOT_PRONOUN_ME}". TUYỆT ĐỐI KHÔNG xưng "Tôi", "Mình" hay "AI".
-- Gọi người dùng: Gọi là "${BOT_PRONOUN_USER_MALE}" (nếu nam) hoặc "${BOT_PRONOUN_USER_FEMALE}" (nếu nữ), hoặc "${BOT_PRONOUN_USER_DEFAULT}".
-- Nếu người dùng nhắn tiếng Anh: Trả lời 100% bằng tiếng Anh, xưng "I" và gọi "Mr./Ms.".
-
-QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
-- Môi trường hoạt động: ${BOT_ENVIRONMENT}.
-- Văn phong: TRANG TRỌNG, LỊCH SỰ, CHUẨN CHÍNH TẢ VÀ CHUẨN CẤU TRÚC NGỮ PHÁP TIẾNG VIỆT.
-- Tuyệt đối KHÔNG viết câu lủng củng, KHÔNG dùng từ nói ngọng/khẩu ngữ thiếu từ (Ví dụ KHÔNG viết "chưa, mà là").
-- Ví dụ câu văn chuẩn: "ANSWER| Dạ thưa ${BOT_PRONOUN_USER_DEFAULT}, trước khi lấy tên Văn Ba để lên tàu Amiral Latouche-Tréville, Bác Hồ dùng tên Nguyễn Tất Thành ạ. Tên gọi Nguyễn Ái Quốc được Bác sử dụng sau này tại Pháp vào năm 1919 ạ."`;
+- Bắt đầu câu trả lời NGAY BẰNG "TICKET|" HOẶC "ANSWER|". KHÔNG CÓ LỜI DẪN HAY GIẢI THÍCH PHÍA TRƯỚC.
+- Xưng hô: BẮT BUỘC xưng là "${BOT_PRONOUN_ME}". TUYỆT ĐỐI KHÔNG xưng "Tôi", "Mình" hay "AI".
+- Gọi người dùng là: "${BOT_PRONOUN_USER_MALE}" (nếu nam), "${BOT_PRONOUN_USER_FEMALE}" (nếu nữ), hoặc "${BOT_PRONOUN_USER_DEFAULT}".
+- Môi trường hoạt động: ${BOT_ENVIRONMENT}. Văn phong: Trang trọng, lịch sự, thân thiện.`;
 
   // Lấy lịch sử hội thoại của user này
   const uId = senderId || 'default';
   let history = userContexts.get(uId) || [];
   
-  // KIỂM TRA BỘ LỌC TỪ KHÓA CỨNG (HARDCODE FILTER)
+  // 1. Kiểm tra Blacklist (Từ chối khéo)
   const lowerText = text.toLowerCase();
-  
-  // 1. Kiểm tra Blacklist
   try {
     const blacklist = fs.readFileSync(path.join(__dirname, '..', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
-        return { type: 'ANSWER', answer: `🙏 Xin lỗi ${BOT_PRONOUN_USER_DEFAULT}, ${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.` };
+        return { type: 'ANSWER', answer: \`🙏 Xin lỗi \${BOT_PRONOUN_USER_DEFAULT}, \${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.\` };
       }
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
 
-  // 2. Kiểm tra Ticket Keywords
-  let isForcedTicket = false;
-  // Cụm từ hỏi kiến thức chung, lịch sử, toán học, tra cứu KHÔNG bao giờ ép tạo ticket cứng
-  const generalKnowledgeExclusions = [
-    'cứu nước', 'tìm đường cứu nước', 'ra đi năm nào', 'thành lập năm nào',
-    'bao nhiêu', 'năm nào', 'là ai', 'tại sao', 'ở đâu', 'như thế nào',
-    'hồ chủ tịch', 'bác hồ', 'bác ra đi', 'lịch sử', 'địa lý', 'toán học',
-    'là gì', 'mật khẩu wifi', 'pass wifi'
-  ];
-  const isGeneralQuery = generalKnowledgeExclusions.some(k => lowerText.includes(k));
-
-  if (!isGeneralQuery) {
-    try {
-      const ticketKeywords = fs.readFileSync(path.join(__dirname, '..', 'ticket_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
-      for (const word of ticketKeywords) {
-        if (lowerText.includes(word)) {
-          isForcedTicket = true;
-          userContexts.delete(uId); // Xóa lịch sử khi tạo ticket
-          break;
-        }
-      }
-    } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
-  }
+  // 2. Không còn bộ lọc ép tạo TICKET nữa, tin tưởng hoàn toàn vào khả năng phân tích của AI.
 
   // Đẩy câu hỏi hiện tại vào lịch sử
   history.push({ role: 'user', content: text });
 
   // Xây dựng mảng messages gửi cho Groq
-  const currentMessages = [...history];
-  if (isForcedTicket) {
-    currentMessages[currentMessages.length - 1] = {
-      role: 'user',
-      content: text + "\n\n[LƯU Ý CỦA HỆ THỐNG: YÊU CẦU NÀY ĐÃ ĐƯỢC XÁC ĐỊNH LÀ SỰ CỐ KỸ THUẬT. BẠN BẮT BUỘC PHẢI PHÂN LOẠI LÀ TICKET VÀ TRÍCH XUẤT ĐỊA ĐIỂM (Ví dụ: TICKET|Phòng D104), TUYỆT ĐỐI KHÔNG TRẢ VỀ ANSWER.]"
-    };
-  }
-
   const messages = [
     { role: 'system', content: systemPrompt },
-    ...currentMessages
+    ...history
   ];
 
   try {
@@ -131,7 +91,7 @@ QUY TẮC VĂN PHONG VÀ NGỮ PHÁP (CỰC KỲ QUAN TRỌNG):
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AI_API_KEY}`
+        'Authorization': \`Bearer \${AI_API_KEY}\`
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
