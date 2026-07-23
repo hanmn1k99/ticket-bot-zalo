@@ -16,23 +16,23 @@ async function renderTableRows() {
      
      let statusBadge = '';
      if (r.status === 'Đã xong') {
-       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
+       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="checkmark-circle" style="font-size:14px;"></ion-icon> Đã xong</span>';
      } else if (r.status === 'Từ chối') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟠 Từ chối</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="close-circle" style="font-size:14px;"></ion-icon> Từ chối</span>`;
      } else if (r.status === 'Đang xử lý') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟡 Đang xử lý</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="construct" style="font-size:14px;"></ion-icon> Đang xử lý</span>`;
      } else {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🔴 Đang chờ</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="time" style="font-size:14px;"></ion-icon> Đang chờ</span>`;
      }
 
-     let timeHtml = `<div style="font-size:13px; white-space:nowrap;">🕒 ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
+     let timeHtml = `<div style="font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;"><ion-icon name="time-outline" style="font-size:14px; color:var(--text-muted);"></ion-icon> ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
      if ((r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') && r.completed_at) {
        const cd = new Date(r.completed_at);
        const cday = String(cd.getDate()).padStart(2, '0');
        const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
        const cyear = cd.getFullYear();
        const ctime = cd.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-       timeHtml += `<div style="font-size:13px; margin-top:4px; white-space:nowrap; color:#16a34a;">🏁 ${ctime} <span style="color:var(--text-muted); font-size:12px;">${cday}/${cmonth}</span></div>`;
+       timeHtml += `<div style="font-size:13px; margin-top:4px; white-space:nowrap; color:#16a34a; display:flex; align-items:center; gap:4px;"><ion-icon name="flag" style="font-size:14px;"></ion-icon> ${ctime} <span style="color:var(--text-muted); font-size:12px;">${cday}/${cmonth}</span></div>`;
      }
        
      let adminReplyCell = '';
@@ -44,16 +44,16 @@ async function renderTableRows() {
            <div id="actionBox_${r.id}" style="display:flex; flex-direction:column; gap:8px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
               <div style="display:flex; gap:6px; justify-content:flex-start;">
-                  <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Gửi</button>
-                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Chuyển</button>
+                  <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="send"></ion-icon> Gửi</button>
+                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="swap-horizontal"></ion-icon> Chuyển</button>
               </div>
            </div>
          `;
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Nhận yêu cầu</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; padding:6px 18px; font-size:13px; font-weight:600; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Từ chối</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 18px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="hand-left"></ion-icon> Nhận yêu cầu</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 18px; font-size:13px; font-weight:600; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="close-circle-outline"></ion-icon> Từ chối</button>
            </div>
          `;
      }
@@ -145,6 +145,8 @@ async function getDashboardHtml(user) {
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="manifest" href="/manifest.json">
       <meta name="theme-color" content="#2563eb">
+      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+      <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
       <style>
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
           :root {
@@ -502,32 +504,32 @@ async function getDashboardHtml(user) {
                   
                   <div class="action-bar" style="display:flex; align-items:center; gap:10px;">
                       <button class="btn-secondary" onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng" style="padding: 9px 12px; border-radius: 8px;">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                          <ion-icon name="moon-outline" style="font-size:18px;"></ion-icon>
                       </button>
                       <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang" style="padding: 9px 12px; border-radius: 8px;">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                          <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon>
                       </button>
                       <button onclick="window.print()" title="In báo cáo" style="padding: 9px 14px; border-radius: 8px;">
-                          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                          <ion-icon name="print-outline" style="font-size:18px;"></ion-icon>
                       </button>
                       <div class="dropdown">
                           <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:6px; padding: 9px 14px; border-radius: 8px;">
-                              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                              <ion-icon name="person-circle-outline" style="font-size:18px;"></ion-icon>
                               Tài khoản
                           </button>
                           <div class="dropdown-content">
                               ${(!user || user.role === 'SUPER_ADMIN') ? `
                               <button onclick="window.location.href='/settings'" style="color:#2563eb;">
-                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                  <ion-icon name="settings-outline" style="font-size:16px;"></ion-icon>
                                   Cài đặt & AI
                               </button>
                               <button onclick="cleanData()" style="color:#ef4444;">
-                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                  <ion-icon name="trash-outline" style="font-size:16px;"></ion-icon>
                                   Xóa toàn bộ CSDL
                               </button>
                               ` : ''}
                               <button onclick="window.location.href='/logout'" style="color:#475569;">
-                                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                  <ion-icon name="log-out-outline" style="font-size:16px;"></ion-icon>
                                   Đăng xuất
                               </button>
                           </div>
@@ -539,9 +541,9 @@ async function getDashboardHtml(user) {
               <div class="controls" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; width:100%;">
                   <select id="statusFilter" style="flex:1; min-width:160px; max-width:220px;">
                       <option value="">-- Tất cả trạng thái --</option>
-                      <option value="đã xong">🟢 Đã xong</option>
-                      <option value="đang xử lý">🟡 Đang xử lý</option>
-                      <option value="đang chờ">🔴 Đang chờ</option>
+                      <option value="đã xong">✓ Đã xong</option>
+                      <option value="đang xử lý">▶ Đang xử lý</option>
+                      <option value="đang chờ">○ Đang chờ</option>
                   </select>
                   <select id="nameFilter" style="flex:1; min-width:180px; max-width:240px;">
                       <option value="">-- Tất cả người báo --</option>
