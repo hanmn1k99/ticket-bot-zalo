@@ -1,7 +1,7 @@
 #!/bin/bash
-echo "Đang tải bản cập nhật mới nhất từ GitHub..."
+echo "Đang dọn dẹp file cũ và tải bản cập nhật mới nhất từ GitHub..."
+git reset --hard
 git pull origin main
-
 echo "Khởi động lại hệ thống bằng PM2..."
 pm2 restart all
 
