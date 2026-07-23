@@ -382,6 +382,9 @@ async function getDashboardHtml(user) {
               table, thead, tbody, th, td, tr { 
                   display: block; 
               }
+              colgroup, col { 
+                  display: none; 
+              }
               thead tr { 
                   display: none; 
               }
