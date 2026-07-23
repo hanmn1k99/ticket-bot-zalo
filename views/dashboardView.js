@@ -400,17 +400,14 @@ async function getDashboardHtml(user) {
                   width: 100% !important; 
                   table-layout: auto !important;
               }
-              table, thead, tbody, th, td, tr { 
+              table, tbody, th, td, tr { 
                   display: flex !important; 
                   flex-direction: column;
                   width: 100% !important;
                   box-sizing: border-box !important;
               }
-              colgroup, col { 
-                  display: none; 
-              }
-              thead tr { 
-                  display: none; 
+              colgroup, col, thead, thead tr { 
+                  display: none !important; 
               }
               tr { 
                   background: var(--card-bg);
