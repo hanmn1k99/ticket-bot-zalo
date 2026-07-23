@@ -56,7 +56,7 @@ app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'sw.js')));
 
 // Dashboard Route
 app.get('/report', checkAuth, async (req, res) => {
-  const html = await getDashboardHtml();
+  const html = await getDashboardHtml(req.user);
   res.send(html);
 });
 
