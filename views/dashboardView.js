@@ -410,6 +410,7 @@ async function getDashboardHtml(user) {
                   padding: 10px; 
                   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                   border: 1px solid var(--border-color);
+                  min-width: calc(100vw - 60px) !important;
               }
               td { 
                   border: none !important;
@@ -420,6 +421,7 @@ async function getDashboardHtml(user) {
                   width: 100% !important;
                   box-sizing: border-box !important;
                   max-width: none !important;
+                  min-width: calc(100vw - 80px) !important;
                   white-space: normal !important;
                   word-break: break-word !important;
                   flex-direction: row !important;
