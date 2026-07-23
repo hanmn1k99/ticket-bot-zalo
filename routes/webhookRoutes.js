@@ -593,7 +593,7 @@ router.post('/webhook', async (req, res) => {
 🛠️ Sự cố (Mã số: #${targetTicketId}) của ${BOT_PRONOUN_USER_DEFAULT} ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT (${itName}) xử lý hoàn tất.
 💬 Phản hồi từ IT: ${cleanText}
 ------------------------------
-😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
+😊 Xin chân thành cảm ơn ${BOT_PRONOUN_USER_DEFAULT}! ❤️`;
             await sendZaloMessage(targetChat, userMsg);
           }
         }
@@ -647,7 +647,7 @@ ${requestContent}
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 📍 Vị trí: ${location}
 ------------------------------
-👨‍💻 Sự cố đã được chuyển đến bộ phận IT. Xin chờ xử lý!`;
+👨‍💻 Sự cố đã được hệ thống ghi nhận và chuyển đến bộ phận IT. Xin Thầy/Cô thông cảm và vui lòng chờ đợi trong giây lát nhé 😊 Xin chân thành cảm ơn Thầy/Cô! ❤️`;
         
         // Forward to all active admins
         for (const admin of admins) {
@@ -656,7 +656,7 @@ ${requestContent}
         await sendZaloMessage(chatId, userMessage);
       } else {
         console.warn('No active admins configured. Cannot forward message.');
-        await sendZaloMessage(chatId, "Yêu cầu đã được nhận nhưng hệ thống chưa có Quản trị viên Zalo nào trực để nhận thông báo. Vui lòng dùng lệnh /install để đăng ký.");
+        await sendZaloMessage(chatId, `✅ Yêu cầu đã được nhận nhưng hiện tại hệ thống chưa có nhân sự IT nào trực ban. Xin Thầy/Cô thông cảm nhé 😊`);
       }
     }
   }
