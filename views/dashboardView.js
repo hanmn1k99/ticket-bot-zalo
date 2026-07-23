@@ -392,7 +392,10 @@ async function getDashboardHtml(user) {
                   table-layout: auto !important;
               }
               table, thead, tbody, th, td, tr { 
-                  display: block; 
+                  display: flex !important; 
+                  flex-direction: column;
+                  width: 100% !important;
+                  box-sizing: border-box !important;
               }
               colgroup, col { 
                   display: none; 
@@ -409,16 +412,20 @@ async function getDashboardHtml(user) {
                   border: 1px solid var(--border-color);
               }
               td { 
-                  border: none;
-                  border-bottom: 1px solid #f1f5f9; 
-                  position: relative;
-                  padding: 12px 10px 12px 130px; 
-                  text-align: right;
+                  border: none !important;
+                  border-bottom: 1px solid #f1f5f9 !important; 
+                  position: relative !important;
+                  padding: 12px 10px 12px 130px !important; 
+                  text-align: right !important;
                   width: 100% !important;
                   box-sizing: border-box !important;
                   max-width: none !important;
                   white-space: normal !important;
-                  word-break: break-word;
+                  word-break: break-word !important;
+                  flex-direction: row !important;
+                  align-items: center;
+                  justify-content: flex-end;
+                  min-height: 45px;
               }
               td:last-child { border-bottom: 0; }
               td::before { 
