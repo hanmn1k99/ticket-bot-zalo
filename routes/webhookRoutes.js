@@ -579,21 +579,58 @@ router.post('/webhook', async (req, res) => {
         const itName = await getWebDisplayNameForZalo(senderId, senderName);
 
         if (existingReq.status === 'Đang chờ') {
+          const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject');
+          
+          if (isReject) {
+            const reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim() || 'Không có lý do cụ thể';
+            await db.updateRequestStatus(targetTicketId, 'Từ chối', senderId, itName);
+            await db.updateRequest(targetTicketId, reason, Date.now());
+            
+            await sendZaloMessage(chatId, `⛔ Đã từ chối sự cố #${targetTicketId}.`);
+            const targetChat = existingReq.chat_id || existingReq.sender_id;
+            const userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${targetTicketId}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${existingReq.sender_name}
+📍 Vị trí: ${existingReq.location || 'Không xác định'}
+👨‍💻 Người từ chối: ${itName}
+💬 Lý do: ${reason}
+------------------------------
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
+            await sendZaloMessage(targetChat, userMsg);
+            return;
+          }
+
           await db.updateRequestStatus(targetTicketId, 'Đang xử lý', senderId, itName);
+          
+          // Gửi thông báo đang xử lý cho nhóm IT
           await sendZaloMessage(chatId, `🟡 Hệ thống đã ghi nhận IT ${itName} đang xử lý sự cố #${targetTicketId}. (Nhắn/Reply lần nữa để hoàn thành)`);
+          
+          // Gửi thông báo đang xử lý cho User
+          const targetChat = existingReq.chat_id || existingReq.sender_id;
+          const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${targetTicketId}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${existingReq.sender_name}
+📍 Vị trí: ${existingReq.location || 'Không xác định'}
+👨‍💻 Phụ trách: ${itName}
+------------------------------
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
+          await sendZaloMessage(targetChat, userMsg);
+          
         } else if (existingReq.status === 'Đang xử lý') {
           const updatedReq = await db.updateRequest(targetTicketId, cleanText, Date.now());
           if (updatedReq) {
             await db.updateRequestStatus(targetTicketId, 'Đã xong', senderId, itName);
             await sendZaloMessage(chatId, `✅ Sự cố #${targetTicketId} đã hoàn thành bởi IT ${itName}.`);
-            // Thông báo cho người dùng gốc (Nhắn vào chat gốc: nhóm hoặc cá nhân)
+            // Thông báo cho người dùng gốc
             const targetChat = updatedReq.chat_id || updatedReq.sender_id;
-            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
+            const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${targetTicketId}]
 ------------------------------
-🛠️ Sự cố (Mã số: #${targetTicketId}) của ${BOT_PRONOUN_USER_DEFAULT} ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT (${itName}) xử lý hoàn tất.
-💬 Phản hồi từ IT: ${cleanText}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
+📍 Vị trí: ${updatedReq.location || 'Không xác định'}
+👨‍💻 Phụ trách: ${itName}
+💬 Phản hồi: ${cleanText}
 ------------------------------
-😊 Xin chân thành cảm ơn ${BOT_PRONOUN_USER_DEFAULT}! ❤️`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
             await sendZaloMessage(targetChat, userMsg);
           }
         }
@@ -647,7 +684,7 @@ ${requestContent}
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 📍 Vị trí: ${location}
 ------------------------------
-👨‍💻 Sự cố đã được hệ thống ghi nhận và chuyển đến bộ phận IT. Xin Thầy/Cô thông cảm và vui lòng chờ đợi trong giây lát nhé 😊 Xin chân thành cảm ơn Thầy/Cô! ❤️`;
+👨‍💻 Sự cố đã được tiếp nhận, Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT} 😊`;
         
         // Forward to all active admins
         for (const admin of admins) {
