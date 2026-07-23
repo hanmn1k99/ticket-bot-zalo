@@ -308,12 +308,12 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
 
         async function loadAdmins() {
            try {
-             const res = await fetch('/api/admin/list');
+             const res = await fetch('/api/admins');
              const data = await res.json();
              if (data.success) {
                 renderAdminsTable(data.pending, 'pendingAdminsTbody', true);
-                renderAdminsTable(data.active, 'activeAdminsTbody', false);
-                populateZaloDropdown([...data.pending, ...data.active]);
+                renderAdminsTable(data.admins, 'activeAdminsTbody', false);
+                populateZaloDropdown([...data.pending, ...data.admins]);
              }
            } catch(e) { console.error(e); }
         }
@@ -350,7 +350,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
            let html = '';
            list.forEach(a => {
               const btnHtml = isPending 
-                ? '<button onclick="approveAdmin(\\'' + a.id + '\\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duyệt</button><button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">Xóa</button>'
+                ? '<button onclick="approveAdmin(\\'' + a.id + '\\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duyệt</button><button onclick="rejectAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">Xóa</button>'
                 : '<button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">Gỡ quyền</button>';
               html += '<tr style="border-bottom:1px solid var(--border-color);"><td style="padding:12px; font-family:monospace;">' + String(a.id).substring(0,4) + '****' + String(a.id).slice(-3) + '</td><td style="padding:12px; font-weight:500;">' + a.name + '</td><td style="padding:12px;">' + btnHtml + '</td></tr>';
            });
@@ -358,7 +358,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         }
 
         async function approveAdmin(id) {
-           const res = await fetch('/api/admin/approve', {
+           const res = await fetch('/api/admins/approve', {
              method: 'POST',
              headers: {'Content-Type': 'application/json'},
              body: JSON.stringify({id})
@@ -371,9 +371,25 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
            }
         }
 
+        async function rejectAdmin(id) {
+           showCustomConfirm('Bạn có chắc chắn muốn từ chối yêu cầu này?', async () => {
+             const res = await fetch('/api/admins/reject', {
+               method: 'POST',
+               headers: {'Content-Type': 'application/json'},
+               body: JSON.stringify({id})
+             });
+             if (res.ok) {
+               showNotification('Đã từ chối yêu cầu');
+               loadAdmins();
+             } else {
+               showAlert('Lỗi khi từ chối yêu cầu');
+             }
+           });
+        }
+
         async function revokeAdmin(id) {
            showCustomConfirm('Bạn có chắc chắn muốn gỡ quyền Admin của tài khoản này?', async () => {
-             const res = await fetch('/api/admin/revoke', {
+             const res = await fetch('/api/admins/remove', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
                body: JSON.stringify({id})
