@@ -97,6 +97,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <title>Cài đặt Hệ thống - minhhan.net</title>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
+      <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+      <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
       <script>
         function showAlert(msg, isSuccess = false) {
           const overlay = document.createElement('div');
@@ -148,17 +150,6 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
 
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
-        }
-
-        function toggleDarkMode() {
-            const current = document.documentElement.getAttribute('data-theme');
-            if (current === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            }
         }
 
         function switchTab(tabId, btn) {
@@ -672,32 +663,27 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       </style>
     </head>
     <body>
-      <div class="header">
+      <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h2>⚙️ Cài đặt Hệ thống</h2>
+          <h2><ion-icon name="settings-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Cài đặt Hệ thống</h2>
           <p style="margin:4px 0 0 0; opacity:0.7; font-size:14px;">Quản lý toàn bộ cấu hình AI, văn phong xưng hô, tài khoản vận hành và nhóm thông báo.</p>
         </div>
-        <div style="display:flex; gap:12px; align-items:center;">
-          <button onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); padding: 9px 12px; border-radius: 8px; cursor:pointer; display:flex; align-items:center; transition:0.2s;">
-              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-          </button>
-          <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
-        </div>
+        <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
       </div>
       
       <!-- TAB NAVIGATION -->
       <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)">🗣️ Văn phong & Xưng hô</button>
-        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)">📚 Huấn luyện AI (FAQ)</button>
-        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)">👥 Admin & Tài khoản</button>
-        <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)">📢 Quản lý Nhóm</button>
-        <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)">🔍 Quy tắc AI (Chỉ xem)</button>
+        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
+        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
+        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
+        <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
+        <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
       </div>
 
       <!-- TAB 1: VĂN PHONG & XƯNG HÔ -->
       <div id="tab-tone" class="tab-pane active">
         <div class="card">
-          <h3>🗣️ Cấu hình Văn phong & Xưng hô AI</h3>
+          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Văn phong & Xưng hô AI</h3>
           <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">Tùy chỉnh xưng hô, tên đơn vị và môi trường hoạt động trực tiếp trên Web (thay thế cho file .env).</p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
@@ -737,7 +723,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <!-- TAB 2: HUẤN LUYỆN AI (FAQ) -->
       <div id="tab-faq" class="tab-pane">
         <div class="card">
-          <h3>📚 Huấn luyện AI (Nội dung FAQ)</h3>
+          <h3><ion-icon name="library-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Huấn luyện AI (Nội dung FAQ)</h3>
           <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Nhập các dữ liệu bạn muốn AI học. Mỗi dòng một ý.<br><i>Ví dụ: 1. Pass wifi phòng họp là 123456... AI sẽ tự đọc hiểu văn bản này để trả lời người dùng.</i></p>
           <textarea id="faqContent">${faqContent}</textarea>
           <br><br>
@@ -748,7 +734,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <!-- TAB 3: ADMIN & TÀI KHOẢN -->
       <div id="tab-accounts" class="tab-pane">
         <div class="card">
-          <h3>👥 Zalo Admin</h3>
+          <h3><ion-icon name="people-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Zalo Admin</h3>
           <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 16px;"><i>Quyền duyệt thuộc về tài khoản Super Admin. Những người dùng Zalo được duyệt dưới đây sẽ có quyền sử dụng các lệnh Zalo và nhận thông báo sự cố.</i></p>
           
           <h4 style="margin-bottom: 12px; font-size: 15px;">Yêu cầu đang chờ duyệt</h4>
@@ -780,8 +766,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           </table>
         </div>
 
-        <div class="card">
-          <h3>🔐 Quản lý Tài khoản Web</h3>
+        <div class="card" style="margin-top: 24px;">
+          <h3><ion-icon name="person-add-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Tài khoản Web Vận hành</h3>
           <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 20px;">Tạo và phân quyền tài khoản cho nhân viên Vận hành. Tự động liên kết hiển thị tên với Zalo.</p>
           
           <div style="background: var(--bg-color); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px;">
@@ -824,7 +810,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <!-- TAB 4: QUẢN LÝ NHÓM -->
       <div id="tab-groups" class="tab-pane">
         <div class="card">
-          <h3>📢 Quản lý Nhóm Thông Báo</h3>
+          <h3><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Nhóm nhận thông báo Zalo</h3>
           <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Danh sách các nhóm Zalo đã cài đặt để nhận thông báo sự cố (Broadcast).</p>
           <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
             ${groupRows}
@@ -832,10 +818,10 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         </div>
       </div>
 
-      <!-- TAB 5: QUY TẮC CỐT LÕI AI -->
+      <!-- TAB 5: QUY TẮC AI -->
       <div id="tab-prompt" class="tab-pane">
         <div class="card">
-          <h3>🔍 Xem Quy tắc Cốt lõi của AI</h3>
+          <h3><ion-icon name="search-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Chế độ Xem trước: Lệnh hệ thống (System Prompt)</h3>
           <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 16px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
           <div style="background-color: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-y: auto; height: 350px; color: var(--text-main);">
 ${systemPromptPreview}
