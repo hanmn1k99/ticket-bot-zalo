@@ -16,13 +16,13 @@ async function renderTableRows() {
      
      let statusBadge = '';
      if (r.status === 'Đã xong') {
-       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="checkmark-circle" style="font-size:14px;"></ion-icon> Đã xong</span>';
+       statusBadge = `<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#16a34a;flex-shrink:0;display:inline-block;"></span>Đã xong</span>`;
      } else if (r.status === 'Từ chối') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="close-circle" style="font-size:14px;"></ion-icon> Từ chối</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#c2410c;flex-shrink:0;display:inline-block;"></span>Từ chối</span>`;
      } else if (r.status === 'Đang xử lý') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="construct" style="font-size:14px;"></ion-icon> Đang xử lý</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#ca8a04;flex-shrink:0;display:inline-block;"></span>Đang xử lý</span>`;
      } else {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="time" style="font-size:14px;"></ion-icon> Đang chờ</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;display:inline-block;"></span>Đang chờ</span>`;
      }
 
      let timeHtml = `<div style="font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;"><ion-icon name="time-outline" style="font-size:14px; color:var(--text-muted);"></ion-icon> ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
