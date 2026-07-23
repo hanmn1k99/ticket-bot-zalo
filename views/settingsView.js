@@ -241,6 +241,43 @@ ${systemPromptPreview}
         </div>
 
       <div class="card">
+        <h3>🗣️ Cấu hình Văn phong & Xưng hô AI</h3>
+        <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 16px;">Tùy chỉnh xưng hô, tên đơn vị và môi trường hoạt động trực tiếp trên Web (thay thế cho file .env).</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Tên Đơn vị / Tổ chức</label>
+            <input type="text" id="cfg_bot_org_name" value="${BOT_ORG_NAME}" placeholder="VD: Công ty ABC" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Vai trò Người dùng</label>
+            <input type="text" id="cfg_bot_user_role" value="${BOT_USER_ROLE}" placeholder="VD: Nhân viên, Giáo viên" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">AI tự xưng là</label>
+            <input type="text" id="cfg_bot_pronoun_me" value="${BOT_PRONOUN_ME}" placeholder="VD: Em, Mình" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Gọi người dùng Nam</label>
+            <input type="text" id="cfg_bot_pronoun_user_male" value="${BOT_PRONOUN_USER_MALE}" placeholder="VD: Anh, Thầy" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Gọi người dùng Nữ</label>
+            <input type="text" id="cfg_bot_pronoun_user_female" value="${BOT_PRONOUN_USER_FEMALE}" placeholder="VD: Chị, Cô" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+          <div>
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Gọi Mặc định / Chung</label>
+            <input type="text" id="cfg_bot_pronoun_user_default" value="${BOT_PRONOUN_USER_DEFAULT}" placeholder="VD: Anh/Chị, Thầy/Cô" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+          </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Môi trường hoạt động</label>
+          <input type="text" id="cfg_bot_environment" value="${BOT_ENVIRONMENT}" placeholder="VD: MÔI TRƯỜNG CÔNG SỞ / DOANH NGHIỆP" style="width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:14px;">
+        </div>
+        <button class="btn-primary" onclick="saveBotConfig()">Lưu Cấu Hình Văn Phong</button>
+      </div>
+
+      <div class="card">
         <h3>Huấn luyện AI (Nội dung FAQ)</h3>
         <p style="font-size:14px; opacity:0.8;">Nhập các dữ liệu bạn muốn AI học. Mỗi dòng một ý.<br><i>Ví dụ: 1. Pass wifi phòng họp là 123456... AI sẽ tự đọc hiểu văn bản này.</i></p>
         <textarea id="faqContent">${faqContent}</textarea>
@@ -624,6 +661,36 @@ ${systemPromptPreview}
           box.appendChild(btns);
           overlay.appendChild(box);
           document.body.appendChild(overlay);
+        }
+
+        async function saveBotConfig() {
+          const bot_org_name = document.getElementById('cfg_bot_org_name').value;
+          const bot_user_role = document.getElementById('cfg_bot_user_role').value;
+          const bot_pronoun_me = document.getElementById('cfg_bot_pronoun_me').value;
+          const bot_pronoun_user_male = document.getElementById('cfg_bot_pronoun_user_male').value;
+          const bot_pronoun_user_female = document.getElementById('cfg_bot_pronoun_user_female').value;
+          const bot_pronoun_user_default = document.getElementById('cfg_bot_pronoun_user_default').value;
+          const bot_environment = document.getElementById('cfg_bot_environment').value;
+
+          const res = await fetch('/api/settings/bot-config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              bot_org_name,
+              bot_user_role,
+              bot_pronoun_me,
+              bot_pronoun_user_male,
+              bot_pronoun_user_female,
+              bot_pronoun_user_default,
+              bot_environment
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification('Đã lưu cấu hình văn phong & xưng hô AI!');
+          } else {
+            showAlert('Lỗi: ' + (data.error || 'Không thể lưu cấu hình'));
+          }
         }
 
         async function saveBotConfig() {
