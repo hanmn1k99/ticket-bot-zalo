@@ -738,7 +738,7 @@ async function getDashboardHtml(user) {
                   table.style.display = 'none';
                   emptyState.style.display = 'block';
               } else {
-                  table.style.display = 'table';
+                  table.style.display = '';
                   emptyState.style.display = 'none';
               }
           }
