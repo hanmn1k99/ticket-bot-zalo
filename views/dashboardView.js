@@ -826,6 +826,12 @@ async function getDashboardHtml(user) {
               }
           }
 
+          function cancelReject(ticketId) {
+              // Force re-render bằng cách reset cache, rồi fetch lại
+              lastRenderedHtml = '';
+              fetchAndRenderRows();
+          }
+
           function rejectTicket(ticketId, event) {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
@@ -838,7 +844,7 @@ async function getDashboardHtml(user) {
                         <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="\${placeholder}" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
                         <div style="display:flex; gap:6px; justify-content:flex-start;">
                             <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:\${btnColor}; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Xác nhận</button>
-                            <button onclick="fetchAndRenderRows()" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
+                            <button onclick="cancelReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
                         </div>
                     </div>
                   \`;
