@@ -1,133 +1,164 @@
-# Zalo Ticket Bot (Phiên bản Helpdesk Tự động Toàn diện)
+# Zalo Ticket Bot - IT Helpdesk AI Agentic System
 
-Bot Zalo chuyên nghiệp biến Zalo OA thành hệ thống **Tổng đài Hỗ trợ IT (Helpdesk)** với sức mạnh của Trí tuệ Nhân tạo (AI Agentic) và hệ thống Ticket Lifecycle chuẩn quốc tế.
+Bot Zalo chuyên nghiệp biến **Zalo Official Account (OA)** thành hệ thống **Tổng đài Hỗ trợ IT (Helpdesk)** với Trí tuệ Nhân tạo (AI Agentic) và quy trình quản lý sự cố (Ticket Lifecycle) chuẩn quốc tế.
 
-## 🌟 Các tính năng nổi bật
+---
 
-### 1. Trợ lý AI có Trí nhớ (Conversation Context)
-- Tích hợp AI (Sử dụng API tương thích chuẩn OpenAI, ưu tiên **Groq LLaMA 3.3** để đạt tốc độ phản hồi siêu tốc).
-- Tự động trả lời các câu hỏi thường gặp dựa trên File cơ sở tri thức (`faq.txt`).
-- AI có khả năng nhớ ngữ cảnh (5 lượt chat gần nhất) cho từng người dùng riêng biệt để trò chuyện tự nhiên hơn.
-- Nếu người dùng báo lỗi kỹ thuật (VD: "Máy chiếu bị hỏng"), AI tự động kết thúc phiên chat, lưu lại lịch sử, gán **Mã Yêu Cầu (Ticket ID)** và chuyển tiếp cảnh báo tức thời cho Admin IT.
+## 🌟 Các Tính Năng Nổi Bật
 
-### 2. Quy trình Xử lý Sự Cố (Ticket Lifecycle)
-- **Tự động nhận diện:** Nhận biết các lỗi thông qua file từ khóa cấu hình cứng (`ticket_keywords.txt`) và AI Prompt với tỷ lệ chính xác 100%. (Đã phân biệt rõ "Mất wifi" và "Xin pass wifi").
-- **Chuyển tiếp báo động:** Gửi ngay thông báo `🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [Mã Yêu Cầu: #X]` cho Admin.
-- **Xác nhận linh hoạt (4 Cách chốt sự cố):**
-  1. **Nhắn trực tiếp mã:** Gõ `#ID nội dung` (VD: `#12 Đã thay mực`).
-  2. **Quote (Trả lời):** Bấm Quote tin nhắn báo động trên Zalo và gõ nội dung (VD: "Đã sửa xong").
-  3. **Trả lời nhanh:** Nhắn "Xong" (Bot tự động gán cho sự cố mới nhất).
-  4. **Web Dashboard:** Đóng trực tiếp trên giao diện trình duyệt web.
-- **Đồng bộ tự động:** Hệ thống tự động báo kết quả Zalo về cho người bị lỗi và lưu vào Bảng báo cáo.
+### 1. 🤖 Trợ lý AI có Trí nhớ (Conversation Context)
+- **Tích hợp LLM**: Hỗ trợ Groq LLaMA 3.3 / OpenAI compatible API cho tốc độ phản hồi siêu tốc.
+- **Cơ sở tri thức (FAQ)**: Tự động tra cứu và trả lời các thắc mắc thường gặp dựa trên file [`faq.txt`](faq.txt) hoặc cấu hình trên Web.
+- **Quản lý ngữ cảnh**: Nhớ tối đa 5 lượt hội thoại gần nhất cho từng người dùng để giao tiếp tự nhiên.
+- **Phân loại tự động**: Tự động nhận diện tin nhắn là câu hỏi tra cứu (ANSWER) hay báo lỗi sự cố (TICKET). Khi phát hiện lỗi kỹ thuật, AI tự động chốt phiên chat, trích xuất địa điểm, sinh **Mã Yêu Cầu (Ticket ID)** và gửi cảnh báo ngay cho IT Admin.
 
-### 3. Bảng Điều Khiển Tương Tác (Interactive Web Dashboard)
-- **Giao diện Web xịn xò:** Thay vì xuất file tĩnh, hệ thống cung cấp một trang Bảng tin Động tại link `/report`, thiết kế Responsive (Dạng thẻ Card cho Mobile, tối đa 1400px cho Desktop).
-- **Cập nhật Thời gian thực (Real-time):** Tự động đồng bộ dữ liệu (long-polling) mỗi 10 giây. Không cần tải lại trang (F5), mọi sự cố mới nhất sẽ tự động cập nhật lên màn hình mà vẫn giữ nguyên bộ lọc đang dùng.
-- **Thao tác trực tiếp 2 chiều:** Admin có thể điền thông tin và đóng sự cố (Resolve) ngay trên Web.
-- **Bảo mật bằng Form Đăng Nhập & JWT:** Thay vì dùng Basic Auth mặc định của trình duyệt, hệ thống sở hữu trang đăng nhập HTML tùy chỉnh (`/login`) với cơ chế bảo mật JWT Token lưu trong Cookie. Hỗ trợ tính năng tự động Đăng Xuất sau 30 phút treo máy không thao tác.
-- **Giao diện Tối/Sáng (Dark/Light Mode):** Hỗ trợ chuyển đổi chế độ nền tối/sáng bảo vệ mắt, tự động đồng bộ trên cả trang Đăng nhập và Bảng điều khiển (lưu qua LocalStorage).
-- **Xóa toàn bộ dữ liệu:** Tích hợp nút bấm dọn dẹp hệ thống 1-click trên Web. Tự động đưa bộ đếm ID sự cố (Ticket ID) về lại số #1.
-- **In Báo Cáo Chuyên Nghiệp:** Sử dụng tính năng in gốc của trình duyệt (`window.print`) kết hợp bộ luật CSS `@media print` tĩnh giúp bản in dạng PDF đạt chuẩn khổ ngang (Landscape), giữ nguyên màu sắc trạng thái và tự động tàng hình các form nhập liệu dư thừa.
+### 2. 🎫 Quy trình Xử lý Sự cố (Ticket Lifecycle)
+- **Tự động nhận diện & Cảnh báo**: Nhận dạng từ khóa sự cố (`ticket_keywords.txt`) và gửi ngay thông báo đến Zalo IT Admin:
+  ```text
+  🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [#ID]
+  ```
+- **4 Phương thức chốt sự cố linh hoạt**:
+  1. **Cú pháp trực tiếp**: `#ID [nội dung xử lý]` (Ví dụ: `#12 Đã thay mực máy in`).
+  2. **Quote (Trả lời)**: Bấm Quote tin nhắn báo lỗi trên Zalo kèm nội dung xử lý.
+  3. **Lệnh Bot**: `/nhan [ID]`, `/xong [ID] [nội dung]`, `/tuchoi [ID] [lý do]`.
+  4. **Web Dashboard**: Tiếp nhận, từ chối hoặc hoàn thành sự cố trực tiếp trên giao diện trình duyệt.
+- **Tự động phản hồi**: Tự động thông báo kết quả xử lý qua Zalo về cho người yêu cầu.
 
-### 4. Hệ Thống Phát Thanh (Broadcast)
-- **Quản lý Nhóm:** Bot tự động nhận diện các group chat. Hoặc Admin dùng lệnh `/addgroup`, `/removegroup`.
-- **Phát Thông Báo:** Admin gõ lệnh `/thongbao <nội dung>` để phát một bản tin đồng loạt cho toàn bộ các nhóm nhà trường.
+### 3. 🖥️ Bảng Điều Khiển Web (Interactive Web Dashboard)
+- **Giao diện Responsive**: Trang Bảng tin tại `/report` (Dạng thẻ Card cho Mobile, dạng bảng chuẩn cho Desktop).
+- **Đồng bộ Thời gian thực (Real-time)**: Tự động cập nhật dữ liệu (long-polling 10s) không cần tải lại trang.
+- **Quản lý Cài đặt (`/settings`)**: Chỉnh sửa trực tiếp cơ sở tri thức FAQ và quản lý danh sách Nhóm.
+- **Phân quyền & Bảo mật**: Xác thực JWT token lưu trong HttpOnly Cookie. Phân quyền chặt chẽ giữa `SUPER_ADMIN` và `ADMIN`.
+- **Chế độ Sáng/Tối (Light/Dark Mode)**: Tự động lưu cấu hình giao diện ưa thích qua LocalStorage.
+- **In Báo Cáo Chuyên Nghiệp**: Hỗ trợ in báo cáo xuất sắc chuẩn khổ ngang (Landscape) qua `@media print`.
 
-### 5. Bộ lọc Kiểm duyệt (Censorship)
-- File `blacklist_keywords.txt` giúp chặn đứng các từ ngữ thô tục, nhạy cảm trước khi nó lọt vào hệ thống.
+### 4. 📢 Hệ thống Thông báo (Broadcast) & Bộ lọc
+- **Broadcast tin nhắn**: Phát thông báo đồng loạt đến các nhóm đăng ký bằng lệnh `/thongbao [nội dung]`.
+- **Bộ lọc từ khóa cấm (`blacklist_keywords.txt`)**: Loại bỏ các tin nhắn không hợp lệ hoặc từ ngữ nhạy cảm.
 
-## 🚀 Triển khai trên máy chủ Ubuntu
+---
 
-### Bước 1: Cài đặt Node.js và PM2
-```bash
-sudo apt update && sudo apt install curl -y
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install nodejs -y
-sudo npm install pm2 -g
+## 🏗️ Cấu Trúc Dự Án (Modular Architecture)
+
+Mã nguồn được tổ chức theo kiến trúc Modular sạch sẽ, dễ bảo trì và mở rộng:
+
+```text
+ticket-bot-zalo/
+├── config/
+│   └── constants.js          # Cấu hình hằng số & biến môi trường
+├── services/
+│   ├── aiService.js          # Phân loại AI, bộ nhớ hội thoại & từ khóa
+│   └── zaloService.js        # Giao tiếp API Zalo OA & gửi thông báo
+├── middleware/
+│   └── authMiddleware.js     # Middleware xác thực JWT token
+├── views/
+│   ├── authViews.js          # Render HTML Login, Setup, Forgot Password
+│   ├── dashboardView.js      # Render HTML & bảng dữ liệu Dashboard (/report)
+│   └── settingsView.js       # Render HTML trang Cài đặt (/settings)
+├── routes/
+│   ├── authRoutes.js         # API Đăng nhập, Khởi tạo, Quên mật khẩu
+│   ├── ticketRoutes.js       # API Thao tác Ticket sự cố
+│   ├── adminRoutes.js        # API Phân quyền & Quản lý Admin Zalo
+│   ├── userRoutes.js         # API Quản lý tài khoản Web Admin
+│   ├── settingRoutes.js      # API Cài đặt FAQ & Nhóm
+│   └── webhookRoutes.js      # Webhook Zalo OA & Lệnh Bot
+├── database.js               # Lớp truy xuất dữ liệu
+├── cronjobs.js               # Tác vụ định kỳ (Báo cáo & dọn dẹp hàng tháng)
+├── reset.js                  # Script reset tài khoản quản trị
+├── faq.txt                   # Dữ liệu FAQ mặc định
+├── ticket_keywords.txt       # Từ khóa nhận diện sự cố
+├── blacklist_keywords.txt    # Từ khóa cấm
+└── index.js                  # Entrypoint chính của ứng dụng
 ```
 
-### Bước 2: Tải mã nguồn
+---
+
+## 🚀 Hướng Dẫn Cài Đặt & Triển Khai
+
+### 1. Yêu cầu Hệ thống
+- **Node.js**: v18.0.0 trở lên.
+- **Zalo Official Account (OA)** đã đăng ký Bot API.
+- **Groq API Key** (hoặc API Key tương thích OpenAI / Gemini).
+
+### 2. Cài Đặt Mã Nguồn
+
 ```bash
 git clone https://github.com/hanmn1k99/ticket-bot-zalo.git
 cd ticket-bot-zalo
 npm install
 ```
 
-### Bước 3: Cấu hình biến môi trường (.env)
-Tạo file `.env` với nội dung sau:
+### 3. Cấu Hình Biến Môi Trường (`.env`)
+
+Tạo file `.env` tại thư mục gốc của dự án:
+
 ```env
-# Token của Zalo OA
-BOT_TOKEN=YOUR_BOT_TOKEN_HERE
-
-# Khóa bí mật dùng để bảo mật Webhook của Zalo
+# Zalo OA Bot Configuration
+BOT_TOKEN=your_zalo_bot_token_here
 WEBHOOK_SECRET_TOKEN=ticket-bot-secret
-
-# Cổng khởi chạy hệ thống
-PORT=1092
-
-# Tên chính xác của bot (Ví dụ: Ticket Bot) để nhận diện người gọi
 BOT_NAME=Ticket Bot
+PORT=3000
+PUBLIC_URL=https://your-domain.com
 
-# Domain public của bạn (Ví dụ dùng Cloudflare Tunnels: https://api.yourdomain.com)
-PUBLIC_URL=https://my-domain.com
-
-# API Key cho AI (Dùng Groq hoặc bất kỳ hệ thống tương thích OpenAI nào)
+# AI API Configuration
 AI_API_KEY=your_groq_or_openai_api_key
 
-# Tài khoản và Mật khẩu đăng nhập Web Dashboard
-ADMIN_USERNAME=your-username
-ADMIN_PASSWORD=your-password
-
-# Chuỗi bí mật dùng để mã hóa Cookie bảo vệ trang Web (Nhập ngẫu nhiên một chuỗi thật dài)
+# Security Configuration
 JWT_SECRET=your_super_secret_jwt_key_here
 
-# Tùy chỉnh Tiêu đề (Không bắt buộc)
-PAGE_TITLE=Phần mềm quản trị hệ thống
-HEADER_TITLE=BÁO CÁO AI BOT THÁNG 7
-
-# --- CẤU HÌNH VĂN PHONG AI VÀ MÔI TRƯỜNG ---
-# Dùng để thay đổi cách AI xưng hô, áp dụng cho các dự án không phải trường học
-BOT_ORG_NAME=Công ty ABC
-BOT_USER_ROLE=Nhân viên
-BOT_ENVIRONMENT=MÔI TRƯỜNG DOANH NGHIỆP (công sở)
-BOT_PRONOUN_ME=Mình
-BOT_PRONOUN_USER_MALE=Anh
-BOT_PRONOUN_USER_FEMALE=Chị
-BOT_PRONOUN_USER_DEFAULT=Anh/Chị
+# Tone & Environment Settings
+BOT_ORG_NAME=trường Meyschool
+BOT_USER_ROLE=Giáo viên
+BOT_ENVIRONMENT=MÔI TRƯỜNG GIÁO DỤC (trường học)
+BOT_PRONOUN_ME=Em
+BOT_PRONOUN_USER_MALE=Thầy
+BOT_PRONOUN_USER_FEMALE=Cô
+BOT_PRONOUN_USER_DEFAULT=Thầy/Cô
 ```
 
-### Bước 4: Chạy Bot bằng PM2
+### 4. Chạy Ứng Dụng
+
+Chạy trực tiếp với Node.js:
 ```bash
+npm start
+```
+
+Hoặc quản lý bằng **PM2**:
+```bash
+npm install -g pm2
 pm2 start index.js --name "zalo-ticket-bot"
 pm2 save
 pm2 startup
 ```
 
-### Bước 5: Đăng ký Zalo Webhook
-Sử dụng cURL để bắn URL của máy chủ lên hệ thống Zalo (thay `YOUR_BOT_TOKEN_HERE` và domain của bạn):
-```bash
-curl -X POST "https://bot-api.zaloplatforms.com/bot<YOUR_BOT_TOKEN_HERE>/setWebhook" \
-  -H "Content-Type: application/json" \
-  -d '{"url":"https://my-domain.com/webhook","secret_token":"ticket-bot-secret"}'
-```
+### 5. Thiết Lập Ban Đầu (Initial Setup)
 
-### Bước 6: Khởi tạo Quyền Quản Trị (Admin)
-1. Dùng Zalo cá nhân, chat với OA Bot lệnh: `/install`.
-2. Hệ thống sẽ ghi nhận bạn là Admin. Từ giờ, mọi báo lỗi sẽ nổ về Zalo của bạn.
-3. Để hủy quyền Admin: `/uninstall`.
-4. Để mở Báo Cáo Web: `/report`.
-5. Để xóa sạch Database thủ công: `/clean`.
-
-### Bước 7: Thêm Logo và Favicon cho Trang Web
-Hệ thống hỗ trợ thay đổi Logo và Favicon tùy chỉnh. Bạn chỉ cần:
-1. Tạo thư mục tên là `assets` nằm cùng cấp với file `index.js`.
-2. Upload file favicon (Tên bắt buộc: `favicon.png`, khuyên dùng 64x64px).
-3. Upload file logo (Tên bắt buộc: `logo.png`, khuyên dùng hình chữ nhật ngang, cao khoảng 80-100px, nền trong suốt).
-Hệ thống sẽ tự động hiển thị trên giao diện Web Dashboard mà không cần khởi động lại.
-
-### Bước 8: Tùy chỉnh Khu vực Mẫu Tiêu Đề (Header Template)
-Hệ thống hiển thị một khu vực tiêu đề phụ ở trên cùng trang Web, bao gồm thông tin Nhà phát triển và Đồng hồ tự động cập nhật thời gian thực (real-time). Khu vực này sẽ tự động được sử dụng làm thông tin bổ sung khi bạn in báo cáo.
-Để thay đổi thông tin này (ví dụ đổi tên github, thay đổi text, hoặc thêm logo), bạn có thể chỉnh sửa trực tiếp nội dung HTML trong file `print_template.html` nằm cùng cấp với `index.js`. Hệ thống sẽ tự động cập nhật ngay trên trang Web (khi F5) mà không cần khởi động lại bot.
+1. **Khởi tạo Web Admin**: Truy cập `http://localhost:3000/setup` (hoặc URL public) để tạo tài khoản `SUPER_ADMIN` đầu tiên và lưu **Recovery Key**.
+2. **Cấu hình Zalo Webhook**: Thiết lập Webhook URL trên Zalo Developer Platform trỏ về `https://your-domain.com/webhook` với secret token tương ứng.
+3. **Cấp Quyền Admin Zalo**: Chat lệnh `/install` trực tiếp với Bot trên Zalo để gửi yêu cầu cấp quyền Admin.
 
 ---
-*Phát triển và thiết kế bởi Đội ngũ AI Agentic*
+
+## 🛠️ Danh Sách Lệnh Bot Zalo
+
+| Lệnh | Quyền hạn | Mô tả |
+| :--- | :--- | :--- |
+| `/install` | Tất cả | Gửi yêu cầu cấp quyền Zalo Admin |
+| `/uninstall` | Admin | Hủy quyền Zalo Admin của bản thân |
+| `/report` | Admin | Lấy đường dẫn truy cập Web Dashboard |
+| `/nhan [ID]` | Admin | Tiếp nhận xử lý sự cố |
+| `/xong [ID] [Nội dung]` | Admin | Đánh dấu sự cố đã xử lý thành công |
+| `/tuchoi [ID] [Lý do]` | Admin | Từ chối tiếp nhận sự cố |
+| `/admin` | Super Admin | Xem danh sách Quản trị viên Zalo |
+| `/addgroup` | Super Admin | Thêm nhóm hiện tại vào danh sách nhận thông báo |
+| `/removegroup` | Super Admin | Gỡ nhóm hiện tại khỏi danh sách |
+| `/setname [Tên]` | Super Admin | Đặt tên gợi nhớ cho nhóm |
+| `/thongbao [Nội dung]`| Super Admin | Phát thông báo đồng loạt tới tất cả các nhóm |
+| `/clean` | Super Admin | Xóa toàn bộ dữ liệu sự cố và reset ID về #1 |
+| `/test` | Super Admin | Tạo sự cố thử nghiệm tự xóa sau 1 phút |
+
+---
+
+## 📄 Giấy Phép & Tác Giả
+
+Dự án được phát triển dưới giấy phép **GPL-3.0 License**.
