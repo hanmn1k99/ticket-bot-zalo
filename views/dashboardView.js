@@ -470,14 +470,6 @@ async function getDashboardHtml(user) {
               /* Ẩn các nút bấm và form nhập liệu khi in */
               td button { display: none !important; }
               td div[id^="actionBox_"] input { display: none !important; }
-              
-              /* Badge trạng thái: bỏ màu nền, chỉ giữ text đen trắng */
-              td span[style*="border-radius:9999px"] {
-                  background: none !important;
-                  color: #000000 !important;
-                  padding: 0 !important;
-                  font-weight: 600 !important;
-              }
           }
       </style>
   </head>
