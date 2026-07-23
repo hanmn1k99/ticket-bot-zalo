@@ -150,6 +150,17 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
             document.documentElement.setAttribute('data-theme', 'dark');
         }
 
+        function toggleDarkMode() {
+            const current = document.documentElement.getAttribute('data-theme');
+            if (current === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
         function switchTab(tabId, btn) {
           document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
           document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -348,8 +359,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
            let html = '';
            list.forEach(a => {
               const btnHtml = isPending 
-                ? '<button onclick="approveAdmin(\'' + a.id + '\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duyệt</button><button onclick="revokeAdmin(\'' + a.id + '\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">Xóa</button>'
-                : '<button onclick="revokeAdmin(\'' + a.id + '\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">Gỡ quyền</button>';
+                ? '<button onclick="approveAdmin(\\'' + a.id + '\\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duyệt</button><button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">Xóa</button>'
+                : '<button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">Gỡ quyền</button>';
               html += '<tr style="border-bottom:1px solid var(--border-color);"><td style="padding:12px; font-family:monospace;">' + String(a.id).substring(0,4) + '****' + String(a.id).slice(-3) + '</td><td style="padding:12px; font-weight:500;">' + a.name + '</td><td style="padding:12px;">' + btnHtml + '</td></tr>';
            });
            tbody.innerHTML = html;
@@ -417,8 +428,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
                 '<td style="padding:12px;">' + zaloTag + '</td>' +
                 '<td style="padding:12px;">' + roleBadge + '</td>' +
                 '<td style="padding:12px; text-align:right;">' +
-                  '<button onclick="openEditUserModal(\'' + u.username + '\', \'' + (u.displayName || '') + '\', \'' + (u.zaloId || '') + '\', \'' + u.role + '\')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; margin-right:6px;">Sửa</button>' +
-                  '<button onclick="deleteWebUser(\'' + u.username + '\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500;">Xóa</button>' +
+                  '<button onclick="openEditUserModal(\\'' + u.username + '\\', \\'' + (u.displayName || '') + '\\', \\'' + (u.zaloId || '') + '\\', \\'' + u.role + '\\')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; margin-right:6px;">Sửa</button>' +
+                  '<button onclick="deleteWebUser(\\'' + u.username + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500;">Xóa</button>' +
                 '</td>' +
               '</tr>';
            });
@@ -666,7 +677,12 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           <h2>⚙️ Cài đặt Hệ thống</h2>
           <p style="margin:4px 0 0 0; opacity:0.7; font-size:14px;">Quản lý toàn bộ cấu hình AI, văn phong xưng hô, tài khoản vận hành và nhóm thông báo.</p>
         </div>
-        <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <button onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng" style="background:var(--card-bg); color:var(--text-main); border:1px solid var(--border-color); padding: 9px 12px; border-radius: 8px; cursor:pointer; display:flex; align-items:center; transition:0.2s;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </button>
+          <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
+        </div>
       </div>
       
       <!-- TAB NAVIGATION -->
