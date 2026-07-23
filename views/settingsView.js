@@ -462,13 +462,12 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           });
           const data = await res.json();
           if (res.ok) {
-            showCustomConfirm('Tạo tài khoản thành công! Mã khôi phục (QUAN TRỌNG): ' + data.recoveryKey + '\\n\\nHãy lưu lại mã này để khôi phục mật khẩu khi cần.', () => {
-               document.getElementById('newWebUsername').value = '';
-               document.getElementById('newWebPassword').value = '';
-               document.getElementById('newWebDisplayName').value = '';
-               document.getElementById('newWebZaloId').value = '';
-               loadWebUsers();
-            });
+            showNotification('Tạo tài khoản thành công!');
+            document.getElementById('newWebUsername').value = '';
+            document.getElementById('newWebPassword').value = '';
+            document.getElementById('newWebDisplayName').value = '';
+            document.getElementById('newWebZaloId').value = '';
+            loadWebUsers();
           } else {
             showAlert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'));
           }
