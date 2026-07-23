@@ -355,8 +355,17 @@ async function getDashboardHtml(user) {
               .header { gap: 12px; }
               .header h2 {
                   font-size: 18px;
-                  text-align: left;
+                  text-align: center;
                   width: 100%;
+                  flex-wrap: wrap;
+                  justify-content: center;
+              }
+              .brand-divider {
+                  display: none !important;
+              }
+              .header h2 div {
+                  align-items: center;
+                  text-align: center;
               }
               .action-bar {
                   width: 100%;
