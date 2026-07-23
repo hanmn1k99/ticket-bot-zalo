@@ -4,6 +4,7 @@ const db = require('../database');
 const { checkAuth } = require('../middleware/authMiddleware');
 const { sendZaloMessage, sendToAdmins } = require('../services/zaloService');
 const { renderTableRows } = require('../views/dashboardView');
+const { BOT_PRONOUN_USER_DEFAULT } = require('../config/constants');
 
 function scheduleTestDeletion(ticketId, content) {
   if (content && content.startsWith('[TEST]')) {
@@ -43,12 +44,12 @@ router.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC! [#${id}]
 ------------------------------
-👤 Thầy/Cô: ${updatedReq.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Phụ trách: ${itName}
 💬 Phản hồi: ${replyText}
 ------------------------------
-😊 Xin cảm ơn Thầy/Cô!`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
     
@@ -97,21 +98,21 @@ router.post('/api/tickets/reject', checkAuth, async (req, res) => {
     if (existingReq.status === 'Đang chờ') {
       userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${id}]
 ------------------------------
-👤 Thầy/Cô: ${updatedReq.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
-😊 Mong Thầy/Cô thông cảm!`;
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
     } else {
       userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${id}]
 ------------------------------
-👤 Thầy/Cô: ${updatedReq.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
-😊 Mong Thầy/Cô thông cảm!`;
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
     }
     await sendZaloMessage(targetChat, userMsg);
     scheduleTestDeletion(id, updatedReq.content);
@@ -141,11 +142,11 @@ router.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
     const targetChat = updatedReq.chat_id || updatedReq.sender_id;
     const userMsg = `🟡 IT ĐANG XỬ LÝ SỰ CỐ! [#${id}]
 ------------------------------
-👤 Thầy/Cô: ${updatedReq.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updatedReq.sender_name}
 📍 Vị trí: ${updatedReq.location || 'Không xác định'}
 👨‍💻 Phụ trách: ${itName}
 ------------------------------
-😊 Xin cảm ơn Thầy/Cô!`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
     await sendZaloMessage(targetChat, userMsg);
 
     // Notify all admins (excluding the one who clicked)

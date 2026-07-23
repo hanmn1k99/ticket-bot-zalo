@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { WEBHOOK_SECRET_TOKEN, BOT_NAME, PUBLIC_URL } = require('../config/constants');
+const { WEBHOOK_SECRET_TOKEN, BOT_NAME, PUBLIC_URL, BOT_PRONOUN_USER_DEFAULT } = require('../config/constants');
 const { sendZaloMessage, isAdmin, isSuperAdmin, getWebDisplayNameForZalo } = require('../services/zaloService');
 const { analyzeWithAI } = require('../services/aiService');
 
@@ -336,21 +336,21 @@ router.post('/webhook', async (req, res) => {
         if (reqTicket.status === 'Đang chờ') {
           userMsg = `⛔ TỪ CHỐI TIẾP NHẬN YÊU CẦU [#${ticketId}]
 ------------------------------
-👤 Thầy/Cô: ${updated.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
-😊 Mong Thầy/Cô thông cảm!`;
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
         } else {
           userMsg = `⛔ CẬP NHẬT: TỪ CHỐI SỰ CỐ [#${ticketId}]
 ------------------------------
-👤 Thầy/Cô: ${updated.sender_name}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${updated.sender_name}
 📍 Vị trí: ${updated.location || 'Không xác định'}
 👨‍💻 Người từ chối: ${itName}
 💬 Lý do: ${replyText}
 ------------------------------
-😊 Mong Thầy/Cô thông cảm!`;
+😊 Mong ${BOT_PRONOUN_USER_DEFAULT} thông cảm!`;
         }
         await sendZaloMessage(targetChat, userMsg);
         scheduleTestDeletion(ticketId, updated.content);
@@ -588,10 +588,10 @@ router.post('/webhook', async (req, res) => {
             const targetChat = updatedReq.chat_id || updatedReq.sender_id;
             const userMsg = `✅ SỰ CỐ ĐÃ ĐƯỢC KHẮC PHỤC!
 ------------------------------
-🛠️ Sự cố (Mã số: #${targetTicketId}) của Thầy/Cô ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT (${itName}) xử lý hoàn tất.
+🛠️ Sự cố (Mã số: #${targetTicketId}) của ${BOT_PRONOUN_USER_DEFAULT} ${updatedReq.sender_name} tại ${updatedReq.location || 'Không xác định'} đã được bộ phận IT (${itName}) xử lý hoàn tất.
 💬 Phản hồi từ IT: ${cleanText}
 ------------------------------
-😊 Xin cảm ơn Thầy/Cô!`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
             await sendZaloMessage(targetChat, userMsg);
           }
         }
@@ -625,7 +625,7 @@ router.post('/webhook', async (req, res) => {
       // Format the message to send to Admin
       const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
-👤 Thầy/Cô: ${senderName}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 🏫 Nhóm: ${chatName}
 📍 Vị trí: ${location}
 🕒 Thời gian: ${timeStr} - ${dateStr}
@@ -642,7 +642,7 @@ ${requestContent}
       if (admins.length > 0) {
         const userMessage = `✅ ĐÃ GỬI YÊU CẦU THÀNH CÔNG! [#${newId}]
 ------------------------------
-👤 Thầy/Cô: ${senderName}
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 📍 Vị trí: ${location}
 ------------------------------
 👨‍💻 Sự cố đã được chuyển đến bộ phận IT. Xin chờ xử lý!`;
