@@ -94,7 +94,7 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
         'Authorization': \`Bearer \${AI_API_KEY}\`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gemma2-9b-it',
         messages: messages,
         max_tokens: 256,
         temperature: 0.2
