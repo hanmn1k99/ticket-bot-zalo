@@ -70,7 +70,7 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
     const blacklist = fs.readFileSync(path.join(__dirname, '..', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
-        return { type: 'ANSWER', answer: \`🙏 Xin lỗi \${BOT_PRONOUN_USER_DEFAULT}, \${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.\` };
+        return { type: 'ANSWER', answer: `🙏 Xin lỗi ${BOT_PRONOUN_USER_DEFAULT}, ${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.` };
       }
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
@@ -91,7 +91,7 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': \`Bearer \${AI_API_KEY}\`
+        'Authorization': `Bearer ${AI_API_KEY}`
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
