@@ -1,14 +1,13 @@
 const db = require('../database');
-const constants = require('../config/constants');
 
 async function getBotConfig() {
-  const orgName = await db.getSetting('bot_org_name') || constants.BOT_ORG_NAME;
-  const userRole = await db.getSetting('bot_user_role') || constants.BOT_USER_ROLE;
-  const pronounMe = await db.getSetting('bot_pronoun_me') || constants.BOT_PRONOUN_ME;
-  const pronounMale = await db.getSetting('bot_pronoun_user_male') || constants.BOT_PRONOUN_USER_MALE;
-  const pronounFemale = await db.getSetting('bot_pronoun_user_female') || constants.BOT_PRONOUN_USER_FEMALE;
-  const pronounDefault = await db.getSetting('bot_pronoun_user_default') || constants.BOT_PRONOUN_USER_DEFAULT;
-  const environment = await db.getSetting('bot_environment') || constants.BOT_ENVIRONMENT;
+  const orgName = await db.getSetting('bot_org_name') || 'trường Meyschool';
+  const userRole = await db.getSetting('bot_user_role') || 'Giáo viên';
+  const pronounMe = await db.getSetting('bot_pronoun_me') || 'Em';
+  const pronounMale = await db.getSetting('bot_pronoun_user_male') || 'Thầy';
+  const pronounFemale = await db.getSetting('bot_pronoun_user_female') || 'Cô';
+  const pronounDefault = await db.getSetting('bot_pronoun_user_default') || 'Thầy/Cô';
+  const environment = await db.getSetting('bot_environment') || 'MÔI TRƯỜNG GIÁO DỤC (trường học)';
 
   return {
     BOT_ORG_NAME: orgName,

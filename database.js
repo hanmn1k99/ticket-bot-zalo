@@ -220,35 +220,7 @@ async function removeGroupCompletely(groupId) {
 // Admins API
 async function getAdmins() {
   const db = readDB();
-  
-  // Migration từ admin_chat_id cũ (nếu có)
-  if (db.settings.admin_chat_id) {
-    if (!db.settings.admins) db.settings.admins = [];
-    if (!db.settings.admins.find(a => a.id === db.settings.admin_chat_id)) {
-      db.settings.admins.push({ 
-        id: db.settings.admin_chat_id, 
-        name: 'Admin Zalo (Từ bản cũ)', 
-        timestamp: Date.now() 
-      });
-    }
-    // Xóa trường cũ để không bị lặp lại việc migrate
-    delete db.settings.admin_chat_id;
-    writeDB(db);
-  }
-
-  let admins = db.settings.admins || [];
-  
-  // Fallback to process.env.ADMIN_CHAT_ID if it exists
-  const envAdmin = process.env.ADMIN_CHAT_ID;
-  if (envAdmin && !admins.find(a => a.id === envAdmin)) {
-      admins.push({
-          id: envAdmin,
-          name: 'Admin Zalo (Từ .env)',
-          timestamp: Date.now()
-      });
-  }
-
-  return admins;
+  return db.settings.admins || [];
 }
 
 async function getPendingAdmins() {

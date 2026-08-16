@@ -105,15 +105,6 @@ AI_API_KEY=your_groq_or_openai_api_key
 
 # Security Configuration
 JWT_SECRET=your_super_secret_jwt_key_here
-
-# Tone & Environment Settings
-BOT_ORG_NAME=trường Meyschool
-BOT_USER_ROLE=Giáo viên
-BOT_ENVIRONMENT=MÔI TRƯỜNG GIÁO DỤC (trường học)
-BOT_PRONOUN_ME=Em
-BOT_PRONOUN_USER_MALE=Thầy
-BOT_PRONOUN_USER_FEMALE=Cô
-BOT_PRONOUN_USER_DEFAULT=Thầy/Cô
 ```
 
 ### 4. Chạy Ứng Dụng
@@ -133,9 +124,10 @@ pm2 startup
 
 ### 5. Thiết Lập Ban Đầu (Initial Setup)
 
-1. **Khởi tạo Web Admin**: Truy cập `http://localhost:3000/setup` (hoặc URL public) để tạo tài khoản `SUPER_ADMIN` đầu tiên và lưu **Recovery Key**.
+1. **Khởi tạo Web Admin**: Bỏ qua các tàn dư cấu hình .env cũ, mọi thiết lập tài khoản đều thông qua giao diện Web. Truy cập `http://localhost:3000/setup` (hoặc URL public) để tạo tài khoản `SUPER_ADMIN` đầu tiên và lưu **Recovery Key**.
 2. **Cấu hình Zalo Webhook**: Thiết lập Webhook URL trên Zalo Developer Platform trỏ về `https://your-domain.com/webhook` với secret token tương ứng.
-3. **Cấp Quyền Admin Zalo**: Chat lệnh `/install` trực tiếp với Bot trên Zalo để gửi yêu cầu cấp quyền Admin.
+3. **Cấp Quyền Admin Zalo**: Chat lệnh `/install` trực tiếp với Bot trên Zalo để gửi yêu cầu cấp quyền Admin Zalo, sau đó vào Web Dashboard để duyệt quyền.
+4. **Cấu hình Trí tuệ Nhân tạo (AI)**: Đăng nhập vào Web Dashboard, chuyển sang trang Cài Đặt (`/settings`) để tùy chỉnh văn phong, xưng hô của Bot và nội dung FAQ thay vì phải sửa code.
 
 ---
 
