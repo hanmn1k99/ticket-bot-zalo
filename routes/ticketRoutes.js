@@ -55,12 +55,7 @@ router.post('/api/tickets/resolve', checkAuth, async (req, res) => {
     scheduleTestDeletion(id, updatedReq.content);
     
     // Thông báo cho tất cả Admin
-    const admins = await db.getAdmins();
-    for (const a of admins) {
-      if (a.id !== userId) {
-        await sendZaloMessage(a.id, `✅ IT ${itName} đã hoàn thành sự cố #${id}`);
-      }
-    }
+    await sendToAdmins(`✅ IT ${itName} đã hoàn thành sự cố #${id}`);
 
     return res.json({ success: true });
   } else {
@@ -120,12 +115,7 @@ router.post('/api/tickets/reject', checkAuth, async (req, res) => {
     scheduleTestDeletion(id, updatedReq.content);
     
     // Thông báo cho tất cả Admin
-    const admins = await db.getAdmins();
-    for (const a of admins) {
-      if (a.id !== userId) {
-        await sendZaloMessage(a.id, `⛔ IT ${itName} đã thay đổi trạng thái sự cố #${id}`);
-      }
-    }
+    await sendToAdmins(`⛔ IT ${itName} đã thay đổi trạng thái sự cố #${id}`);
 
     return res.json({ success: true });
   } else {
@@ -153,13 +143,8 @@ router.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
 😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
     await sendZaloMessage(targetChat, userMsg);
 
-    // Notify all admins (excluding the one who clicked)
-    const admins = await db.getAdmins();
-    for (const a of admins) {
-      if (a.id !== assigneeId) {
-        await sendZaloMessage(a.id, `🔔 IT ${itName} đã tiếp nhận sự cố #${id}`);
-      }
-    }
+    // Notify all admins
+    await sendToAdmins(`🔔 IT ${itName} đã tiếp nhận sự cố #${id}`);
 
     return res.json({ success: true });
   }
