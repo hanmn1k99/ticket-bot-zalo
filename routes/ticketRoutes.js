@@ -151,6 +151,18 @@ router.post('/api/tickets/inprogress', checkAuth, async (req, res) => {
   return res.status(400).json({ error: 'Không thể cập nhật' });
 });
 
+// ENDPOINT: API Xóa 1 Ticket thủ công
+router.delete('/api/tickets/:id', checkAuth, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: 'Thiếu ID' });
+  
+  const deleted = await db.deleteRequest(id);
+  if (deleted) {
+      return res.json({ success: true });
+  }
+  return res.status(400).json({ error: 'Không tìm thấy sự cố hoặc lỗi khi xóa' });
+});
+
 // ENDPOINT: API Xóa Toàn bộ dữ liệu từ Web Dashboard
 router.post('/api/tickets/clean', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });

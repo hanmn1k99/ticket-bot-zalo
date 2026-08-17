@@ -37,9 +37,17 @@ async function renderTableRows() {
        
      let adminReplyCell = '';
      const handlerName = r.assignee_name || '-';
-     if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
-         adminReplyCell = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
-     } else if (r.status === 'Đang xử lý') {
+       if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
+         const replyText = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
+         adminReplyCell = `
+           <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+               <span>${replyText}</span>
+               <button onclick="deleteTicket(${r.id})" title="Xóa sự cố này" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">
+                   <ion-icon name="trash" style="font-size:16px;"></ion-icon>
+               </button>
+           </div>
+         `;
+       } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; flex-direction:column; gap:8px;">
               <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
@@ -828,6 +836,24 @@ async function getDashboardHtml(user) {
               } catch (e) {}
           }
           setInterval(fetchAndRenderRows, 2000);
+
+          // Hàm Xóa Sự cố (Thủ công)
+          async function deleteTicket(ticketId) {
+              if (!confirm('Bạn có chắc chắn muốn xóa sự cố #' + ticketId + ' không? Hành động này không thể hoàn tác!')) return;
+              try {
+                  const response = await fetch('/api/tickets/' + ticketId, {
+                      method: 'DELETE'
+                  });
+                  const data = await response.json();
+                  if (response.ok && data.success) {
+                      fetchAndRenderRows();
+                  } else {
+                      showAlert(data.error || 'Lỗi hệ thống');
+                  }
+              } catch (error) {
+                  showAlert('Lỗi kết nối');
+              }
+          }
 
           // Hàm Nhận yêu cầu
           async function acceptTicket(ticketId, event) {
