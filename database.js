@@ -101,14 +101,7 @@ async function getRequest(id) {
   return db.requests.find(r => r.id === id) || null;
 }
 
-async function getLatestPendingRequest() {
-  const db = readDB();
-  const pendingRequests = db.requests.filter(r => r.status === 'Đang xử lý');
-  if (pendingRequests.length > 0) {
-    return pendingRequests[pendingRequests.length - 1]; // Lấy phần tử cuối (mới nhất)
-  }
-  return null;
-}
+
 
 async function getAllRequests() {
   const db = readDB();
@@ -368,7 +361,6 @@ module.exports = {
   updateRequest,
   rejectRequest,
   updateRequestStatus,
-  getLatestPendingRequest,
   getAllRequests,
   deleteRequest,
   deleteAllRequests,
