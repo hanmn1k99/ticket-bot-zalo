@@ -1,156 +1,149 @@
-# Zalo Ticket Bot - IT Helpdesk AI Agentic System
+﻿<h1 align="center">🤖 Zalo IT Support Bot v2.0</h1>
 
-Bot Zalo chuyên nghiệp biến **Zalo Official Account (OA)** thành hệ thống **Tổng đài Hỗ trợ IT (Helpdesk)** với Trí tuệ Nhân tạo (AI Agentic) và quy trình quản lý sự cố (Ticket Lifecycle) chuẩn quốc tế.
+<p align="center">
+  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/node.js-%3E%3D18.0.0-brightgreen.svg?style=for-the-badge&logo=node.js" alt="Node.js">
+  <img src="https://img.shields.io/badge/Zalo-Official_Account-0068FF.svg?style=for-the-badge" alt="Zalo OA">
+  <img src="https://img.shields.io/badge/AI_Powered-Groq_Llama_3-f97316.svg?style=for-the-badge" alt="AI Powered">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-lightgrey.svg?style=for-the-badge" alt="License">
+</p>
 
----
-
-## 🌟 Các Tính Năng Nổi Bật
-
-### 1. 🤖 Trợ lý AI có Trí nhớ (Conversation Context)
-- **Tích hợp LLM**: Hỗ trợ Groq LLaMA 3.3 / OpenAI compatible API cho tốc độ phản hồi siêu tốc.
-- **Cơ sở tri thức (FAQ)**: Tự động tra cứu và trả lời các thắc mắc thường gặp dựa trên file [`faq.txt`](faq.txt) hoặc cấu hình trên Web.
-- **Quản lý ngữ cảnh**: Nhớ tối đa 5 lượt hội thoại gần nhất cho từng người dùng để giao tiếp tự nhiên.
-- **Phân loại tự động**: Tự động nhận diện tin nhắn là câu hỏi tra cứu (ANSWER) hay báo lỗi sự cố (TICKET). Khi phát hiện lỗi kỹ thuật, AI tự động chốt phiên chat, trích xuất địa điểm, sinh **Mã Yêu Cầu (Ticket ID)** và gửi cảnh báo ngay cho IT Admin.
-
-### 2. 🎫 Quy trình Xử lý Sự cố (Ticket Lifecycle)
-- **Tự động nhận diện & Cảnh báo**: Nhận dạng từ khóa sự cố (`ticket_keywords.txt`) và gửi ngay thông báo đến Zalo IT Admin:
-  ```text
-  🔔 CÓ YÊU CẦU HỖ TRỢ MỚI! [#ID]
-  ```
-- **4 Phương thức chốt sự cố linh hoạt**:
-  1. **Cú pháp trực tiếp**: `#ID [nội dung xử lý]` (Ví dụ: `#12 Đã thay mực máy in`).
-  2. **Quote (Trả lời)**: Bấm Quote tin nhắn báo lỗi trên Zalo kèm nội dung xử lý.
-  3. **Lệnh Bot**: `/nhan [ID]`, `/xong [ID] [nội dung]`, `/tuchoi [ID] [lý do]`.
-  4. **Web Dashboard**: Tiếp nhận, từ chối hoặc hoàn thành sự cố trực tiếp trên giao diện trình duyệt.
-- **Tự động phản hồi**: Tự động thông báo kết quả xử lý qua Zalo về cho người yêu cầu.
-
-### 3. 🖥️ Bảng Điều Khiển Web (Interactive Web Dashboard)
-- **Giao diện Responsive**: Trang Bảng tin tại `/report` (Dạng thẻ Card cho Mobile, dạng bảng chuẩn cho Desktop).
-- **Đồng bộ Thời gian thực (Real-time)**: Tự động cập nhật dữ liệu (long-polling 10s) không cần tải lại trang.
-- **Quản lý Cài đặt dạng Tab (`/settings`)**: Giao diện tab hiện đại chia làm 5 khu vực: (1) Văn phong & Xưng hô AI, (2) Huấn luyện FAQ, (3) Admin Zalo & Tài khoản Web, (4) Quản lý Nhóm, (5) Quy tắc Cốt lõi AI. Tự động nhớ tab đang mở qua LocalStorage.
-- **Phân quyền & Bảo mật**: Xác thực JWT token lưu trong HttpOnly Cookie. Phân quyền chặt chẽ giữa `SUPER_ADMIN` và `ADMIN`.
-- **Chế độ Sáng/Tối (Light/Dark Mode)**: Tự động lưu cấu hình giao diện ưa thích qua LocalStorage.
-- **In Báo Cáo Chuyên Nghiệp**: Hỗ trợ in báo cáo xuất sắc chuẩn khổ ngang (Landscape) qua `@media print`.
-
-### 4. 📢 Hệ thống Thông báo (Broadcast) & Bộ lọc
-- **Broadcast tin nhắn**: Phát thông báo đồng loạt đến các nhóm đăng ký bằng lệnh `/thongbao [nội dung]`.
-- **Bộ lọc từ khóa cấm (`blacklist_keywords.txt`)**: Loại bỏ các tin nhắn không hợp lệ hoặc từ ngữ nhạy cảm.
+<p align="center">
+  <b>Hệ thống Bot Trợ giúp IT tích hợp AI trên nền tảng Zalo với Web Dashboard quản trị toàn diện.</b>
+</p>
 
 ---
 
-## 🏗️ Cấu Trúc Dự Án (Modular Architecture)
+## 🌟 Giới thiệu Phiên bản 2.0 (The "Modular & Web-First" Update)
 
-Mã nguồn được tổ chức theo kiến trúc Modular sạch sẽ, dễ bảo trì và mở rộng:
+Zalo Ticket Bot v2.0 đánh dấu một bước nhảy vọt từ một script chat bot đơn giản thành một **Hệ thống Helpdesk hoàn chỉnh**. Phiên bản mới loại bỏ hoàn toàn việc phụ thuộc vào cấu hình file .env thủ công cho các tác vụ quản trị, thay vào đó là một **Web Dashboard (Bảng điều khiển Web)** hiện đại, bảo mật cao và dễ dàng tùy biến AI.
 
-```text
+Mọi thứ từ việc thay đổi văn phong AI, thiết lập FAQ, đến quản lý quyền Admin đều được thực hiện trực tiếp trên trình duyệt bằng vài cú click chuột!
+
+## ✨ Tính năng Nổi bật (Features)
+
+### 🧠 1. AI-Powered Helpdesk (Sức mạnh Trí tuệ Nhân tạo)
+- **Tự động hóa Giải đáp (FAQ):** AI tích hợp model siêu tốc độ (Groq Llama-3) để tự động trả lời các câu hỏi thường gặp của nhân viên, giảm tải công việc cho IT.
+- **Tùy biến Văn phong (Persona):** Admin có thể tùy chỉnh tính cách, cách xưng hô của Bot trực tiếp trên Web Dashboard mà không cần chạm vào code.
+- **Bảo vệ hệ thống:** Tích hợp bộ lọc từ khóa cấm, tự động từ chối các yêu cầu vi phạm hoặc ngôn từ không phù hợp.
+
+### 💻 2. Advanced Web Dashboard (Quản trị Web Thông minh)
+- **Real-time Tracking:** Bảng tin sự cố tự động đồng bộ theo thời gian thực (Real-time long-polling), không cần tải lại trang.
+- **Thao tác 1-Click:** Nhận, chuyển, hoàn thành hoặc từ chối sự cố ngay trên Web. Tích hợp tính năng **Xóa sự cố thủ công** chuyên nghiệp.
+- **Tùy chỉnh linh hoạt:** Giao diện hỗ trợ Dark/Light mode tự động, tương thích hoàn hảo trên Mobile & Desktop. In báo cáo sự cố định dạng chuẩn (Landscape print).
+
+### 💬 3. Seamless Zalo Integration (Tích hợp Zalo mượt mà)
+- **Phản hồi đa kênh:** Bot tự động thông báo qua Zalo khi có trạng thái mới (Đã nhận, Đã xong, Từ chối), thông báo cho người dùng và các Admin khác.
+- **Điều khiển qua lệnh (Commands):** Hỗ trợ đầy đủ các lệnh như /nhan, /xong, /tuchoi ngay trên màn hình chat Zalo.
+- **Broadcast:** Gửi thông báo kỹ thuật đồng loạt đến toàn bộ các nhóm chat đã đăng ký (/thongbao).
+
+---
+
+## 🏗 Cấu trúc Hệ thống (Architecture)
+
+Hệ thống được thiết kế theo mô hình **Modular**, phân tách rõ ràng các chức năng để dễ dàng bảo trì và mở rộng:
+
+`ash
 ticket-bot-zalo/
-├── config/
-│   └── constants.js          # Cấu hình hằng số & biến môi trường
-├── services/
-│   ├── aiService.js          # Phân loại AI, bộ nhớ hội thoại & từ khóa
-│   └── zaloService.js        # Giao tiếp API Zalo OA & gửi thông báo
-├── middleware/
-│   └── authMiddleware.js     # Middleware xác thực JWT token
-├── views/
-│   ├── authViews.js          # Render HTML Login, Setup, Forgot Password
-│   ├── dashboardView.js      # Render HTML & bảng dữ liệu Dashboard (/report)
-│   └── settingsView.js       # Render HTML trang Cài đặt (/settings)
-├── routes/
-│   ├── authRoutes.js         # API Đăng nhập, Khởi tạo, Quên mật khẩu
-│   ├── ticketRoutes.js       # API Thao tác Ticket sự cố
-│   ├── adminRoutes.js        # API Phân quyền & Quản lý Admin Zalo
-│   ├── userRoutes.js         # API Quản lý tài khoản Web Admin
-│   ├── settingRoutes.js      # API Cài đặt FAQ & Nhóm
-│   └── webhookRoutes.js      # Webhook Zalo OA & Lệnh Bot
-├── database.js               # Lớp truy xuất dữ liệu
-├── cronjobs.js               # Tác vụ định kỳ (Báo cáo & dọn dẹp hàng tháng)
-├── reset.js                  # Script reset tài khoản quản trị
-├── faq.txt                   # Dữ liệu FAQ mặc định
-├── ticket_keywords.txt       # Từ khóa nhận diện sự cố
-├── blacklist_keywords.txt    # Từ khóa cấm
-└── index.js                  # Entrypoint chính của ứng dụng
-```
+├── config/             # Cấu hình hằng số (constants)
+├── database/           # Dữ liệu JSON (database.json)
+├── middleware/         # Xác thực bảo mật JWT, phân quyền Auth
+├── routes/             # Định tuyến API
+│   ├── authRoutes.js     # Xác thực tài khoản Web
+│   ├── ticketRoutes.js   # API quản lý vòng đời sự cố (Tickets)
+│   ├── adminRoutes.js    # Quản lý quyền Zalo Admin
+│   ├── settingRoutes.js  # Cấu hình tính năng & FAQ
+│   └── webhookRoutes.js  # Cổng tiếp nhận sự kiện Zalo OA
+├── services/           # Xử lý Logic cốt lõi
+│   ├── aiService.js      # Giao tiếp API Llama / AI Prompt
+│   ├── zaloService.js    # Gửi tin nhắn & API Zalo OA
+│   └── botConfigService.js # Nạp cấu hình tự động
+├── views/              # Render HTML cho Frontend
+│   ├── dashboardView.js  # Giao diện Bảng tin
+│   └── settingsView.js   # Giao diện Cài đặt
+├── cronjobs.js         # Các tác vụ chạy ngầm định kỳ
+└── index.js            # Entry point khởi chạy máy chủ
+`
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Triển Khai
+## 🚀 Hướng dẫn Cài đặt & Cấu hình (Setup Guide)
 
-### 1. Yêu cầu Hệ thống
-- **Node.js**: v18.0.0 trở lên.
-- **Zalo Official Account (OA)** đã đăng ký Bot API.
-- **Groq API Key** (hoặc API Key tương thích OpenAI / Gemini).
+### Yêu cầu tiên quyết:
+- **Node.js** v18.0.0 hoặc mới hơn.
+- Tài khoản **Zalo Official Account (OA)** đã đăng ký ứng dụng & cấp quyền webhook.
+- **API Key** từ Groq, OpenAI hoặc tương đương (Hệ thống tối ưu nhất với llama-3.3-70b-versatile).
 
-### 2. Cài Đặt Mã Nguồn
-
-```bash
+### Bước 1: Clone và Cài đặt thư viện
+`ash
 git clone https://github.com/hanmn1k99/ticket-bot-zalo.git
 cd ticket-bot-zalo
 npm install
-```
+`
 
-### 3. Cấu Hình Biến Môi Trường (`.env`)
+### Bước 2: Khởi tạo biến môi trường (.env)
+Tạo file .env tại thư mục gốc và điền các thông số cơ bản nhất:
 
-Tạo file `.env` tại thư mục gốc của dự án:
-
-```env
-# Zalo OA Bot Configuration
-BOT_TOKEN=your_zalo_bot_token_here
-WEBHOOK_SECRET_TOKEN=ticket-bot-secret
-BOT_NAME=Ticket Bot
+`env
+# Thông tin cấu hình cơ sở (Server)
 PORT=3000
 PUBLIC_URL=https://your-domain.com
+
+# Thông tin Zalo OA
+BOT_TOKEN=your_zalo_bot_token_here
+WEBHOOK_SECRET_TOKEN=your_zalo_webhook_secret
 
 # AI API Configuration
 AI_API_KEY=your_groq_or_openai_api_key
 
-# Security Configuration
-JWT_SECRET=your_super_secret_jwt_key_here
-```
+# Cấu hình Bảo mật Web
+JWT_SECRET=super_secret_jwt_key_here
+`
+*(Lưu ý: Không cấu hình tài khoản Admin trong file .env nữa, tất cả đã được chuyển lên Web Dashboard).*
 
-### 4. Chạy Ứng Dụng
-
-Chạy trực tiếp với Node.js:
-```bash
+### Bước 3: Khởi chạy Máy chủ
+Có thể sử dụng Node trực tiếp:
+`ash
 npm start
-```
-
-Hoặc quản lý bằng **PM2**:
-```bash
+`
+Hoặc (Khuyến nghị) chạy nền bằng PM2:
+`ash
 npm install -g pm2
 pm2 start index.js --name "zalo-ticket-bot"
 pm2 save
 pm2 startup
-```
+`
 
-### 5. Thiết Lập Ban Đầu (Initial Setup)
+### Bước 4: Thiết lập lần đầu (Initial Setup)
+Quá trình thiết lập v2.0 cực kỳ đơn giản:
 
-1. **Khởi tạo Web Admin**: Bỏ qua các tàn dư cấu hình .env cũ, mọi thiết lập tài khoản đều thông qua giao diện Web. Truy cập `http://localhost:3000/setup` (hoặc URL public) để tạo tài khoản `SUPER_ADMIN` đầu tiên và lưu **Recovery Key**.
-2. **Cấu hình Zalo Webhook**: Thiết lập Webhook URL trên Zalo Developer Platform trỏ về `https://your-domain.com/webhook` với secret token tương ứng.
-3. **Cấp Quyền Admin Zalo**: Chat lệnh `/install` trực tiếp với Bot trên Zalo để gửi yêu cầu cấp quyền Admin Zalo, sau đó vào Web Dashboard để duyệt quyền.
-4. **Cấu hình Trí tuệ Nhân tạo (AI)**: Đăng nhập vào Web Dashboard, chuyển sang trang Cài Đặt (`/settings`) để tùy chỉnh văn phong, xưng hô của Bot và nội dung FAQ thay vì phải sửa code.
+1. **Khởi tạo Super Admin:** Truy cập http://your-domain.com/setup (hoặc localhost) trên trình duyệt để tạo tài khoản Super Admin đầu tiên và lưu lại Mã Khôi Phục (Recovery Key).
+2. **Cấu hình Zalo Webhook:** Điền https://your-domain.com/webhook vào trang quản lý Webhook của Zalo OA.
+3. **Phân quyền Admin Zalo:** 
+   - Dùng Zalo cá nhân, chat với Zalo OA của Bot lệnh: /install
+   - Truy cập Web Dashboard -> **Cài đặt** -> **Quản trị viên Zalo** -> Duyệt cấp quyền cho tài khoản Zalo của bạn.
 
 ---
 
-## 🛠️ Danh Sách Lệnh Bot Zalo
+## 🛠 Danh sách Lệnh Bot Zalo (Command Reference)
 
-| Lệnh | Quyền hạn | Mô tả |
+| Lệnh / Cú pháp | Quyền Hạn | Chức Năng |
 | :--- | :--- | :--- |
-| `/install` | Tất cả | Gửi yêu cầu cấp quyền Zalo Admin |
-| `/uninstall` | Admin | Hủy quyền Zalo Admin của bản thân |
-| `/report` | Admin | Lấy đường dẫn truy cập Web Dashboard |
-| `/nhan [ID]` | Admin | Tiếp nhận xử lý sự cố |
-| `/xong [ID] [Nội dung]` | Admin | Đánh dấu sự cố đã xử lý thành công |
-| `/tuchoi [ID] [Lý do]` | Admin | Từ chối tiếp nhận sự cố |
-| `/admin` | Super Admin | Xem danh sách Quản trị viên Zalo |
-| `/addgroup` | Super Admin | Thêm nhóm hiện tại vào danh sách nhận thông báo |
-| `/removegroup` | Super Admin | Gỡ nhóm hiện tại khỏi danh sách |
-| `/setname [Tên]` | Super Admin | Đặt tên gợi nhớ cho nhóm |
-| `/thongbao [Nội dung]`| Super Admin | Phát thông báo đồng loạt tới tất cả các nhóm |
-| `/clean` | Super Admin | Xóa toàn bộ dữ liệu sự cố và reset ID về #1 |
-| `/test` | Super Admin | Tạo sự cố thử nghiệm tự xóa sau 1 phút |
+| /install | Mọi người | Đăng ký cấp quyền Quản trị viên Zalo |
+| /uninstall | Admin Zalo | Hủy bỏ quyền Admin Zalo của bản thân |
+| /report | Admin Zalo | Nhận liên kết siêu tốc truy cập Web Dashboard |
+| /nhan [ID] | Admin Zalo | Tiếp nhận xử lý sự cố qua chat |
+| /xong [ID] [Lý do] | Admin Zalo | Đóng sự cố, đính kèm kết quả xử lý |
+| /tuchoi [ID] [Lý do]| Admin Zalo | Từ chối sự cố không hợp lệ |
+| /admin | Super Admin | Xem danh sách các Admin Zalo hiện hành |
+| /addgroup | Super Admin | Thêm nhóm chat Zalo hiện tại vào danh sách nhận thông báo |
+| /removegroup| Super Admin | Xóa nhóm chat Zalo hiện tại khỏi danh sách |
+| /setname [Tên]| Super Admin | Gắn định danh cho nhóm chat dễ quản lý |
+| /thongbao [ND]| Super Admin | Phát (Broadcast) thông báo khẩn cấp đến toàn bộ nhóm chat |
+| /clean | Super Admin | Xóa sạch toàn bộ CSDL Sự cố (Reset về #1) |
+| /test | Super Admin | Tạo một sự cố giả lập (Tự hủy sau 1 phút) để kiểm tra |
 
 ---
 
-## 📄 Giấy Phép & Tác Giả
-
-Dự án được phát triển dưới giấy phép **GPL-3.0 License**.
+## 📜 Giấy phép (License)
+Dự án được phân phối dưới giấy phép **GPL-3.0 License**. Mọi sao chép, chỉnh sửa và phân phối phải tuân thủ nghiêm ngặt các quy định của mã nguồn mở.
