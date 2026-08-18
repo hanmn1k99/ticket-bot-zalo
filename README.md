@@ -45,7 +45,7 @@ Mọi thứ từ việc thay đổi văn phong AI, thiết lập FAQ, đến qu�
 
 Hệ thống được thiết kế theo mô hình **Modular**, phân tách rõ ràng các chức năng để dễ dàng bảo trì và mở rộng:
 
-`ash
+```bash
 ticket-bot-zalo/
 ├── config/             # Cấu hình hằng số (constants)
 ├── database/           # Dữ liệu JSON (database.json)
@@ -65,7 +65,7 @@ ticket-bot-zalo/
 │   └── settingsView.js   # Giao diện Cài đặt
 ├── cronjobs.js         # Các tác vụ chạy ngầm định kỳ
 └── index.js            # Entry point khởi chạy máy chủ
-`
+```
 
 ---
 
@@ -77,16 +77,16 @@ ticket-bot-zalo/
 - **API Key** từ Groq, OpenAI hoặc tương đương (Hệ thống tối ưu nhất với llama-3.3-70b-versatile).
 
 ### Bước 1: Clone và Cài đặt thư viện
-`ash
+```bash
 git clone https://github.com/hanmn1k99/ticket-bot-zalo.git
 cd ticket-bot-zalo
 npm install
-`
+```
 
 ### Bước 2: Khởi tạo biến môi trường (.env)
 Tạo file .env tại thư mục gốc và điền các thông số cơ bản nhất:
 
-`env
+```env
 # Thông tin cấu hình cơ sở (Server)
 PORT=3000
 PUBLIC_URL=https://your-domain.com
@@ -100,21 +100,21 @@ AI_API_KEY=your_groq_or_openai_api_key
 
 # Cấu hình Bảo mật Web
 JWT_SECRET=super_secret_jwt_key_here
-`
+```
 *(Lưu ý: Không cấu hình tài khoản Admin trong file .env nữa, tất cả đã được chuyển lên Web Dashboard).*
 
 ### Bước 3: Khởi chạy Máy chủ
 Có thể sử dụng Node trực tiếp:
-`ash
+```bash
 npm start
-`
+```
 Hoặc (Khuyến nghị) chạy nền bằng PM2:
-`ash
+```bash
 npm install -g pm2
 pm2 start index.js --name "zalo-ticket-bot"
 pm2 save
 pm2 startup
-`
+```
 
 ### Bước 4: Thiết lập lần đầu (Initial Setup)
 Quá trình thiết lập v2.0 cực kỳ đơn giản:
