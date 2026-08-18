@@ -1,11 +1,13 @@
-﻿<h1 align="center">🤖 Zalo IT Support Bot v2.0</h1>
+<h1 align="center">🤖 Zalo IT Support Bot v2.0</h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/node.js-%3E%3D18.0.0-brightgreen.svg?style=for-the-badge&logo=node.js" alt="Node.js">
-  <img src="https://img.shields.io/badge/Zalo-Official_Account-0068FF.svg?style=for-the-badge" alt="Zalo OA">
-  <img src="https://img.shields.io/badge/AI_Powered-Groq_Llama_3-f97316.svg?style=for-the-badge" alt="AI Powered">
-  <img src="https://img.shields.io/badge/License-GPL--3.0-lightgrey.svg?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/VERSION-2.0.0-007EC6?style=for-the-badge&logo=github" alt="Version">
+  <img src="https://img.shields.io/badge/NODE-%3E%3D_18.0.0-42b826?style=for-the-badge&logo=nodedotjs" alt="Node">
+  <img src="https://img.shields.io/badge/ZALO_API-V2.0-0068FF?style=for-the-badge" alt="Zalo API">
+  <img src="https://img.shields.io/badge/LICENSE-MIT-7CBA00?style=for-the-badge" alt="License">
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/AUTHOR-NGUY%E1%BB%84N_MINH_H%C3%82N-black?style=for-the-badge&logo=github" alt="Author">
 </p>
 
 <p align="center">
@@ -146,4 +148,4 @@ Quá trình thiết lập v2.0 cực kỳ đơn giản:
 ---
 
 ## 📜 Giấy phép (License)
-Dự án được phân phối dưới giấy phép **GPL-3.0 License**. Mọi sao chép, chỉnh sửa và phân phối phải tuân thủ nghiêm ngặt các quy định của mã nguồn mở.
+Dự án được phân phối dưới giấy phép **MIT License**. Mọi sao chép, chỉnh sửa và phân phối đều được phép với điều kiện giữ nguyên thông tin bản quyền của tác giả.
