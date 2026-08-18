@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/VERSION-2.0.0-007EC6?style=for-the-badge&logo=github" alt="Version">
   <img src="https://img.shields.io/badge/NODE-%3E%3D_18.0.0-42b826?style=for-the-badge&logo=nodedotjs" alt="Node">
-  <img src="https://img.shields.io/badge/ZALO_API-V2.0-0068FF?style=for-the-badge" alt="Zalo API">
+  <img src="https://img.shields.io/badge/ZALO_API-V2.0-0068FF?style=for-the-badge&logo=zalo" alt="Zalo API">
   <img src="https://img.shields.io/badge/LICENSE-MIT-7CBA00?style=for-the-badge" alt="License">
 </p>
 <p align="center">
