@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 const db = require('../database');
 const { checkAuth } = require('../middleware/authMiddleware');
@@ -54,6 +56,40 @@ router.post('/api/settings/group/delete', checkAuth, async (req, res) => {
   const { groupId } = req.body;
   if (groupId) await db.removeGroupCompletely(groupId);
   res.json({ success: true });
+});
+
+// POST /api/settings/upload-image
+router.post('/api/settings/upload-image', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Không có quyền' });
+  
+  // Need to handle potentially large payload since we are accepting base64 images
+  // Ensure that express.json({limit: '10mb'}) is configured in index.js, 
+  // otherwise large images will throw 413 Payload Too Large.
+  const { type, imageBase64 } = req.body;
+  
+  if (!['logo', 'favicon'].includes(type) || !imageBase64) {
+    return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+  }
+
+  const matches = imageBase64.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+  if (!matches || matches.length !== 3) {
+    return res.status(400).json({ error: 'Định dạng ảnh không hợp lệ' });
+  }
+  
+  const imageBuffer = Buffer.from(matches[2], 'base64');
+  const assetsDir = path.join(__dirname, '..', 'assets');
+  const targetPath = path.join(assetsDir, `${type}.png`);
+  
+  try {
+    if (!fs.existsSync(assetsDir)) {
+       fs.mkdirSync(assetsDir);
+    }
+    fs.writeFileSync(targetPath, imageBuffer);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('Error writing image:', e);
+    res.status(500).json({ error: 'Lỗi khi lưu file' });
+  }
 });
 
 module.exports = router;

@@ -692,6 +692,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
         <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
         <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
+        <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
         <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
       </div>
 
@@ -833,7 +834,37 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         </div>
       </div>
 
+      
+      <!-- TAB UI -->
+      <div id="tab-ui" class="tab-pane">
+        <div class="card">
+          <h3><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Giao diện</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Tải lên logo và favicon của bạn (Kích thước khuyên dùng: Logo < 1MB, Favicon 512x512). Ảnh sẽ được tự động chuyển đổi sang định dạng .png.</p>
+          
+          <div style="display:flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex:1; min-width: 250px; background: var(--bg-color); padding: 15px; border-radius: 8px; text-align: center;">
+              <h4>Favicon (Biểu tượng Tab)</h4>
+              <img src="/assets/favicon.png?v=${Date.now()}" id="preview-favicon" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/64'">
+              <div>
+                <input type="file" id="upload-favicon" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'favicon')">
+                <button type="button" onclick="document.getElementById('upload-favicon').click()" style="width:100%">Tải lên Favicon</button>
+              </div>
+            </div>
+
+            <div style="flex:1; min-width: 250px; background: var(--bg-color); padding: 15px; border-radius: 8px; text-align: center;">
+              <h4>Logo hệ thống</h4>
+              <img src="/assets/logo.png?v=${Date.now()}" id="preview-logo" style="width: 120px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/120x64'">
+              <div>
+                <input type="file" id="upload-logo" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'logo')">
+                <button type="button" onclick="document.getElementById('upload-logo').click()" style="width:100%">Tải lên Logo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB 5: QUY TẮC AI -->
+
       <div id="tab-prompt" class="tab-pane">
         <div class="card">
           <h3><ion-icon name="search-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Chế độ Xem trước: Lệnh hệ thống (System Prompt)</h3>
