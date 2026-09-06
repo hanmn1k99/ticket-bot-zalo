@@ -25,3 +25,18 @@ jobs:
             git pull origin main
             npm install
             pm2 restart all
+
+      - name: Notify Discord on Completion
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            EMOJI="✅"
+            COLOR="65280"
+          else
+            EMOJI="❌"
+            COLOR="16711680"
+          fi
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{\"embeds\": [{\"title\": \"$EMOJI Trạng thái Deploy Zalo Ticket Bot\", \"description\": \"Kết quả: **${{ job.status }}**\\nCommit: \`${{ github.sha }}\`\\nNgười thực hiện: **${{ github.actor }}**\", \"color\": $COLOR}]}" \
+          https://discordapp.com/api/webhooks/1546123810598551652/jFaAxDkyq4cqywUtiw8MJnK_QUt_TBzUjPVc9BpaNvdxMjY4IB0u9v9UVxuam7DYqkKu
