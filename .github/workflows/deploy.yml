@@ -30,7 +30,6 @@ jobs:
         if: always()
         env:
           COMMIT_MSG: ${{ github.event.head_commit.message }}
-          COMMIT_HASH: ${{ github.sha }}
           ACTOR: ${{ github.actor }}
           REPO: ${{ github.repository }}
           JOB_STATUS: ${{ job.status }}
@@ -43,9 +42,6 @@ jobs:
             COLOR="16711680"
           fi
           
-          # Shorten hash
-          SHORT_HASH=$(echo $COMMIT_HASH | cut -c1-7)
-          
           # Safely construct JSON payload using jq string interpolation
           PAYLOAD=$(jq -n \
             --arg username "$REPO (CI/CD)" \
@@ -53,15 +49,13 @@ jobs:
             --arg repo "$REPO" \
             --arg status "$JOB_STATUS" \
             --arg msg "$COMMIT_MSG" \
-            --arg short "$SHORT_HASH" \
-            --arg hash "$COMMIT_HASH" \
             --arg actor "$ACTOR" \
             --argjson color "$COLOR" \
             '{
               username: $username,
               embeds: [{
                 title: $title,
-                description: "Dự án: **\( $repo )**\nKết quả: **\( $status )**\nNội dung Commit: *\( $msg )*\nHash: [`\( $short )`](https://github.com/\( $repo )/commit/\( $hash ))\nThực hiện bởi: **\( $actor )**",
+                description: "Dự án: **\( $repo )**\nKết quả: **\( $status )**\nNội dung: **\( $msg )**\nThực hiện bởi: **\( $actor )**",
                 color: $color
               }]
             }')
