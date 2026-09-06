@@ -108,16 +108,6 @@ async function getAllRequests() {
   return db.requests.sort((a, b) => a.timestamp - b.timestamp);
 }
 
-// Delete requests older than specific timestamp
-async function deleteRequestsOlderThan(timestamp) {
-  const db = readDB();
-  const initialCount = db.requests.length;
-  db.requests = db.requests.filter(req => req.timestamp >= timestamp);
-  const deletedCount = initialCount - db.requests.length;
-  writeDB(db);
-  return deletedCount;
-}
-
 // Groups API
 async function addGroup(groupId) {
   const db = readDB();

@@ -1,4 +1,4 @@
-﻿name: Deploy to Server
+﻿name: CI/CD Pipeline
 
 on:
   push:
@@ -6,7 +6,31 @@ on:
       - main
 
 jobs:
-  deploy:
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Run Linter
+        run: npm run lint --if-present
+        
+      - name: Run Tests
+        run: npm test
+
+  cd:
+    name: Continuous Deployment
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - name: SSH and Deploy
@@ -23,7 +47,7 @@ jobs:
             cd /home/minhhan/ticket-bot-zalo
             git reset --hard
             git pull origin main
-            npm install
+            npm install --production
             pm2 restart all
 
       - name: Notify Discord on Completion
