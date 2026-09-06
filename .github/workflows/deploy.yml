@@ -46,17 +46,22 @@ jobs:
           # Shorten hash
           SHORT_HASH=$(echo $COMMIT_HASH | cut -c1-7)
           
-          # Safely construct JSON payload using jq
+          # Safely construct JSON payload using jq string interpolation
           PAYLOAD=$(jq -n \
             --arg username "$REPO (CI/CD)" \
             --arg title "$EMOJI Trạng thái Deploy" \
-            --arg desc "Dự án: **$REPO**\nKết quả: **$JOB_STATUS**\nNội dung Commit: *$COMMIT_MSG*\nHash: [\`$SHORT_HASH\`](https://github.com/$REPO/commit/$COMMIT_HASH)\nThực hiện bởi: **$ACTOR**" \
+            --arg repo "$REPO" \
+            --arg status "$JOB_STATUS" \
+            --arg msg "$COMMIT_MSG" \
+            --arg short "$SHORT_HASH" \
+            --arg hash "$COMMIT_HASH" \
+            --arg actor "$ACTOR" \
             --argjson color "$COLOR" \
             '{
               username: $username,
               embeds: [{
                 title: $title,
-                description: $desc,
+                description: "Dự án: **\( $repo )**\nKết quả: **\( $status )**\nNội dung Commit: *\( $msg )*\nHash: [`\( $short )`](https://github.com/\( $repo )/commit/\( $hash ))\nThực hiện bởi: **\( $actor )**",
                 color: $color
               }]
             }')
