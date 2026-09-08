@@ -11,17 +11,31 @@ const userContexts = new Map();
 function extractLocationFallback(text) {
   const lowerText = text.toLowerCase();
   
-  // Mẫu 1: d{1,2}md{1,2} (VD: 1m3, 12m5, 7m1)
+  // 1. Quét chuỗi dạng 1m3, 10m2, 12m5
   const match1 = lowerText.match(/\b\d{1,2}m\d{1,2}\b/i);
   if (match1) return match1[0];
   
-  // Mẫu 2: Lớp/phòng + tên
+  // 2. Quét "lớp xxx", "phòng xxx"
   const match2 = lowerText.match(/(?:lớp|phòng)\s+([a-z0-9\-.]+)/i);
   if (match2) return match2[0];
   
-  // Mẫu 3: Các phòng chức năng
-  const match3 = lowerText.match(/(thư viện|hội trường|nhà xe|phòng y tế|sân trường|nhà đa năng|phòng lab|căn tin|bảo vệ)/i);
-  if (match3) return match3[0];
+  // 3. Quét "tầng xxx", "khu xxx"
+  const match3 = lowerText.match(/(?:tầng|khu)\s+([a-z0-9]+)/i);
+  if (match3) {
+      const idx = lowerText.indexOf(match3[0]);
+      const before = lowerText.substring(0, idx).trim();
+      const prefixes = ['nhà vệ sinh', 'wc', 'toilet', 'hành lang', 'cầu thang', 'sảnh', 'sân'];
+      for (const p of prefixes) {
+          if (before.endsWith(p)) {
+              return p + ' ' + match3[0];
+          }
+      }
+      return match3[0];
+  }
+  
+  // 4. Các phòng đặc biệt khác
+  const match4 = lowerText.match(/(thư viện|hội trường|nhà xe|phòng y tế|sân trường|nhà đa năng|phòng lab|căn tin|bảo vệ|nhà vệ sinh|wc|toilet)/i);
+  if (match4) return match4[0];
   
   return null;
 }
