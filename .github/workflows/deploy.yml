@@ -84,4 +84,4 @@ jobs:
               }]
             }')
             
-          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" `${{ secrets.DISCORD_WEBHOOK_URL }}
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" ${{ secrets.DISCORD_WEBHOOK_URL }}
