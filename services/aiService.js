@@ -16,7 +16,7 @@ function extractLocationFallback(text) {
   if (match1) return match1[0];
   
   // Mẫu 2: Lớp/phòng + tên
-  const match2 = lowerText.match(/(?:lớp|phòng)\s+([a-z0-9\-\.]+)/i);
+  const match2 = lowerText.match(/(?:lớp|phòng)\s+([a-z0-9\-.]+)/i);
   if (match2) return match2[0];
   
   // Mẫu 3: Các phòng chức năng
