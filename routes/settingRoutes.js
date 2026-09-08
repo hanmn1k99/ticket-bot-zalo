@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const router = express.Router();
@@ -60,7 +60,7 @@ router.post('/api/settings/group/delete', checkAuth, async (req, res) => {
 
 // POST /api/settings/upload-image
 router.post('/api/settings/upload-image', checkAuth, async (req, res) => {
-  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Không có quyền' });
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'KhÃ´ng cÃ³ quyá»n' });
   
   // Need to handle potentially large payload since we are accepting base64 images
   // Ensure that express.json({limit: '10mb'}) is configured in index.js, 
@@ -68,12 +68,12 @@ router.post('/api/settings/upload-image', checkAuth, async (req, res) => {
   const { type, imageBase64 } = req.body;
   
   if (!['logo', 'favicon'].includes(type) || !imageBase64) {
-    return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+    return res.status(400).json({ error: 'Dá»¯ liá»‡u khÃ´ng há»£p lá»‡' });
   }
 
-  const matches = imageBase64.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+  const matches = imageBase64.match(new RegExp('^data:image/([A-Za-z-+/]+);base64,(.+)'));
   if (!matches || matches.length !== 3) {
-    return res.status(400).json({ error: 'Định dạng ảnh không hợp lệ' });
+    return res.status(400).json({ error: 'Äá»‹nh dáº¡ng áº£nh khÃ´ng há»£p lá»‡' });
   }
   
   const imageBuffer = Buffer.from(matches[2], 'base64');
@@ -88,7 +88,7 @@ router.post('/api/settings/upload-image', checkAuth, async (req, res) => {
     res.json({ success: true });
   } catch(e) {
     console.error('Error writing image:', e);
-    res.status(500).json({ error: 'Lỗi khi lưu file' });
+    res.status(500).json({ error: 'Lá»—i khi lÆ°u file' });
   }
 });
 

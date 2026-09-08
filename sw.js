@@ -1,3 +1,4 @@
+﻿/* eslint-env serviceworker */
 const CACHE_NAME = 'meyschool-it-dashboard-v2';
 const STATIC_ASSETS = [
   '/assets/favicon.png',
