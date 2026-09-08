@@ -50,20 +50,32 @@ jobs:
             npm install --production
             pm2 restart all
 
+  notify:
+    name: Discord Notification
+    needs: [ci, cd]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
       - name: Notify Discord on Completion
-        if: always()
         env:
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           ACTOR: ${{ github.actor }}
           REPO: ${{ github.repository }}
-          JOB_STATUS: ${{ job.status }}
+          CI_STATUS: ${{ needs.ci.result }}
+          CD_STATUS: ${{ needs.cd.result }}
         run: |
-          if [ "$JOB_STATUS" = "success" ]; then
+          if [ "$CI_STATUS" = "success" ] && [ "$CD_STATUS" = "success" ]; then
             EMOJI="✅"
             COLOR="65280"
+            OVERALL_STATUS="Thành công"
           else
             EMOJI="❌"
             COLOR="16711680"
+            if [ "$CI_STATUS" != "success" ]; then
+              OVERALL_STATUS="Thất bại tại vòng CI (Kiểm tra Code)"
+            else
+              OVERALL_STATUS="Thất bại tại vòng CD (Đẩy lên Server)"
+            fi
           fi
           
           # Safely construct JSON payload using jq string interpolation
@@ -71,7 +83,7 @@ jobs:
             --arg username "$REPO (CI/CD)" \
             --arg title "$EMOJI Trạng thái Deploy" \
             --arg repo "$REPO" \
-            --arg status "$JOB_STATUS" \
+            --arg status "$OVERALL_STATUS" \
             --arg msg "$COMMIT_MSG" \
             --arg actor "$ACTOR" \
             --argjson color "$COLOR" \
