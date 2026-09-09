@@ -74,7 +74,7 @@ ticket-bot-zalo/
 ### Yêu cầu tiên quyết:
 - **Node.js** v18.0.0 hoặc mới hơn.
 - Tài khoản **Zalo Official Account (OA)** đã đăng ký ứng dụng & cấp quyền webhook.
-- **API Key** từ Groq, OpenAI hoặc tương đương (Hệ thống tối ưu nhất với llama-3.3-70b-versatile).
+- **API Key** từ Groq, OpenAI hoặc tương đương (Hệ thống tối ưu nhất với llama3-70b-8192).
 
 ### Bước 1: Clone và Cài đặt thư viện
 ```bash
