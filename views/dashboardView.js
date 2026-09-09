@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const db = require('../database');
 
@@ -7,25 +7,25 @@ async function renderTableRows() {
   const groupNames = await db.getAllGroupNames();
   
   return requests.map(r => {
-     const currentChatName = groupNames[r.chat_id] || r.chat_name || 'CÃ¡ nhÃ¢n';
+     const currentChatName = groupNames[r.chat_id] || r.chat_name || 'Cá nhân';
      const d = new Date(r.timestamp);
      const day = String(d.getDate()).padStart(2, '0');
      const month = String(d.getMonth() + 1).padStart(2, '0');
      const time = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
      
      let statusBadge = '';
-     if (r.status === 'ÄÃ£ xong') {
-       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="checkmark-circle" style="font-size:14px; color:#166534;"></ion-icon> ÄÃ£ xong</span>';
-     } else if (r.status === 'Tá»« chá»‘i') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="close-circle" style="font-size:14px; color:#c2410c;"></ion-icon> Tá»« chá»‘i</span>`;
-     } else if (r.status === 'Äang xá»­ lÃ½') {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="construct" style="font-size:14px; color:#854d0e;"></ion-icon> Äang xá»­ lÃ½</span>`;
+     if (r.status === 'Đã xong') {
+       statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="checkmark-circle" style="font-size:14px; color:#166534;"></ion-icon> Đã xong</span>';
+     } else if (r.status === 'Từ chối') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="close-circle" style="font-size:14px; color:#c2410c;"></ion-icon> Từ chối</span>`;
+     } else if (r.status === 'Đang xử lý') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="construct" style="font-size:14px; color:#854d0e;"></ion-icon> Đang xử lý</span>`;
      } else {
-       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="time" style="font-size:14px; color:#991b1b;"></ion-icon> Äang chá»</span>`;
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#fee2e2; color:#991b1b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="time" style="font-size:14px; color:#991b1b;"></ion-icon> Đang chờ</span>`;
      }
 
      let timeHtml = `<div style="font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;"><ion-icon name="time-outline" style="font-size:14px; color:var(--text-muted);"></ion-icon> ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
-     if ((r.status === 'ÄÃ£ xong' || r.status === 'Tá»« chá»‘i' || r.status === 'ÄÃ£ thay Ä‘á»•i') && r.completed_at) {
+     if ((r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') && r.completed_at) {
        const cd = new Date(r.completed_at);
        const cday = String(cd.getDate()).padStart(2, '0');
        const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
@@ -35,31 +35,31 @@ async function renderTableRows() {
        
      let adminReplyCell = '';
      const handlerName = r.assignee_name || '-';
-       if (r.status === 'ÄÃ£ xong' || r.status === 'Tá»« chá»‘i' || r.status === 'ÄÃ£ thay Ä‘á»•i') {
-         const replyText = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">KhÃ´ng cÃ³ ná»™i dung</i>';
+       if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
+         const replyText = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
          adminReplyCell = `
            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                <span>${replyText}</span>
-               <button onclick="deleteTicket(${r.id})" title="XÃ³a sá»± cá»‘ nÃ y" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">
+               <button onclick="deleteTicket(${r.id})" title="Xóa sự cố này" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">
                    <ion-icon name="trash" style="font-size:16px;"></ion-icon>
                </button>
            </div>
          `;
-       } else if (r.status === 'Äang xá»­ lÃ½') {
+       } else if (r.status === 'Đang xử lý') {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; flex-direction:column; gap:8px;">
-              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiáº¿t kháº¯c phá»¥c..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
+              <input type="text" id="replyInput_${r.id}" onkeypress="if(event.key === 'Enter') resolveTicket(${r.id})" placeholder="Chi tiết khắc phục..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
               <div style="display:flex; gap:6px; justify-content:flex-start;">
-                  <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="send"></ion-icon> Gá»­i</button>
-                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="swap-horizontal"></ion-icon> Chuyá»ƒn</button>
+                  <button onclick="resolveTicket(${r.id})" style="padding:6px 16px; font-size:13px; background:#16a34a; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="send"></ion-icon> Gửi</button>
+                  <button onclick="rejectTicket(${r.id}, event)" style="padding:6px 16px; font-size:13px; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display:flex; align-items:center; gap:4px;"><ion-icon name="swap-horizontal"></ion-icon> Chuyển</button>
               </div>
            </div>
          `;
      } else {
          adminReplyCell = `
            <div id="actionBox_${r.id}" style="display:flex; gap:6px;">
-              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 12px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="hand-left"></ion-icon> Nháº­n</button>
-              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 12px; font-size:13px; font-weight:600; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="close-circle-outline"></ion-icon> Tá»« chá»‘i</button>
+              <button onclick="acceptTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 12px; font-size:13px; font-weight:600; background:#fef08a; color:#854d0e; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="hand-left"></ion-icon> Nhận</button>
+              <button onclick="rejectTicket(${r.id}, event)" style="flex:1; display:flex; justify-content:center; align-items:center; gap:4px; padding:6px 12px; font-size:13px; font-weight:600; background:#3b82f6; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);"><ion-icon name="close-circle-outline"></ion-icon> Từ chối</button>
            </div>
          `;
      }
@@ -92,7 +92,7 @@ async function getDashboardHtml(user) {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Há»‡ Thá»‘ng Quáº£n LÃ½ IT - minhhan.net</title>
+      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -126,7 +126,7 @@ async function getDashboardHtml(user) {
           btns.style.justifyContent = 'flex-end';
           
           const btnOk = document.createElement('button');
-          btnOk.innerText = 'ÄÃ³ng';
+          btnOk.innerText = 'Đóng';
           btnOk.style.padding = '8px 20px';
           btnOk.style.background = '#2563eb';
           btnOk.style.color = '#fff';
@@ -175,7 +175,7 @@ async function getDashboardHtml(user) {
             btns.style.gap = '8px';
             
             const btnCancel = document.createElement('button');
-            btnCancel.innerText = 'Há»§y';
+            btnCancel.innerText = 'Hủy';
             btnCancel.style.padding = '8px 20px';
             btnCancel.style.background = 'var(--btn-secondary-bg, #e2e8f0)';
             btnCancel.style.color = 'var(--btn-secondary-text, #000)';
@@ -186,7 +186,7 @@ async function getDashboardHtml(user) {
             btnCancel.onclick = () => overlay.remove();
 
             const btnOk = document.createElement('button');
-            btnOk.innerText = 'XÃ³a';
+            btnOk.innerText = 'Xóa';
             btnOk.style.padding = '8px 20px';
             btnOk.style.background = '#ef4444';
             btnOk.style.color = '#fff';
@@ -413,13 +413,13 @@ async function getDashboardHtml(user) {
               color: var(--text-muted);
               display: none;
           }
-          /* Chá»‰ Ä‘á»‹nh vÃ¹ng Ä‘á»ƒ in PDF */
+          /* Chỉ định vùng để in PDF */
           #pdf-content {
               padding: 20px;
               background: var(--card-bg);
           }
           
-          /* Responsive (Giao diá»‡n Mobile) */
+          /* Responsive (Giao diện Mobile) */
           @media screen and (max-width: 768px) {
               .grid-container { grid-template-columns: 1fr; }
               .header { gap: 12px; }
@@ -521,13 +521,13 @@ async function getDashboardHtml(user) {
                   text-align: left;
               }
               td:nth-of-type(1)::before { content: "STT"; }
-              td:nth-of-type(2)::before { content: "NgÆ°á»i YÃªu Cáº§u"; }
-              td:nth-of-type(3)::before { content: "NhÃ³m"; }
-              td:nth-of-type(4)::before { content: "Thá»i gian"; }
-              td:nth-of-type(5)::before { content: "MÃ´ táº£ sá»± cá»‘"; }
-              td:nth-of-type(6)::before { content: "Tráº¡ng thÃ¡i"; }
-              td:nth-of-type(7)::before { content: "NgÆ°á»i xá»­ lÃ½"; }
-              td:nth-of-type(8)::before { content: "Pháº£n há»“i cá»§a IT"; }
+              td:nth-of-type(2)::before { content: "Người Yêu Cầu"; }
+              td:nth-of-type(3)::before { content: "Nhóm"; }
+              td:nth-of-type(4)::before { content: "Thời gian"; }
+              td:nth-of-type(5)::before { content: "Mô tả sự cố"; }
+              td:nth-of-type(6)::before { content: "Trạng thái"; }
+              td:nth-of-type(7)::before { content: "Người xử lý"; }
+              td:nth-of-type(8)::before { content: "Phản hồi của IT"; }
 
               /* Input Box for Action */
               td div[id^="actionBox_"] { 
@@ -544,7 +544,7 @@ async function getDashboardHtml(user) {
               }
           }
 
-          /* Äá»‹nh dáº¡ng khi in (Print) */
+          /* Định dạng khi in (Print) */
           @media print {
               @page { size: landscape; margin: 10mm; }
               :root, [data-theme="dark"], body {
@@ -575,7 +575,7 @@ async function getDashboardHtml(user) {
               table { width: 100%; min-width: auto; }
               th, td { padding: 8px; font-size: 11px; }
               
-              /* áº¨n cÃ¡c nÃºt báº¥m vÃ  form nháº­p liá»‡u khi in */
+              /* Ẩn các nút bấm và form nhập liệu khi in */
               td button { display: none !important; }
               td div[id^="actionBox_"] input { display: none !important; }
           }
@@ -587,7 +587,7 @@ async function getDashboardHtml(user) {
               ${printTemplateHtml}
           </div>
           <div class="header" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
-              <!-- Táº§ng 1: ThÆ°Æ¡ng hiá»‡u (TrÃ¡i) & NÃºt Thao tÃ¡c + TÃ i khoáº£n (Pháº£i) -->
+              <!-- Tầng 1: Thương hiệu (Trái) & Nút Thao tác + Tài khoản (Phải) -->
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
                   <h2 style="display:flex; align-items:center; gap:16px; margin:0;">
                       <a href="https://minhhan.net" target="_blank" class="brand-logo-link" style="text-decoration:none; display:flex; align-items:center; background: var(--btn-secondary-bg); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color); flex-shrink: 0;">
@@ -595,60 +595,60 @@ async function getDashboardHtml(user) {
                       </a>
                       <div class="brand-divider" style="height: 36px; width: 1px; background: var(--border-color); opacity: 0.8; flex-shrink: 0;"></div>
                       <div style="display:flex; flex-direction:column; justify-content:center;">
-                          <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Há»‡ Thá»‘ng Quáº£n LÃ½ IT - minhhan.net</span>
-                          <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giáº£i phÃ¡p tiáº¿p nháº­n & há»— trá»£ xá»­ lÃ½ sá»± cá»‘ ká»¹ thuáº­t chuyÃªn nghiá»‡p</span>
-                          <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Há»‡ Thá»‘ng Quáº£n LÃ½ IT - minhhan.net</span>
-                          <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">BÃ¡o cÃ¡o tá»•ng há»£p sá»± cá»‘ - ThÃ¡ng ${monthStr}</span>
+                          <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
+                          <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
+                          <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
+                          <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
                       </div>
                   </h2>
                   
                   <div class="action-bar" style="display:flex; align-items:center; gap:10px;">
-                      <button class="btn-secondary" onclick="toggleDarkMode()" title="Äá»•i giao diá»‡n Tá»‘i/SÃ¡ng" style="padding: 9px 12px; border-radius: 8px;">
+                      <button class="btn-secondary" onclick="toggleDarkMode()" title="Đổi giao diện Tối/Sáng" style="padding: 9px 12px; border-radius: 8px;">
                           <ion-icon name="moon-outline" style="font-size:18px;"></ion-icon>
                       </button>
-                      <button class="btn-secondary" onclick="window.location.reload()" title="Táº£i láº¡i trang" style="padding: 9px 12px; border-radius: 8px;">
+                      <button class="btn-secondary" onclick="window.location.reload()" title="Tải lại trang" style="padding: 9px 12px; border-radius: 8px;">
                           <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon>
                       </button>
-                      <button onclick="window.print()" title="In bÃ¡o cÃ¡o" style="padding: 9px 14px; border-radius: 8px;">
+                      <button onclick="window.print()" title="In báo cáo" style="padding: 9px 14px; border-radius: 8px;">
                           <ion-icon name="print-outline" style="font-size:18px;"></ion-icon>
                       </button>
                       <div class="dropdown">
                           <button class="btn-secondary" style="color:var(--text-main); display:flex; align-items:center; gap:6px; padding: 9px 14px; border-radius: 8px;">
                               <ion-icon name="person-circle-outline" style="font-size:18px;"></ion-icon>
-                              TÃ i khoáº£n
+                              Tài khoản
                           </button>
                           <div class="dropdown-content">
                               ${(!user || user.role === 'SUPER_ADMIN') ? `
                               <button onclick="window.location.href='/settings'" style="color:#2563eb;">
                                   <ion-icon name="settings-outline" style="font-size:16px;"></ion-icon>
-                                  CÃ i Ä‘áº·t & AI
+                                  Cài đặt & AI
                               </button>
                               <button onclick="cleanData()" style="color:#ef4444;">
                                   <ion-icon name="trash-outline" style="font-size:16px;"></ion-icon>
-                                  XÃ³a toÃ n bá»™ CSDL
+                                  Xóa toàn bộ CSDL
                               </button>
                               ` : ''}
                               <button onclick="window.location.href='/logout'" style="color:#475569;">
                                   <ion-icon name="log-out-outline" style="font-size:16px;"></ion-icon>
-                                  ÄÄƒng xuáº¥t
+                                  Đăng xuất
                               </button>
                           </div>
                       </div>
                   </div>
               </div>
 
-              <!-- Táº§ng 2: Thanh tÃ¬m kiáº¿m & Bá»™ lá»c -->
+              <!-- Tầng 2: Thanh tìm kiếm & Bộ lọc -->
               <div class="controls" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; width:100%;">
                   <select id="statusFilter" style="flex:1; min-width:160px; max-width:220px;">
-                      <option value="">-- Táº¥t cáº£ tráº¡ng thÃ¡i --</option>
-                      <option value="Ä‘Ã£ xong">âœ“ ÄÃ£ xong</option>
-                      <option value="Ä‘ang xá»­ lÃ½">â–¶ Äang xá»­ lÃ½</option>
-                      <option value="Ä‘ang chá»">â—‹ Äang chá»</option>
+                      <option value="">-- Tất cả trạng thái --</option>
+                      <option value="đã xong">✓ Đã xong</option>
+                      <option value="đang xử lý">▶ Đang xử lý</option>
+                      <option value="đang chờ">○ Đang chờ</option>
                   </select>
                   <select id="nameFilter" style="flex:1; min-width:180px; max-width:240px;">
-                      <option value="">-- Táº¥t cáº£ ngÆ°á»i bÃ¡o --</option>
+                      <option value="">-- Tất cả người báo --</option>
                   </select>
-                  <input type="text" id="searchInput" placeholder="TÃ¬m kiáº¿m tá»± do..." style="flex:2; min-width:220px;">
+                  <input type="text" id="searchInput" placeholder="Tìm kiếm tự do..." style="flex:2; min-width:220px;">
               </div>
           </div>
 
@@ -657,20 +657,20 @@ async function getDashboardHtml(user) {
                   <thead>
                       <tr>
                           <th>STT</th>
-                          <th>NgÆ°á»i YÃªu Cáº§u</th>
-                          <th>NhÃ³m</th>
-                          <th>Thá»i gian</th>
-                          <th>MÃ´ táº£ sá»± cá»‘</th>
-                          <th>Tráº¡ng thÃ¡i</th>
-                          <th>NgÆ°á»i xá»­ lÃ½</th>
-                          <th>Pháº£n há»“i cá»§a IT</th>
+                          <th>Người Yêu Cầu</th>
+                          <th>Nhóm</th>
+                          <th>Thời gian</th>
+                          <th>Mô tả sự cố</th>
+                          <th>Trạng thái</th>
+                          <th>Người xử lý</th>
+                          <th>Phản hồi của IT</th>
                       </tr>
                   </thead>
                   <tbody>
                       ${formattedRequests}
                   </tbody>
               </table>
-              <div id="emptyState" class="empty-state">KhÃ´ng tÃ¬m tháº¥y káº¿t quáº£ nÃ o phÃ¹ há»£p.</div>
+              <div id="emptyState" class="empty-state">Không tìm thấy kết quả nào phù hợp.</div>
           </div>
       </div>
 
@@ -707,7 +707,7 @@ async function getDashboardHtml(user) {
           btns.style.justifyContent = 'flex-end';
           
           const btnOk = document.createElement('button');
-          btnOk.innerText = 'ÄÃ³ng';
+          btnOk.innerText = 'Đóng';
           btnOk.style.padding = '8px 20px';
           btnOk.style.background = '#2563eb';
           btnOk.style.color = '#fff';
@@ -748,7 +748,7 @@ async function getDashboardHtml(user) {
                   localStorage.setItem('theme', 'dark');
               }
           }
-          // Khá»Ÿi táº¡o cÃ¡c pháº§n tá»­ DOM
+          // Khởi tạo các phần tử DOM
           const searchInput = document.getElementById('searchInput');
           const nameFilter = document.getElementById('nameFilter');
           const statusFilter = document.getElementById('statusFilter');
@@ -759,7 +759,7 @@ async function getDashboardHtml(user) {
               return table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
           }
 
-          // Cáº­p nháº­t danh sÃ¡ch ngÆ°á»i yÃªu cáº§u vÃ o dropdown
+          // Cập nhật danh sách người yêu cầu vào dropdown
           function updateNameDropdown() {
               const rows = getRows();
               const uniqueNames = new Set();
@@ -771,7 +771,7 @@ async function getDashboardHtml(user) {
               }
               
               const currentValue = nameFilter.value;
-              nameFilter.innerHTML = '<option value="">-- Táº¥t cáº£ ngÆ°á»i bÃ¡o --</option>';
+              nameFilter.innerHTML = '<option value="">-- Tất cả người báo --</option>';
               uniqueNames.forEach(name => {
                   const option = document.createElement('option');
                   option.value = name.toLowerCase();
@@ -781,7 +781,7 @@ async function getDashboardHtml(user) {
               });
           }
 
-          // HÃ m cháº¡y Bá»™ lá»c (káº¿t há»£p TÃ¬m kiáº¿m tá»± do + Chá»n tÃªn + Chá»n tráº¡ng thÃ¡i)
+          // Hàm chạy Bộ lọc (kết hợp Tìm kiếm tự do + Chọn tên + Chọn trạng thái)
           function filterData() {
               const searchText = searchInput.value.toLowerCase();
               const selectedName = nameFilter.value;
@@ -815,7 +815,7 @@ async function getDashboardHtml(user) {
               // Populate Zalo dropdown for Web Users creation
               const zaloSelect = document.getElementById('newWebZaloId');
               if (zaloSelect) {
-                  zaloSelect.innerHTML = '<option value="">-- Chá»n tÃ i khoáº£n Zalo --</option>';
+                  zaloSelect.innerHTML = '<option value="">-- Chọn tài khoản Zalo --</option>';
                   data.active.forEach(a => {
                       zaloSelect.innerHTML += \`<option value="\${a.id}">\${a.name} (\${maskId(a.id)})</option>\`;
                   });
@@ -835,36 +835,36 @@ async function getDashboardHtml(user) {
           nameFilter.addEventListener('change', filterData);
           statusFilter.addEventListener('change', filterData);
 
-          // Khá»Ÿi táº¡o láº§n Ä‘áº§u
+          // Khởi tạo lần đầu
           updateNameDropdown();
 
-          // Bá»™ Ä‘áº¿m thá»i gian khÃ´ng hoáº¡t Ä‘á»™ng (Tá»± Ä‘á»™ng Ä‘Äƒng xuáº¥t sau 30 phÃºt)
+          // Bộ đếm thời gian không hoạt động (Tự động đăng xuất sau 30 phút)
           let idleMinutes = 0;
           
-          // TÄƒng biáº¿n Ä‘áº¿m má»—i phÃºt
+          // Tăng biến đếm mỗi phút
           const idleInterval = setInterval(() => {
               idleMinutes++;
               if (idleMinutes >= 30) {
                   window.location.href = '/logout';
               }
-          }, 60000); // 1 phÃºt
+          }, 60000); // 1 phút
 
-          // HÃ m reset bá»™ Ä‘áº¿m khi cÃ³ thao tÃ¡c ngÆ°á»i dÃ¹ng
+          // Hàm reset bộ đếm khi có thao tác người dùng
           function resetIdleTimer() {
               idleMinutes = 0;
           }
 
-          // Láº¯ng nghe cÃ¡c sá»± kiá»‡n tÆ°Æ¡ng tÃ¡c cá»§a ngÆ°á»i dÃ¹ng
+          // Lắng nghe các sự kiện tương tác của người dùng
           ['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll'].forEach(evt => 
               document.addEventListener(evt, resetIdleTimer, true)
           );
 
 
-          // CÆ¡ cháº¿ Ä‘á»“ng bá»™ thá»i gian thá»±c (Real-time Polling)
+          // Cơ chế đồng bộ thời gian thực (Real-time Polling)
           let lastRenderedHtml = '';
           async function fetchAndRenderRows() {
               try {
-                  // Ngá»«ng cáº­p nháº­t náº¿u ngÆ°á»i dÃ¹ng Ä‘ang focus vÃ o Ã´ input HOáº¶C Ã´ input Ä‘Ã£ cÃ³ chá»¯ (chÆ°a gá»­i)
+                  // Ngừng cập nhật nếu người dùng đang focus vào ô input HOẶC ô input đã có chữ (chưa gửi)
                   const hasActiveInput = Array.from(document.querySelectorAll('input[type="text"]')).some(input => {
                       return (input.id.startsWith('replyInput_') || input.id.startsWith('rejectInput_')) && (document.activeElement === input || input.value.trim() !== '');
                   });
@@ -878,7 +878,7 @@ async function getDashboardHtml(user) {
                       if (data.success && data.html !== lastRenderedHtml) {
                           lastRenderedHtml = data.html;
                           
-                          // LÆ°u láº¡i scroll position cá»§a wrapper Ä‘á»ƒ trÃ¡nh nháº£y
+                          // Lưu lại scroll position của wrapper để tránh nhảy
                           const wrapper = document.querySelector('.table-wrapper');
                           const scrollTop = wrapper ? wrapper.scrollTop : 0;
                           const scrollLeft = wrapper ? wrapper.scrollLeft : 0;
@@ -888,7 +888,7 @@ async function getDashboardHtml(user) {
                           updateNameDropdown();
                           filterData();
 
-                          // Restore láº¡i scroll position
+                          // Restore lại scroll position
                           if (wrapper) {
                               wrapper.scrollTop = scrollTop;
                               wrapper.scrollLeft = scrollLeft;
@@ -899,9 +899,9 @@ async function getDashboardHtml(user) {
           }
           setInterval(fetchAndRenderRows, 2000);
 
-          // HÃ m XÃ³a Sá»± cá»‘ (Thá»§ cÃ´ng)
+          // Hàm Xóa Sự cố (Thủ công)
           function deleteTicket(ticketId) {
-              showConfirm('Báº¡n cÃ³ cháº¯c cháº¯n muá»‘n xÃ³a sá»± cá»‘ #' + ticketId + ' khÃ´ng? HÃ nh Ä‘á»™ng nÃ y khÃ´ng thá»ƒ hoÃ n tÃ¡c!', async () => {
+              showConfirm('Bạn có chắc chắn muốn xóa sự cố #' + ticketId + ' không? Hành động này không thể hoàn tác!', async () => {
                   try {
                       const response = await fetch('/api/tickets/' + ticketId, {
                           method: 'DELETE'
@@ -910,19 +910,19 @@ async function getDashboardHtml(user) {
                       if (response.ok && data.success) {
                           fetchAndRenderRows();
                       } else {
-                          showAlert(data.error || 'Lá»—i há»‡ thá»‘ng');
+                          showAlert(data.error || 'Lỗi hệ thống');
                       }
                   } catch (error) {
-                      showAlert('Lá»—i káº¿t ná»‘i');
+                      showAlert('Lỗi kết nối');
                   }
               });
           }
 
-          // HÃ m Nháº­n yÃªu cáº§u
+          // Hàm Nhận yêu cầu
           async function acceptTicket(ticketId, event) {
               const btn = event.currentTarget;
               const originalBtnText = btn.textContent;
-              btn.textContent = 'Äang nháº­n...';
+              btn.textContent = 'Đang nhận...';
               btn.disabled = true;
 
               try {
@@ -935,19 +935,19 @@ async function getDashboardHtml(user) {
                   if (response.ok && data.success) {
                       fetchAndRenderRows();
                   } else {
-                      showAlert('Lá»—i: ' + (data.error || 'KhÃ´ng thá»ƒ nháº­n yÃªu cáº§u.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể nhận yêu cầu.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                   }
               } catch (err) {
-                  showAlert('Lá»—i káº¿t ná»‘i tá»›i mÃ¡y chá»§.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
               }
           }
 
           function cancelReject(ticketId) {
-              // Force re-render báº±ng cÃ¡ch reset cache, rá»“i fetch láº¡i
+              // Force re-render bằng cách reset cache, rồi fetch lại
               lastRenderedHtml = '';
               fetchAndRenderRows();
           }
@@ -955,16 +955,16 @@ async function getDashboardHtml(user) {
           function rejectTicket(ticketId, event) {
               const actionBox = document.getElementById('actionBox_' + ticketId);
               if (actionBox) {
-                  const isRejecting = event && event.currentTarget && event.currentTarget.textContent.trim() === 'Chuyá»ƒn';
-                  const placeholder = isRejecting ? "LÃ½ do chuyá»ƒn tráº¡ng thÃ¡i..." : "LÃ½ do thay Ä‘á»•i tráº¡ng thÃ¡i...";
+                  const isRejecting = event && event.currentTarget && event.currentTarget.textContent.trim() === 'Chuyển';
+                  const placeholder = isRejecting ? "Lý do chuyển trạng thái..." : "Lý do thay đổi trạng thái...";
                   const btnColor = isRejecting ? "#ef4444" : "#3b82f6";
 
                   actionBox.innerHTML = \`
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <input type="text" id="rejectInput_\${ticketId}" onkeypress="if(event.key === 'Enter') submitReject(\${ticketId})" placeholder="\${placeholder}" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:9999px; font-size:13px; outline:none; box-sizing:border-box;">
                         <div style="display:flex; gap:6px; justify-content:flex-start;">
-                            <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:\${btnColor}; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">XÃ¡c nháº­n</button>
-                            <button onclick="cancelReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Há»§y</button>
+                            <button onclick="submitReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:\${btnColor}; color:white; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">Xác nhận</button>
+                            <button onclick="cancelReject(\${ticketId})" style="padding:6px 16px; font-size:13px; background:#f1f5f9; color:#475569; border:none; border-radius:9999px; cursor:pointer; white-space:nowrap; transition: all 0.2s;">Hủy</button>
                         </div>
                     </div>
                   \`;
@@ -979,14 +979,14 @@ async function getDashboardHtml(user) {
               const input = document.getElementById('rejectInput_' + ticketId);
               const reason = input ? input.value.trim() : '';
               if (!reason) {
-                  showAlert('Vui lÃ²ng nháº­p lÃ½ do thay Ä‘á»•i tráº¡ng thÃ¡i!');
+                  showAlert('Vui lòng nhập lý do thay đổi trạng thái!');
                   if (input) input.focus();
                   return;
               }
 
               const btn = input.nextElementSibling;
               const originalBtnText = btn.textContent;
-              btn.textContent = 'Äang xá»­...';
+              btn.textContent = 'Đang xử...';
               btn.disabled = true;
               input.disabled = true;
 
@@ -1001,13 +1001,13 @@ async function getDashboardHtml(user) {
                       if (input) input.value = '';
                       fetchAndRenderRows();
                   } else {
-                      showAlert('Lá»—i: ' + (data.error || 'KhÃ´ng thá»ƒ tá»« chá»‘i yÃªu cáº§u.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể từ chối yêu cầu.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                       input.disabled = false;
                   }
               } catch (err) {
-                  showAlert('Lá»—i káº¿t ná»‘i tá»›i mÃ¡y chá»§.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
                   input.disabled = false;
@@ -1015,19 +1015,19 @@ async function getDashboardHtml(user) {
           }
 
 
-          // HÃ m Xá»­ lÃ½ ÄÃ³ng Ticket Trá»±c Tiáº¿p Tá»« Web
+          // Hàm Xử lý Đóng Ticket Trực Tiếp Từ Web
           async function resolveTicket(ticketId) {
               const input = document.getElementById('replyInput_' + ticketId);
               const replyText = input.value.trim();
               if (!replyText) {
-                  showAlert('Vui lÃ²ng nháº­p ná»™i dung pháº£n há»“i trÆ°á»›c khi ÄÃ³ng sá»± cá»‘!');
+                  showAlert('Vui lòng nhập nội dung phản hồi trước khi Đóng sự cố!');
                   input.focus();
                   return;
               }
 
               const btn = input.nextElementSibling;
               const originalBtnText = btn.textContent;
-              btn.textContent = 'Äang xá»­ lÃ½...';
+              btn.textContent = 'Đang xử lý...';
               btn.disabled = true;
               input.disabled = true;
 
@@ -1043,26 +1043,26 @@ async function getDashboardHtml(user) {
                   const data = await response.json();
                   if (response.ok && data.success) {
                       if (input) input.value = '';
-                      // Cáº­p nháº­t giao diá»‡n mÃ  khÃ´ng cáº§n táº£i trang
-                      document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">ðŸŸ¢ ÄÃ£ xong</span>';
+                      // Cập nhật giao diện mà không cần tải trang
+                      document.getElementById('statusCell_' + ticketId).innerHTML = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap;">🟢 Đã xong</span>';
                       document.getElementById('replyCell_' + ticketId).innerHTML = replyText;
                   } else {
-                      showAlert('Lá»—i: ' + (data.error || 'KhÃ´ng thá»ƒ Ä‘Ã³ng sá»± cá»‘.'));
+                      showAlert('Lỗi: ' + (data.error || 'Không thể đóng sự cố.'));
                       btn.textContent = originalBtnText;
                       btn.disabled = false;
                       input.disabled = false;
                   }
               } catch (err) {
-                  showAlert('Lá»—i káº¿t ná»‘i tá»›i mÃ¡y chá»§.');
+                  showAlert('Lỗi kết nối tới máy chủ.');
                   btn.textContent = originalBtnText;
                   btn.disabled = false;
                   input.disabled = false;
               }
           }
 
-          // HÃ m XÃ³a ToÃ n Bá»™ Dá»¯ Liá»‡u
+          // Hàm Xóa Toàn Bộ Dữ Liệu
           async function cleanData() {
-              if (!confirm('Cáº£nh bÃ¡o nguy hiá»ƒm: HÃ nh Ä‘á»™ng nÃ y sáº½ xÃ³a TOÃ€N Bá»˜ dá»¯ liá»‡u bÃ¡o cÃ¡o hiá»‡n táº¡i vÃ  reset láº¡i bá»™ Ä‘áº¿m ID sá»± cá»‘ vá» #1.\\n\\nBáº¡n cÃ³ cháº¯c cháº¯n muá»‘n xÃ³a sáº¡ch há»‡ thá»‘ng khÃ´ng?')) return;
+              if (!confirm('Cảnh báo nguy hiểm: Hành động này sẽ xóa TOÀN BỘ dữ liệu báo cáo hiện tại và reset lại bộ đếm ID sự cố về #1.\\n\\nBạn có chắc chắn muốn xóa sạch hệ thống không?')) return;
               
               const btn = event.currentTarget;
               const originalHTML = btn.innerHTML;
@@ -1072,15 +1072,15 @@ async function getDashboardHtml(user) {
               try {
                   const response = await fetch('/api/tickets/clean', { method: 'POST' });
                   if (response.ok) {
-                      showAlert('âœ… ÄÃ£ dá»n dáº¹p sáº¡ch sáº½ toÃ n bá»™ dá»¯ liá»‡u!', true);
+                      showAlert('✅ Đã dọn dẹp sạch sẽ toàn bộ dữ liệu!', true);
                       window.location.reload();
                   } else {
-                      showAlert('âŒ Lá»—i: KhÃ´ng thá»ƒ xÃ³a dá»¯ liá»‡u (Thiáº¿u quyá»n).');
+                      showAlert('❌ Lỗi: Không thể xóa dữ liệu (Thiếu quyền).');
                       btn.innerHTML = originalHTML;
                       btn.disabled = false;
                   }
               } catch (err) {
-                  showAlert('âŒ Lá»—i káº¿t ná»‘i mÃ¡y chá»§.');
+                  showAlert('❌ Lỗi kết nối máy chủ.');
                   btn.innerHTML = originalHTML;
                   btn.disabled = false;
               }
