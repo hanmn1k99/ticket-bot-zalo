@@ -79,7 +79,7 @@ async function getGroqModel() {
 }
 
 async function analyzeWithAI(text, senderName, senderId) {
-  if (!AI_API_KEY) return { type: 'TICKET', location: extractLocationFallback(text) || 'Khong xac dinh' };
+  if (!AI_API_KEY) return { type: 'TICKET', location: extractLocationFallback(text) || 'Không xác định' };
 
   const botConfig = await getBotConfig();
   const {
@@ -95,7 +95,7 @@ async function analyzeWithAI(text, senderName, senderId) {
       faqContent = fs.readFileSync(path.join(__dirname, '..', 'faq.txt'), 'utf8');
       await db.setSetting('faq_content', faqContent);
     } catch (err) {
-      faqContent = '- Chua co du lieu FAQ.';
+      faqContent = '- Chưa có dữ liệu FAQ.';
     }
   }
 
@@ -139,7 +139,7 @@ MANDATORY RULES:
     const blacklist = fs.readFileSync(path.join(__dirname, '..', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
-        return { type: 'ANSWER', answer: 'Xin loi, toi khong duoc phep ho tro noi dung nay a.' };
+        return { type: 'ANSWER', answer: 'Xin lỗi, tôi không được phép hỗ trợ nội dung này ạ.' };
       }
     }
   } catch (err) { /* Bo qua neu file khong ton tai */ }
@@ -174,7 +174,7 @@ MANDATORY RULES:
       console.error('AI API Error HTTP', response.status, ':', errText);
       activeGroqModel = null; // Reset để lần sau thử model khác
       userContexts.delete(uId);
-      return { type: 'TICKET', location: extractLocationFallback(text) || 'Khong xac dinh' };
+      return { type: 'TICKET', location: extractLocationFallback(text) || 'Không xác định' };
     }
 
     const data = await response.json();
@@ -184,7 +184,7 @@ MANDATORY RULES:
     console.log('-----------------------');
 
     if (!result) {
-      return { type: 'ANSWER', answer: 'Xin loi, toi chua co thong tin de tra loi cau hoi nay a.' };
+      return { type: 'ANSWER', answer: 'Xin lỗi, tôi chưa có thông tin để trả lời câu hỏi này ạ.' };
     }
 
     if (result.includes('TICKET|') || result.startsWith('TICKET')) {
@@ -196,7 +196,7 @@ MANDATORY RULES:
       let loc = parts.length > 1 ? parts[1].trim().split('\n')[0] : '';
       if (!loc || loc.toLowerCase().includes('not specified') || loc.toLowerCase() === 'unknown' || loc === 'TICKET') {
         const fallback = extractLocationFallback(text);
-        loc = fallback || 'Khong xac dinh';
+        loc = fallback || 'Không xác định';
       }
       return { type: 'TICKET', location: loc };
     }
@@ -216,7 +216,7 @@ MANDATORY RULES:
   } catch (error) {
     console.error('Loi goi AI API (Network):', error);
     userContexts.delete(uId);
-    return { type: 'TICKET', location: extractLocationFallback(text) || 'Khong xac dinh' };
+    return { type: 'TICKET', location: extractLocationFallback(text) || 'Không xác định' };
   }
 }
 
