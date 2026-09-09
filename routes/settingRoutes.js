@@ -60,6 +60,17 @@ router.post('/api/settings/group/delete', checkAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// POST /api/settings/brand
+router.post('/api/settings/brand', checkAuth, async (req, res) => {
+  if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'Permission denied' });
+  const { site_title, site_subtitle, site_footer } = req.body;
+  if (site_title !== undefined) await db.setSetting('site_title', site_title);
+  if (site_subtitle !== undefined) await db.setSetting('site_subtitle', site_subtitle);
+  if (site_footer !== undefined) await db.setSetting('site_footer', site_footer);
+  res.json({ success: true });
+});
+
+
 // POST /api/settings/upload-image
 router.post('/api/settings/upload-image', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.status(403).json({ error: 'KhÃ´ng cÃ³ quyá»n' });

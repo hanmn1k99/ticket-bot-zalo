@@ -81,6 +81,11 @@ async function renderTableRows() {
 async function getDashboardHtml(user) {
   const formattedRequests = await renderTableRows();
   const monthStr = new Date().getMonth() + 1;
+  
+  // Load brand settings
+  const siteTitle = await db.getSetting('site_title') || 'Hệ Thống Quản Lý IT';
+  const siteSubtitle = await db.getSetting('site_subtitle') || 'Giải pháp tiếp nhận & hỗ trợ kỹ thuật chuyên nghiệp';
+  const siteFooter = await db.getSetting('site_footer') || 'minhhan.net';
   let printTemplateHtml = '';
   try {
       printTemplateHtml = fs.readFileSync(path.join(__dirname, '..', 'print_template.html'), 'utf8');
@@ -92,7 +97,7 @@ async function getDashboardHtml(user) {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hệ Thống Quản Lý IT - minhhan.net</title>
+      <title>${siteTitle}</title>
       <script>
 
         function showAlert(msg, isSuccess = false) {
@@ -590,14 +595,14 @@ async function getDashboardHtml(user) {
               <!-- Tầng 1: Thương hiệu (Trái) & Nút Thao tác + Tài khoản (Phải) -->
               <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
                   <h2 style="display:flex; align-items:center; gap:16px; margin:0;">
-                      <a href="https://minhhan.net" target="_blank" class="brand-logo-link" style="text-decoration:none; display:flex; align-items:center; background: var(--btn-secondary-bg); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color); flex-shrink: 0;">
+                      <a href="https://${siteFooter}" target="_blank" class="brand-logo-link" style="text-decoration:none; display:flex; align-items:center; background: var(--btn-secondary-bg); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color); flex-shrink: 0;">
                           <img src="/assets/logo.png" alt="Logo" style="height: 32px; width: auto; object-fit: contain;" onerror="this.parentNode.style.display='none'">
                       </a>
                       <div class="brand-divider" style="height: 36px; width: 1px; background: var(--border-color); opacity: 0.8; flex-shrink: 0;"></div>
                       <div style="display:flex; flex-direction:column; justify-content:center;">
-                          <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">Hệ Thống Quản Lý IT - minhhan.net</span>
-                          <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Giải pháp tiếp nhận & hỗ trợ xử lý sự cố kỹ thuật chuyên nghiệp</span>
-                          <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">Hệ Thống Quản Lý IT - minhhan.net</span>
+                          <span class="screen-title" style="font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--text-main);">${siteTitle}</span>
+                          <span class="screen-title" style="font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">${siteSubtitle}</span>
+                          <span class="print-title" style="display:none; font-size: 20px; font-weight: 700; line-height: 1.2;">${siteTitle}</span>
                           <span class="print-title" style="display:none; font-size: 13px; font-weight: 400; color: var(--text-muted); margin-top: 3px;">Báo cáo tổng hợp sự cố - Tháng ${monthStr}</span>
                       </div>
                   </h2>

@@ -15,57 +15,57 @@ async function getSettingsHtml(user) {
     BOT_PRONOUN_ME
   } = botConfig;
 
-  const defaultFaq = `1. Mật khẩu mạng wifi "Meyschool - Giáo Viên" là: Mey@2024\n2. Mạng wifi "Meyschool - Guest" là mạng mở, không có mật khẩu.\n3. Liên hệ khẩn cấp Phòng IT (Phòng D102): 0909.123.456 (Mr. Nghĩa) hoặc 0988.789.123 (Mr. Nam).\n4. Nếu máy in hết mực, máy tính không lên nguồn, vui lòng tạo TICKET báo lỗi.`;
+  const defaultFaq = `1. M�t kh�u m�ng wifi "Meyschool - Gi�o Vi�n" l�: Mey@2024\n2. M�ng wifi "Meyschool - Guest" l� m�ng m�, kh�ng c� m�t kh�u.\n3. Li�n h� kh�n c�p Ph�ng IT (Ph�ng D102): 0909.123.456 (Mr. Ngh)a) ho�c 0988.789.123 (Mr. Nam).\n4. N�u m�y in h�t m�c, m�y t�nh kh�ng l�n ngu�n, vui l�ng t�o TICKET b�o l�i.`;
   let faqContent = await db.getSetting('faq_content');
   if (!faqContent) faqContent = defaultFaq;
 
-  const systemPromptPreview = `Bạn là Trợ lý IT Ảo (phần mềm AI) của ${BOT_ORG_NAME}. ${BOT_USER_ROLE} vừa gửi tin nhắn: "{Nội dung tin nhắn người dùng}"
+  const systemPromptPreview = `B�n l� Tr� l� IT �o (ph�n m�m AI) c�a ${BOT_ORG_NAME}. ${BOT_USER_ROLE} v�a g�i tin nh�n: "{N�i dung tin nh�n ng��i d�ng}"
 
-Cơ sở dữ liệu FAQ (Đây là những thông tin bạn CÓ THỂ dùng để trả lời câu hỏi):
+C� s� d� li�u FAQ (�y l� nh�ng th�ng tin b�n C� TH� d�ng � tr� l�i c�u h�i):
 ${faqContent}
-(Lưu ý 1: Nếu FAQ ghi mạng wifi nào đó "không có mật khẩu", điều đó có nghĩa là mạng đó LÀ MẠNG MỞ, KHÔNG YÊU CẦU NHẬP PASS, chứ không phải là ${BOT_ORG_NAME} không có mạng wifi đó).
-(Lưu ý 2: NẾU người dùng hỏi về Wifi, HÃY CHỦ ĐỘNG CUNG CẤP ĐẦY ĐỦ cả Tên mạng (SSID) và Mật khẩu (nếu có) để tiện cho người dùng, đừng chỉ trả lời mỗi tên mạng).
+(L�u � 1: N�u FAQ ghi m�ng wifi n�o � "kh�ng c� m�t kh�u", i�u � c� ngh)a l� m�ng � L� M�NG M�, KH�NG Y�U C�U NH�P PASS, ch� kh�ng ph�i l� ${BOT_ORG_NAME} kh�ng c� m�ng wifi �).
+(L�u � 2: N�U ng��i d�ng h�i v� Wifi, H�Y CH� �NG CUNG C�P �Y � c� T�n m�ng (SSID) v� M�t kh�u (n�u c�) � ti�n cho ng��i d�ng, �ng ch� tr� l�i m�i t�n m�ng).
 
-Quy tắc định vị bản thân (RẤT QUAN TRỌNG):
-- Bạn LÀ MỘT TRỢ LÝ ẢO (AI), KHÔNG PHẢI CON NGƯỜI. Bạn không có cơ thể vật lý, không biết đi lại, không thể cầm nắm, ăn uống hay làm các việc ngoài đời thực (như đi mua thuốc, lấy đồ, chạy đi sửa máy).
-- Mặc dù là Trợ lý IT, nhưng bạn ĐƯỢC PHÉP TRẢ LỜI MỌI CÂU HỎI kiến thức chung (toán học, lịch sử, văn học, đời sống...) như một cuốn bách khoa toàn thư để hỗ trợ ${BOT_USER_ROLE}. KHÔNG BAO GIỜ TỪ CHỐI các câu hỏi kiến thức với lý do "không liên quan đến IT".
-- Nếu bị yêu cầu làm những việc vật lý phi lý, hãy TỪ CHỐI một cách khéo léo, lễ phép.
-- Môi trường hoạt động của bạn là ${BOT_ENVIRONMENT}. Ngôn từ phải CHUẨN MỰC, TÔN TRỌNG, NGHIÊM TÚC nhưng thân thiện. Tuyệt đối không đùa cợt lố lăng.
+Quy t�c �nh v� b�n th�n (R�T QUAN TR�NG):
+- B�n L� M�T TR� L� �O (AI), KH�NG PH�I CON NG��I. B�n kh�ng c� c� th� v�t l�, kh�ng bi�t i l�i, kh�ng th� c�m n�m, n u�ng hay l�m c�c vi�c ngo�i �i th�c (nh� i mua thu�c, l�y �, ch�y i s�a m�y).
+- M�c d� l� Tr� l� IT, nh�ng b�n ��C PH�P TR� L�I M�I C�U H�I ki�n th�c chung (to�n h�c, l�ch s�, vn h�c, �i s�ng...) nh� m�t cu�n b�ch khoa to�n th� � h� tr� ${BOT_USER_ROLE}. KH�NG BAO GI� T� CH�I c�c c�u h�i ki�n th�c v�i l� do "kh�ng li�n quan �n IT".
+- N�u b� y�u c�u l�m nh�ng vi�c v�t l� phi l�, h�y T� CH�I m�t c�ch kh�o l�o, l� ph�p.
+- M�i tr��ng ho�t �ng c�a b�n l� ${BOT_ENVIRONMENT}. Ng�n t� ph�i CHU�N M�C, T�N TR�NG, NGHI�M T�C nh�ng th�n thi�n. Tuy�t �i kh�ng �a c�t l� lng.
 
-Quy tắc xưng hô:
-- Tên của người nhắn là: "{Tên người dùng}". BẮT BUỘC HÃY SUY ĐOÁN GIỚI TÍNH dựa vào tên này (dù là tiếng Việt hay tiếng nước ngoài).
-- NẾU TRẢ LỜI TIẾNG VIỆT: Hãy gọi là "${BOT_PRONOUN_USER_MALE}" (nếu là nam) hoặc "${BOT_PRONOUN_USER_FEMALE}" (nếu là nữ). Hạn chế dùng "${BOT_PRONOUN_USER_DEFAULT}" trừ khi tên quá khó đoán. Bản thân bạn LUÔN LUÔN phải xưng là "${BOT_PRONOUN_ME}" (Tuyệt đối không xưng "Tôi", "Mình" hay "AI").
-- NẾU TRẢ LỜI TIẾNG ANH: Hãy xưng là "I", và gọi người dùng là "Mr." (nếu là nam) hoặc "Ms." (nếu là nữ) kèm theo tên của họ. Không dùng "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}" trong tiếng Anh.
+Quy t�c x�ng h�:
+- T�n c�a ng��i nh�n l�: "{T�n ng��i d�ng}". B�T BU�C H�Y SUY O�N GI�I T�NH d�a v�o t�n n�y (d� l� ti�ng Vi�t hay ti�ng n��c ngo�i).
+- N�U TR� L�I TI�NG VI�T: H�y g�i l� "${BOT_PRONOUN_USER_MALE}" (n�u l� nam) ho�c "${BOT_PRONOUN_USER_FEMALE}" (n�u l� n�). H�n ch� d�ng "${BOT_PRONOUN_USER_DEFAULT}" tr� khi t�n qu� kh� o�n. B�n th�n b�n LU�N LU�N ph�i x�ng l� "${BOT_PRONOUN_ME}" (Tuy�t �i kh�ng x�ng "T�i", "M�nh" hay "AI").
+- N�U TR� L�I TI�NG ANH: H�y x�ng l� "I", v� g�i ng��i d�ng l� "Mr." (n�u l� nam) ho�c "Ms." (n�u l� n�) k�m theo t�n c�a h�. Kh�ng d�ng "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}" trong ti�ng Anh.
 
-Quy tắc ngôn ngữ (QUAN TRỌNG NHẤT):
-- BẮT BUỘC PHẢN HỒI BẰNG ĐÚNG NGÔN NGỮ MÀ NGƯỜI DÙNG SỬ DỤNG.
-- NẾU NGƯỜI DÙNG NHẮN BẰNG TIẾNG ANH, BẠN PHẢI TRẢ LỜI 100% BẰNG TIẾNG ANH. KHÔNG ĐƯỢC PHÉP CHÈN BẤT KỲ TỪ TIẾNG VIỆT NÀO. Bỏ qua quy tắc xưng hô "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}".
+Quy t�c ng�n ng� (QUAN TR�NG NH�T):
+- B�T BU�C PH�N H�I B�NG �NG NG�N NG� M� NG��I D�NG S� D�NG.
+- N�U NG��I D�NG NH�N B�NG TI�NG ANH, B�N PH�I TR� L�I 100% B�NG TI�NG ANH. KH�NG ��C PH�P CH�N B�T K� T� TI�NG VI�T N�O. B� qua quy t�c x�ng h� "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}".
 
-Quy tắc phân loại (RẤT QUAN TRỌNG - KHÔNG ĐƯỢC BỎ LỠ TICKET CỦA ADMIN):
-1. TICKET - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, mạng wifi, máy in, camera, phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
-- TẤT CẢ VẤN ĐỀ EMAIL / M365: Quên mật khẩu email, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365... BẮT BUỘC LÀ TICKET (vì M365 do IT trực tiếp quản lý).
-- Các dấu hiệu nhận biết: "coi dùm", "xem giúp", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "bị đơ", "không in được", "rè", "không lên", "cháy", "rò rỉ", "gãy", "chập", "quên mk", "mất 2fa"...
-- ĐẶC BIỆT LƯU Ý VỀ WIFI: Nếu người dùng kêu "mất wifi", "không có wifi", "wifi hỏng", "không kết nối được wifi" -> CHẮC CHẮN LÀ TICKET (Báo lỗi). CHỈ phân loại là ANSWER khi người dùng thực sự hỏi "Mật khẩu wifi là gì?", "Cho xin pass wifi".
-- LƯU Ý ĐẶC BIỆT: KHÔNG TẠO TICKET đối với các nhờ vả cá nhân, sai vặt không liên quan đến sửa chữa kỹ thuật. Những câu này phân loại là ANSWER để từ chối khéo léo.
-- Khi quyết định là TICKET, HÃY TRÍCH XUẤT ĐỊA ĐIỂM (vị trí) sự cố nếu có trong câu hỏi. Trả về đúng định dạng: TICKET|[Địa điểm]. Nếu không xác định được địa điểm, trả về: TICKET|Không xác định.
-Ví dụ: "phòng d102 lỗi máy chiếu" -> TICKET|Phòng D102
-Tuyệt đối không thêm bất cứ từ nào khác, không hứa hẹn, không an ủi.
+Quy t�c ph�n lo�i (R�T QUAN TR�NG - KH�NG ��C B� L� TICKET C�A ADMIN):
+1. TICKET - Ph�n lo�i l� TICKET N�U V� CH� N�U tin nh�n l� Y�U C�U X� L� S� C� K� THU�T IT, T�I KHO�N EMAIL/M365 HO�C C� S� V�T CH�T (m�y t�nh, m�ng wifi, m�y in, camera, ph�n m�m, �m thanh, loa, mic, m�y chi�u, tivi, i�u h�a/m�y l�nh, �n, i�n, n��c, b�n gh�, c�a...).
+- T�T C� V�N � EMAIL / M365: Qu�n m�t kh�u email, m�t t�i kho�n, m�t 2FA / x�c minh 2 l�p, kh�ng g�i/nh�n ��c email, l�i Outlook/Microsoft 365... B�T BU�C L� TICKET (v� M365 do IT tr�c ti�p qu�n l�).
+- C�c d�u hi�u nh�n bi�t: "coi d�m", "xem gi�p", "s�a", "ki�m tra", "h�", "lag", "ch�m", "kh�ng v�o ��c", "m�t m�ng", "b� �", "kh�ng in ��c", "r�", "kh�ng l�n", "ch�y", "r� r�", "g�y", "ch�p", "qu�n mk", "m�t 2fa"...
+- �C BI�T L�U � V� WIFI: N�u ng��i d�ng k�u "m�t wifi", "kh�ng c� wifi", "wifi h�ng", "kh�ng k�t n�i ��c wifi" -> CH�C CH�N L� TICKET (B�o l�i). CH� ph�n lo�i l� ANSWER khi ng��i d�ng th�c s� h�i "M�t kh�u wifi l� g�?", "Cho xin pass wifi".
+- L�U � �C BI�T: KH�NG T�O TICKET �i v�i c�c nh� v� c� nh�n, sai v�t kh�ng li�n quan �n s�a ch�a k� thu�t. Nh�ng c�u n�y ph�n lo�i l� ANSWER � t� ch�i kh�o l�o.
+- Khi quy�t �nh l� TICKET, H�Y TR�CH XU�T �A I�M (v� tr�) s� c� n�u c� trong c�u h�i. Tr� v� �ng �nh d�ng: TICKET|[�a i�m]. N�u kh�ng x�c �nh ��c �a i�m, tr� v�: TICKET|Kh�ng x�c �nh.
+V� d�: "ph�ng d102 l�i m�y chi�u" -> TICKET|Ph�ng D102
+Tuy�t �i kh�ng th�m b�t c� t� n�o kh�c, kh�ng h�a h�n, kh�ng an �i.
 
-2. ANSWER - Áp dụng cho: 
-- Tin nhắn xin thông tin rõ ràng (ví dụ: "cho xin mật khẩu wifi", "pass wifi là gì", "làm sao để mượn máy chiếu").
-- Nhờ vả cá nhân phi lý, mua đồ, sai vặt (hãy từ chối khéo léo).
-- Tin nhắn chào hỏi xã giao, hỏi thăm sức khỏe, trò chuyện kiến thức chung.
-Lúc này BẮT BUỘC bắt đầu bằng chữ: ANSWER|
-- Tuyệt đối không gọi đích danh bất kỳ cá nhân nào trong phòng IT, chỉ được phép dùng từ "Bộ phận IT".
-- Với câu hỏi tra cứu FAQ (xin wifi, máy in...): Lọc ĐÚNG thông tin cần thiết và trả lời CỰC KỲ NGẮN GỌN (1-2 câu). Không liệt kê các thông tin thừa mà người dùng không hỏi. (Ví dụ: Hỏi wifi khách thì chỉ nói tên và pass wifi khách).
-- Với câu hỏi xã giao/nhờ vả cá nhân: Trả lời RẤT NGẮN GỌN, lịch sự từ chối hoặc trả lời đúng trọng tâm.
-- Với các câu cảm thán, khen ngợi, hoặc kết thúc (ví dụ: "ok rồi", "cảm ơn", "tốt"): Hãy phản hồi VUI VẺ, NHIỆT TÌNH, có cảm xúc (ví dụ: "Dạ vâng ạ, ${BOT_PRONOUN_USER_DEFAULT} cần hỗ trợ gì thêm cứ nhắn ${BOT_PRONOUN_ME} nhé! 😊").
-- Với câu hỏi kiến thức, toán học: ĐƯA RA TRỰC TIẾP ĐÁP ÁN, TUYỆT ĐỐI KHÔNG GIẢI THÍCH LAN MAN.
-Ví dụ: "ANSWER| Dạ wifi dành cho khách là abc, mạng mở không cần mật khẩu ạ."
-Ví dụ: "ANSWER| Dạ căn bậc 2 của 178 là khoảng 13.34 ạ."
-Ví dụ (Nếu hỏi tiếng Anh): "ANSWER| The guest wifi is abc, it is an open network without a password."
+2. ANSWER - �p d�ng cho: 
+- Tin nh�n xin th�ng tin r� r�ng (v� d�: "cho xin m�t kh�u wifi", "pass wifi l� g�", "l�m sao � m��n m�y chi�u").
+- Nh� v� c� nh�n phi l�, mua �, sai v�t (h�y t� ch�i kh�o l�o).
+- Tin nh�n ch�o h�i x� giao, h�i thm s�c kh�e, tr� chuy�n ki�n th�c chung.
+L�c n�y B�T BU�C b�t �u b�ng ch�: ANSWER|
+- Tuy�t �i kh�ng g�i �ch danh b�t k� c� nh�n n�o trong ph�ng IT, ch� ��c ph�p d�ng t� "B� ph�n IT".
+- V�i c�u h�i tra c�u FAQ (xin wifi, m�y in...): L�c �NG th�ng tin c�n thi�t v� tr� l�i C�C K� NG�N G�N (1-2 c�u). Kh�ng li�t k� c�c th�ng tin th�a m� ng��i d�ng kh�ng h�i. (V� d�: H�i wifi kh�ch th� ch� n�i t�n v� pass wifi kh�ch).
+- V�i c�u h�i x� giao/nh� v� c� nh�n: Tr� l�i R�T NG�N G�N, l�ch s� t� ch�i ho�c tr� l�i �ng tr�ng t�m.
+- V�i c�c c�u c�m th�n, khen ng�i, ho�c k�t th�c (v� d�: "ok r�i", "c�m �n", "t�t"): H�y ph�n h�i VUI V�, NHI�T T�NH, c� c�m x�c (v� d�: "D� v�ng �, ${BOT_PRONOUN_USER_DEFAULT} c�n h� tr� g� th�m c� nh�n ${BOT_PRONOUN_ME} nh�! �آ).
+- V�i c�u h�i ki�n th�c, to�n h�c: �A RA TR�C TI�P �P �N, TUY�T �I KH�NG GI�I TH�CH LAN MAN.
+V� d�: "ANSWER| D� wifi d�nh cho kh�ch l� abc, m�ng m� kh�ng c�n m�t kh�u �."
+V� d�: "ANSWER| D� cn b�c 2 c�a 178 l� kho�ng 13.34 �."
+V� d� (N�u h�i ti�ng Anh): "ANSWER| The guest wifi is abc, it is an open network without a password."
 
-Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc.`;
+L�u �: B�n l� m�t AI th�ng minh, h�y tr� l�i t� nhi�n, c� c�m x�c.`;
 
   const groupNames = await db.getAllGroupNames();
   
@@ -76,16 +76,16 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
          <div style="display: flex; justify-content: space-between; align-items: center;">
            <span style="font-family: monospace; font-size: 13px; color: #64748b; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);" title="${groupId}">ID: ${String(groupId).substring(0,4)}****${String(groupId).slice(-3)}</span>
            <div style="display: flex; gap: 8px;">
-             <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Lưu</button>
-             <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Xóa</button>
+             <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">L�u</button>
+             <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">X�a</button>
            </div>
          </div>
-         <input type="text" id="gname_${groupId}" value="${name}" placeholder="Tên nhóm (VD: Tổ Toán)" style="width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--card-bg); color:var(--text-main); font-size:15px; box-sizing: border-box;">
+         <input type="text" id="gname_${groupId}" value="${name}" placeholder="T�n nh�m (VD: T� To�n)" style="width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--card-bg); color:var(--text-main); font-size:15px; box-sizing: border-box;">
        </div>
      `;
   }
   if (!groupRows) {
-    groupRows = '<div style="padding:20px; text-align:center; opacity:0.7;">Chưa có nhóm nào đăng ký thông báo.</div>';
+    groupRows = '<div style="padding:20px; text-align:center; opacity:0.7;">Ch�a c� nh�m n�o ng k� th�ng b�o.</div>';
   }
 
   const html = `
@@ -94,7 +94,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Cài đặt Hệ thống - minhhan.net</title>
+      <title>C�i �t H� th�ng - minhhan.net</title>
       <link rel="icon" type="image/png" href="/assets/favicon.png?v=${Date.now()}">
       <link rel="apple-touch-icon" href="/assets/favicon.png?v=${Date.now()}">
       <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -131,7 +131,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           btns.style.justifyContent = 'flex-end';
           
           const btnOk = document.createElement('button');
-          btnOk.innerText = 'Đóng';
+          btnOk.innerText = '�ng';
           btnOk.style.padding = '8px 20px';
           btnOk.style.background = '#2563eb';
           btnOk.style.color = '#fff';
@@ -195,9 +195,9 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           });
           const data = await res.json();
           if (res.ok) {
-            showNotification('Đã lưu cấu hình văn phong & xưng hô AI!');
+            showNotification('� l�u c�u h�nh vn phong & x�ng h� AI!');
           } else {
-            showAlert('Lỗi: ' + (data.error || 'Không thể lưu cấu hình'));
+            showAlert('L�i: ' + (data.error || 'Kh�ng th� l�u c�u h�nh'));
           }
         }
 
@@ -215,6 +215,24 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           }
         }
 
+        async function saveBrandSettings() {
+          const site_title = document.getElementById('brand-site-title').value.trim();
+          const site_subtitle = document.getElementById('brand-site-subtitle').value.trim();
+          const site_footer = document.getElementById('brand-site-footer').value.trim();
+          const res = await fetch('/api/settings/brand', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ site_title, site_subtitle, site_footer })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showNotification('Đã lưu thông tin thương hiệu! Tải lại trang để thấy thay đổi.');
+          } else {
+            showAlert('Lỗi: ' + (data.error || 'Không thể lưu thương hiệu'));
+          }
+        }
+
+
         async function updateGroup(groupId) {
           const name = document.getElementById('gname_' + groupId).value;
           const res = await fetch('/api/settings/group/edit', {
@@ -223,14 +241,14 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
             body: JSON.stringify({groupId, name})
           });
           if (res.ok) {
-            showNotification('Đã cập nhật tên nhóm!');
+            showNotification('� c�p nh�t t�n nh�m!');
           } else {
-            showAlert('Lỗi khi cập nhật tên nhóm');
+            showAlert('L�i khi c�p nh�t t�n nh�m');
           }
         }
 
         async function deleteGroup(groupId) {
-          showCustomConfirm('Bạn có chắc chắn muốn gỡ nhóm này khỏi danh sách nhận thông báo?', async () => {
+          showCustomConfirm('B�n c� ch�c ch�n mu�n g� nh�m n�y kh�i danh s�ch nh�n th�ng b�o?', async () => {
             const res = await fetch('/api/settings/group/delete', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
@@ -239,7 +257,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
             if (res.ok) {
               window.location.reload();
             } else {
-              showAlert('Lỗi khi xóa nhóm');
+              showAlert('L�i khi x�a nh�m');
             }
           });
         }
@@ -275,7 +293,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           btns.style.gap = '12px';
           
           const btnCancel = document.createElement('button');
-          btnCancel.innerText = 'Hủy bỏ';
+          btnCancel.innerText = 'H�y b�';
           btnCancel.style.padding = '8px 16px';
           btnCancel.style.background = 'var(--border-color, #e2e8f0)';
           btnCancel.style.color = 'var(--text-main, #000)';
@@ -285,7 +303,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           btnCancel.onclick = () => overlay.remove();
           
           const btnOk = document.createElement('button');
-          btnOk.innerText = 'Xác nhận';
+          btnOk.innerText = 'X�c nh�n';
           btnOk.style.padding = '8px 16px';
           btnOk.style.background = '#ef4444';
           btnOk.style.color = '#fff';
@@ -325,7 +343,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           const currentVal = select ? select.value : '';
           const currentEditVal = editSelect ? editSelect.value : '';
 
-          let html = '<option value="">-- Chọn tài khoản Zalo --</option>';
+          let html = '<option value="">-- Ch�n t�i kho�n Zalo --</option>';
           admins.forEach(a => {
              html += '<option value="' + a.id + '">' + a.name + ' (' + a.id + ')</option>';
           });
@@ -344,14 +362,14 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
            const tbody = document.getElementById(tbodyId);
            if (!tbody) return;
            if (list.length === 0) {
-              tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; text-align:center; opacity:0.6;">' + (isPending ? 'Không có yêu cầu chờ duyệt.' : 'Chưa có Zalo Admin nào.') + '</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; text-align:center; opacity:0.6;">' + (isPending ? 'Kh�ng c� y�u c�u ch� duy�t.' : 'Ch�a c� Zalo Admin n�o.') + '</td></tr>';
               return;
            }
            let html = '';
            list.forEach(a => {
               const btnHtml = isPending 
-                ? '<button onclick="approveAdmin(\\'' + a.id + '\\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duyệt</button><button onclick="rejectAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">Xóa</button>'
-                : '<button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">Gỡ quyền</button>';
+                ? '<button onclick="approveAdmin(\\'' + a.id + '\\')" style="background:#10b981; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600;">Duy�t</button><button onclick="rejectAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; margin-left:6px;">X�a</button>'
+                : '<button onclick="revokeAdmin(\\'' + a.id + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">G� quy�n</button>';
               html += '<tr style="border-bottom:1px solid var(--border-color);"><td style="padding:12px; font-family:monospace;">' + String(a.id).substring(0,4) + '****' + String(a.id).slice(-3) + '</td><td style="padding:12px; font-weight:500;">' + a.name + '</td><td style="padding:12px;">' + btnHtml + '</td></tr>';
            });
            tbody.innerHTML = html;
@@ -364,42 +382,42 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
              body: JSON.stringify({id})
            });
            if (res.ok) {
-             showNotification('Đã duyệt Zalo Admin thành công!');
+             showNotification('� duy�t Zalo Admin th�nh c�ng!');
              loadAdmins();
            } else {
-             showAlert('Lỗi khi duyệt Admin');
+             showAlert('L�i khi duy�t Admin');
            }
         }
 
         async function rejectAdmin(id) {
-           showCustomConfirm('Bạn có chắc chắn muốn từ chối yêu cầu này?', async () => {
+           showCustomConfirm('B�n c� ch�c ch�n mu�n t� ch�i y�u c�u n�y?', async () => {
              const res = await fetch('/api/admins/reject', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
                body: JSON.stringify({id})
              });
              if (res.ok) {
-               showNotification('Đã từ chối yêu cầu');
+               showNotification('� t� ch�i y�u c�u');
                loadAdmins();
              } else {
-               showAlert('Lỗi khi từ chối yêu cầu');
+               showAlert('L�i khi t� ch�i y�u c�u');
              }
            });
         }
 
         async function revokeAdmin(id) {
-           showCustomConfirm('Bạn có chắc chắn muốn gỡ quyền Admin của tài khoản này?', async () => {
+           showCustomConfirm('B�n c� ch�c ch�n mu�n g� quy�n Admin c�a t�i kho�n n�y?', async () => {
              const res = await fetch('/api/admins/remove', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
                body: JSON.stringify({id})
              });
              if (res.ok) {
-               showNotification('Đã gỡ quyền Zalo Admin');
+               showNotification('� g� quy�n Zalo Admin');
                loadAdmins();
                loadWebUsers();
              } else {
-               showAlert('Lỗi khi gỡ quyền Admin');
+               showAlert('L�i khi g� quy�n Admin');
              }
            });
         }
@@ -418,14 +436,14 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
            const tbody = document.getElementById('webUsersTbody');
            if (!tbody) return;
            if (users.length === 0) {
-              tbody.innerHTML = '<tr><td colspan="5" style="padding:12px; text-align:center; opacity:0.6;">Chưa có tài khoản nào.</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="5" style="padding:12px; text-align:center; opacity:0.6;">Ch�a c� t�i kho�n n�o.</td></tr>';
               return;
            }
            let html = '';
            users.forEach(u => {
               const roleBadge = u.role === 'SUPER_ADMIN' 
-                ? '<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600;">Quản trị viên</span>' 
-                : '<span style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600;">Vận hành</span>';
+                ? '<span style="background:#fee2e2; color:#991b1b; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600;">Qu�n tr� vi�n</span>' 
+                : '<span style="background:#e0f2fe; color:#0369a1; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:600;">V�n h�nh</span>';
               
               const zaloTag = u.zaloId ? ('<span style="font-family:monospace; font-size:12px; background:var(--bg-color); padding:2px 6px; border-radius:4px; border:1px solid var(--border-color);">ID: ' + String(u.zaloId).substring(0,4) + '****' + String(u.zaloId).slice(-3) + '</span>') : '<span style="opacity:0.5;">-</span>';
 
@@ -435,8 +453,8 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
                 '<td style="padding:12px;">' + zaloTag + '</td>' +
                 '<td style="padding:12px;">' + roleBadge + '</td>' +
                 '<td style="padding:12px; text-align:right;">' +
-                  '<button onclick="openEditUserModal(\\'' + u.username + '\\', \\'' + (u.displayName || '') + '\\', \\'' + (u.zaloId || '') + '\\', \\'' + u.role + '\\')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; margin-right:6px;">Sửa</button>' +
-                  '<button onclick="deleteWebUser(\\'' + u.username + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500;">Xóa</button>' +
+                  '<button onclick="openEditUserModal(\\'' + u.username + '\\', \\'' + (u.displayName || '') + '\\', \\'' + (u.zaloId || '') + '\\', \\'' + u.role + '\\')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500; margin-right:6px;">S�a</button>' +
+                  '<button onclick="deleteWebUser(\\'' + u.username + '\\')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:500;">X�a</button>' +
                 '</td>' +
               '</tr>';
            });
@@ -451,7 +469,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           const zaloId = document.getElementById('newWebZaloId').value;
           
           if (!username || !password || !displayName || !zaloId) {
-             showAlert('Vui lòng nhập đầy đủ thông tin (*).');
+             showAlert('Vui l�ng nh�p �y � th�ng tin (*).');
              return;
           }
           
@@ -462,14 +480,14 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           });
           const data = await res.json();
           if (res.ok) {
-            showNotification('Tạo tài khoản thành công!');
+            showNotification('T�o t�i kho�n th�nh c�ng!');
             document.getElementById('newWebUsername').value = '';
             document.getElementById('newWebPassword').value = '';
             document.getElementById('newWebDisplayName').value = '';
             document.getElementById('newWebZaloId').value = '';
             loadWebUsers();
           } else {
-            showAlert('Lỗi: ' + (data.error || 'Không thể tạo tài khoản'));
+            showAlert('L�i: ' + (data.error || 'Kh�ng th� t�o t�i kho�n'));
           }
         }
 
@@ -494,7 +512,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           const password = document.getElementById('editWebPassword').value.trim();
 
           if (!displayName || !zaloId) {
-            showAlert('Vui lòng điền đầy đủ Tên hiển thị và liên kết Zalo.');
+            showAlert('Vui l�ng i�n �y � T�n hi�n th� v� li�n k�t Zalo.');
             return;
           }
 
@@ -505,16 +523,16 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
           });
           const data = await res.json();
           if (res.ok) {
-            showNotification('Đã cập nhật tài khoản!');
+            showNotification('� c�p nh�t t�i kho�n!');
             closeEditUserModal();
             loadWebUsers();
           } else {
-            showAlert('Lỗi: ' + (data.error || 'Không thể cập nhật'));
+            showAlert('L�i: ' + (data.error || 'Kh�ng th� c�p nh�t'));
           }
         }
 
         async function deleteWebUser(username) {
-           showCustomConfirm('Bạn có chắc muốn xóa tài khoản [' + username + ']? Hành động này không thể hoàn tác.', async () => {
+           showCustomConfirm('B�n c� ch�c mu�n x�a t�i kho�n [' + username + ']? H�nh �ng n�y kh�ng th� ho�n t�c.', async () => {
              const res = await fetch('/api/users/delete', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
@@ -522,10 +540,10 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
              });
              const data = await res.json();
              if (res.ok) {
-               showNotification('Đã xóa tài khoản');
+               showNotification('� x�a t�i kho�n');
                loadWebUsers();
              } else {
-               showAlert('Lỗi: ' + data.error);
+               showAlert('L�i: ' + data.error);
              }
            });
         }
@@ -680,154 +698,154 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     <body>
       <div class="header" style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h2><ion-icon name="settings-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Cài đặt Hệ thống</h2>
-          <p style="margin:4px 0 0 0; opacity:0.7; font-size:14px;">Quản lý toàn bộ cấu hình AI, văn phong xưng hô, tài khoản vận hành và nhóm thông báo.</p>
+          <h2><ion-icon name="settings-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>C�i �t H� th�ng</h2>
+          <p style="margin:4px 0 0 0; opacity:0.7; font-size:14px;">Qu�n l� to�n b� c�u h�nh AI, vn phong x�ng h�, t�i kho�n v�n h�nh v� nh�m th�ng b�o.</p>
         </div>
-        <button class="btn-primary" onclick="window.location.href='/report'">Quay lại Dashboard</button>
+        <button class="btn-primary" onclick="window.location.href='/report'">Quay l�i Dashboard</button>
       </div>
       
       <!-- TAB NAVIGATION -->
       <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
-        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
-        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
-        <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
-        <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
-        <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
+        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Vn phong & X�ng h�</button>
+        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Hu�n luy�n AI (FAQ)</button>
+        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & T�i kho�n</button>
+        <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Qu�n l� Nh�m</button>
+        <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao di�n (UI)</button>
+        <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy t�c AI (Ch� xem)</button>
       </div>
 
-      <!-- TAB 1: VĂN PHONG & XƯNG HÔ -->
+      <!-- TAB 1: VN PHONG & X�NG H� -->
       <div id="tab-tone" class="tab-pane active">
         <div class="card">
-          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Văn phong & Xưng hô AI</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">Tùy chỉnh xưng hô, tên đơn vị và môi trường hoạt động trực tiếp trên Web (thay thế cho file .env).</p>
+          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> C�u h�nh Vn phong & X�ng h� AI</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">T�y ch�nh x�ng h�, t�n �n v� v� m�i tr��ng ho�t �ng tr�c ti�p tr�n Web (thay th� cho file .env).</p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Tên Đơn vị / Tổ chức</label>
-              <input type="text" id="cfg_bot_org_name" value="${BOT_ORG_NAME}" placeholder="VD: trường Meyschool, Công ty ABC" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">T�n �n v� / T� ch�c</label>
+              <input type="text" id="cfg_bot_org_name" value="${BOT_ORG_NAME}" placeholder="VD: tr��ng Meyschool, C�ng ty ABC" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Vai trò Người dùng</label>
-              <input type="text" id="cfg_bot_user_role" value="${BOT_USER_ROLE}" placeholder="VD: Giáo viên, Nhân viên" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Vai tr� Ng��i d�ng</label>
+              <input type="text" id="cfg_bot_user_role" value="${BOT_USER_ROLE}" placeholder="VD: Gi�o vi�n, Nh�n vi�n" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">AI tự xưng là</label>
-              <input type="text" id="cfg_bot_pronoun_me" value="${BOT_PRONOUN_ME}" placeholder="VD: Em, Mình" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">AI t� x�ng l�</label>
+              <input type="text" id="cfg_bot_pronoun_me" value="${BOT_PRONOUN_ME}" placeholder="VD: Em, M�nh" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng Nam</label>
-              <input type="text" id="cfg_bot_pronoun_user_male" value="${BOT_PRONOUN_USER_MALE}" placeholder="VD: Thầy, Anh" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">G�i ng��i d�ng Nam</label>
+              <input type="text" id="cfg_bot_pronoun_user_male" value="${BOT_PRONOUN_USER_MALE}" placeholder="VD: Th�y, Anh" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng Nữ</label>
-              <input type="text" id="cfg_bot_pronoun_user_female" value="${BOT_PRONOUN_USER_FEMALE}" placeholder="VD: Cô, Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">G�i ng��i d�ng N�</label>
+              <input type="text" id="cfg_bot_pronoun_user_female" value="${BOT_PRONOUN_USER_FEMALE}" placeholder="VD: C�, Ch�" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
             <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi Mặc định / Chung</label>
-              <input type="text" id="cfg_bot_pronoun_user_default" value="${BOT_PRONOUN_USER_DEFAULT}" placeholder="VD: Thầy/Cô, Anh/Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">G�i M�c �nh / Chung</label>
+              <input type="text" id="cfg_bot_pronoun_user_default" value="${BOT_PRONOUN_USER_DEFAULT}" placeholder="VD: Th�y/C�, Anh/Ch�" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
             </div>
           </div>
           <div style="margin-bottom: 20px;">
-            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Môi trường hoạt động</label>
-            <input type="text" id="cfg_bot_environment" value="${BOT_ENVIRONMENT}" placeholder="VD: MÔI TRƯỜNG GIÁO DỤC (trường học)" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">M�i tr��ng ho�t �ng</label>
+            <input type="text" id="cfg_bot_environment" value="${BOT_ENVIRONMENT}" placeholder="VD: M�I TR��NG GI�O D�C (tr��ng h�c)" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
           </div>
-          <button class="btn-primary" onclick="saveBotConfig()">Lưu Cấu Hình Văn Phong</button>
+          <button class="btn-primary" onclick="saveBotConfig()">L�u C�u H�nh Vn Phong</button>
         </div>
       </div>
 
-      <!-- TAB 2: HUẤN LUYỆN AI (FAQ) -->
+      <!-- TAB 2: HU�N LUY�N AI (FAQ) -->
       <div id="tab-faq" class="tab-pane">
         <div class="card">
-          <h3><ion-icon name="library-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Huấn luyện AI (Nội dung FAQ)</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Nhập các dữ liệu bạn muốn AI học. Mỗi dòng một ý.<br><i>Ví dụ: 1. Pass wifi phòng họp là 123456... AI sẽ tự đọc hiểu văn bản này để trả lời người dùng.</i></p>
+          <h3><ion-icon name="library-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Hu�n luy�n AI (N�i dung FAQ)</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Nh�p c�c d� li�u b�n mu�n AI h�c. M�i d�ng m�t �.<br><i>V� d�: 1. Pass wifi ph�ng h�p l� 123456... AI s� t� �c hi�u vn b�n n�y � tr� l�i ng��i d�ng.</i></p>
           <textarea id="faqContent">${faqContent}</textarea>
           <br><br>
-          <button class="btn-primary" onclick="saveFaq()">Lưu FAQ</button>
+          <button class="btn-primary" onclick="saveFaq()">L�u FAQ</button>
         </div>
       </div>
 
-      <!-- TAB 3: ADMIN & TÀI KHOẢN -->
+      <!-- TAB 3: ADMIN & T�I KHO�N -->
       <div id="tab-accounts" class="tab-pane">
         <div class="card">
           <h3><ion-icon name="people-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Zalo Admin</h3>
-          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 16px;"><i>Quyền duyệt thuộc về tài khoản Super Admin. Những người dùng Zalo được duyệt dưới đây sẽ có quyền sử dụng các lệnh Zalo và nhận thông báo sự cố.</i></p>
+          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 16px;"><i>Quy�n duy�t thu�c v� t�i kho�n Super Admin. Nh�ng ng��i d�ng Zalo ��c duy�t d��i �y s� c� quy�n s� d�ng c�c l�nh Zalo v� nh�n th�ng b�o s� c�.</i></p>
           
-          <h4 style="margin-bottom: 12px; font-size: 15px;">Yêu cầu đang chờ duyệt</h4>
+          <h4 style="margin-bottom: 12px; font-size: 15px;">Y�u c�u ang ch� duy�t</h4>
           <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom: 24px;">
              <thead>
                <tr style="border-bottom:2px solid var(--border-color);">
                  <th style="padding:10px;">Zalo ID</th>
-                 <th style="padding:10px;">Tên Zalo</th>
-                 <th style="padding:10px;">Thao tác</th>
+                 <th style="padding:10px;">T�n Zalo</th>
+                 <th style="padding:10px;">Thao t�c</th>
                </tr>
              </thead>
              <tbody id="pendingAdminsTbody">
-               <tr><td colspan="3" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+               <tr><td colspan="3" style="padding:10px; text-align:center;">ang t�i...</td></tr>
              </tbody>
           </table>
 
-          <h4 style="margin-bottom: 12px; font-size: 15px;">Danh sách Zalo Admin chính thức</h4>
+          <h4 style="margin-bottom: 12px; font-size: 15px;">Danh s�ch Zalo Admin ch�nh th�c</h4>
           <table style="width:100%; border-collapse:collapse; text-align:left;">
              <thead>
                <tr style="border-bottom:2px solid var(--border-color);">
                  <th style="padding:10px;">Zalo ID</th>
-                 <th style="padding:10px;">Tên Zalo</th>
-                 <th style="padding:10px;">Thao tác</th>
+                 <th style="padding:10px;">T�n Zalo</th>
+                 <th style="padding:10px;">Thao t�c</th>
                </tr>
              </thead>
              <tbody id="activeAdminsTbody">
-               <tr><td colspan="3" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+               <tr><td colspan="3" style="padding:10px; text-align:center;">ang t�i...</td></tr>
              </tbody>
           </table>
         </div>
 
         <div class="card" style="margin-top: 24px;">
-          <h3><ion-icon name="person-add-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Tài khoản Web Vận hành</h3>
-          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 20px;">Tạo và phân quyền tài khoản cho nhân viên Vận hành. Tự động liên kết hiển thị tên với Zalo.</p>
+          <h3><ion-icon name="person-add-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> T�i kho�n Web V�n h�nh</h3>
+          <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 20px;">T�o v� ph�n quy�n t�i kho�n cho nh�n vi�n V�n h�nh. T� �ng li�n k�t hi�n th� t�n v�i Zalo.</p>
           
           <div style="background: var(--bg-color); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 24px;">
-            <h4 style="margin-top:0; margin-bottom:16px; font-size: 15px; color: var(--text-main); font-weight: 600;">Thêm tài khoản mới</h4>
+            <h4 style="margin-top:0; margin-bottom:16px; font-size: 15px; color: var(--text-main); font-weight: 600;">Th�m t�i kho�n m�i</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px;">
-              <input type="text" id="newWebUsername" placeholder="Tên đăng nhập *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-              <input type="password" id="newWebPassword" placeholder="Mật khẩu *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-              <input type="text" id="newWebDisplayName" placeholder="Tên hiển thị (VD: Nguyễn Văn A) *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <input type="text" id="newWebUsername" placeholder="T�n ng nh�p *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <input type="password" id="newWebPassword" placeholder="M�t kh�u *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              <input type="text" id="newWebDisplayName" placeholder="T�n hi�n th� (VD: Nguy�n Vn A) *" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
               <select id="newWebZaloId" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;">
-                 <option value="">-- Chọn tài khoản Zalo --</option>
+                 <option value="">-- Ch�n t�i kho�n Zalo --</option>
               </select>
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
               <select id="newWebRole" style="flex: 1; min-width: 180px; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-size: 14px; outline: none;">
-                 <option value="ADMIN">Vận hành</option>
-                 <option value="SUPER_ADMIN">Quản trị viên</option>
+                 <option value="ADMIN">V�n h�nh</option>
+                 <option value="SUPER_ADMIN">Qu�n tr� vi�n</option>
               </select>
-              <button class="btn-primary" onclick="createWebUser()" style="padding:10px 24px;">Tạo tài khoản</button>
+              <button class="btn-primary" onclick="createWebUser()" style="padding:10px 24px;">T�o t�i kho�n</button>
             </div>
           </div>
 
-          <h4 style="margin-bottom: 12px; font-size: 15px;">Danh sách tài khoản Web hiện tại</h4>
+          <h4 style="margin-bottom: 12px; font-size: 15px;">Danh s�ch t�i kho�n Web hi�n t�i</h4>
           <table style="width:100%; border-collapse:collapse; text-align:left;">
              <thead>
                <tr style="border-bottom:2px solid var(--border-color);">
-                 <th style="padding:10px;">Tên đăng nhập</th>
-                 <th style="padding:10px;">Tên hiển thị</th>
-                 <th style="padding:10px;">Liên kết Zalo</th>
-                 <th style="padding:10px;">Vai trò</th>
-                 <th style="padding:10px; text-align:right;">Thao tác</th>
+                 <th style="padding:10px;">T�n ng nh�p</th>
+                 <th style="padding:10px;">T�n hi�n th�</th>
+                 <th style="padding:10px;">Li�n k�t Zalo</th>
+                 <th style="padding:10px;">Vai tr�</th>
+                 <th style="padding:10px; text-align:right;">Thao t�c</th>
                </tr>
              </thead>
              <tbody id="webUsersTbody">
-               <tr><td colspan="5" style="padding:10px; text-align:center;">Đang tải...</td></tr>
+               <tr><td colspan="5" style="padding:10px; text-align:center;">ang t�i...</td></tr>
              </tbody>
           </table>
         </div>
       </div>
 
-      <!-- TAB 4: QUẢN LÝ NHÓM -->
+      <!-- TAB 4: QU�N L� NH�M -->
       <div id="tab-groups" class="tab-pane">
         <div class="card">
-          <h3><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Nhóm nhận thông báo Zalo</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Danh sách các nhóm Zalo đã cài đặt để nhận thông báo sự cố (Broadcast).</p>
+          <h3><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Nh�m nh�n th�ng b�o Zalo</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Danh s�ch c�c nh�m Zalo � c�i �t � nh�n th�ng b�o s� c� (Broadcast).</p>
           <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
             ${groupRows}
           </div>
@@ -838,74 +856,100 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       <!-- TAB UI -->
       <div id="tab-ui" class="tab-pane">
         <div class="card">
-          <h3><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Giao diện</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Tải lên logo và favicon của bạn (Kích thước khuyên dùng: Logo < 1MB, Favicon 512x512). Ảnh sẽ được tự động chuyển đổi sang định dạng .png.</p>
+          <h3><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> C�u h�nh Giao di�n</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">T�i l�n logo v� favicon c�a b�n (K�ch th��c khuy�n d�ng: Logo < 1MB, Favicon 512x512). �nh s� ��c t� �ng chuy�n �i sang �nh d�ng .png.</p>
           
           <div style="display:flex; gap: 20px; flex-wrap: wrap;">
             <div style="flex:1; min-width: 250px; background: var(--bg-color); padding: 15px; border-radius: 8px; text-align: center;">
-              <h4>Favicon (Biểu tượng Tab)</h4>
+              <h4>Favicon (Bi�u t��ng Tab)</h4>
               <img src="/assets/favicon.png?v=${Date.now()}" id="preview-favicon" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/64'">
               <div>
                 <input type="file" id="upload-favicon" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'favicon')">
-                <button type="button" onclick="document.getElementById('upload-favicon').click()" style="width:100%">Tải lên Favicon</button>
+                <button type="button" onclick="document.getElementById('upload-favicon').click()" style="width:100%">T�i l�n Favicon</button>
               </div>
             </div>
 
             <div style="flex:1; min-width: 250px; background: var(--bg-color); padding: 15px; border-radius: 8px; text-align: center;">
-              <h4>Logo hệ thống</h4>
+              <h4>Logo h� th�ng</h4>
               <img src="/assets/logo.png?v=${Date.now()}" id="preview-logo" style="width: 120px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/120x64'">
               <div>
                 <input type="file" id="upload-logo" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'logo')">
-                <button type="button" onclick="document.getElementById('upload-logo').click()" style="width:100%">Tải lên Logo</button>
+                <button type="button" onclick="document.getElementById('upload-logo').click()" style="width:100%">T�i l�n Logo</button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3><ion-icon name="storefront-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Thương hiệu hệ thống</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Tùy chỉnh tiêu đề, mô tả và chân trang hiển thị trên giao diện quản lý. Dùng để thương mại hóa khi bán lại hệ thống cho đơn vị khác.</p>
+
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Tiêu đề trang (tab trình duyệt &amp; logo text)</label>
+              <input type="text" id="brand-site-title" value="${await db.getSetting('site_title') || 'Hệ Thống Quản Lý IT'}" placeholder="Hệ Thống Quản Lý IT" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-color); color:var(--text-main); font-size:15px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Mô tả ngắn (hiển thị dưới tiêu đề)</label>
+              <input type="text" id="brand-site-subtitle" value="${await db.getSetting('site_subtitle') || 'Giải pháp tiếp nhận & hỗ trợ kỹ thuật chuyên nghiệp'}" placeholder="Giải pháp tiếp nhận & hỗ trợ kỹ thuật..." style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-color); color:var(--text-main); font-size:15px;">
+            </div>
+            <div>
+              <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Chân trang (footer - tên công ty / website)</label>
+              <input type="text" id="brand-site-footer" value="${await db.getSetting('site_footer') || 'minhhan.net'}" placeholder="minhhan.net" style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid var(--border-color); border-radius:8px; background:var(--bg-color); color:var(--text-main); font-size:15px;">
+            </div>
+            <div>
+              <button class="btn-primary" onclick="saveBrandSettings()" style="padding:10px 28px;">
+                <ion-icon name="save-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Lưu thương hiệu
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 5: QUY TẮC AI -->
+
+      <!-- TAB 5: QUY T�C AI -->
 
       <div id="tab-prompt" class="tab-pane">
         <div class="card">
-          <h3><ion-icon name="search-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Chế độ Xem trước: Lệnh hệ thống (System Prompt)</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 16px;">Đây là toàn bộ quy tắc nền tảng mà AI đang sử dụng để suy luận, phân loại sự cố và xưng hô (Chế độ chỉ xem).</p>
+          <h3><ion-icon name="search-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Ch� � Xem tr��c: L�nh h� th�ng (System Prompt)</h3>
+          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 16px;">�y l� to�n b� quy t�c n�n t�ng m� AI ang s� d�ng � suy lu�n, ph�n lo�i s� c� v� x�ng h� (Ch� � ch� xem).</p>
           <div style="background-color: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-y: auto; height: 350px; color: var(--text-main);">
 ${systemPromptPreview}
           </div>
         </div>
       </div>
 
-      <!-- Modal Chỉnh Sửa Tài Khoản Web -->
+      <!-- Modal Ch�nh S�a T�i Kho�n Web -->
       <div id="editUserModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
         <div style="background:var(--card-bg); padding:24px; border-radius:12px; width:450px; max-width:90%; border:1px solid var(--border-color); box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);">
-          <h3 style="margin-top:0; margin-bottom:16px;">Chỉnh sửa tài khoản Web</h3>
+          <h3 style="margin-top:0; margin-bottom:16px;">Ch�nh s�a t�i kho�n Web</h3>
           <input type="hidden" id="editWebUsername">
           
           <div style="margin-bottom:14px;">
-            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Tên hiển thị *</label>
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">T�n hi�n th� *</label>
             <input type="text" id="editWebDisplayName" style="width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main);">
           </div>
           <div style="margin-bottom:14px;">
-            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Liên kết Zalo *</label>
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Li�n k�t Zalo *</label>
             <select id="editWebZaloId" style="width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main);">
-               <option value="">-- Chọn tài khoản Zalo --</option>
+               <option value="">-- Ch�n t�i kho�n Zalo --</option>
             </select>
           </div>
           <div style="margin-bottom:14px;">
-            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Vai trò *</label>
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Vai tr� *</label>
             <select id="editWebRole" style="width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main);">
-               <option value="ADMIN">Vận hành</option>
-               <option value="SUPER_ADMIN">Quản trị viên</option>
+               <option value="ADMIN">V�n h�nh</option>
+               <option value="SUPER_ADMIN">Qu�n tr� vi�n</option>
             </select>
           </div>
           <div style="margin-bottom:20px;">
-            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">Mật khẩu mới (Bỏ trống nếu không đổi)</label>
-            <input type="password" id="editWebPassword" placeholder="Nhập mật khẩu mới..." style="width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main);">
+            <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px;">M�t kh�u m�i (B� tr�ng n�u kh�ng �i)</label>
+            <input type="password" id="editWebPassword" placeholder="Nh�p m�t kh�u m�i..." style="width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main);">
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button onclick="closeEditUserModal()" style="background:var(--border-color); color:var(--text-main);">Hủy</button>
-            <button onclick="submitEditWebUser()" class="btn-primary">Lưu thay đổi</button>
+            <button onclick="closeEditUserModal()" style="background:var(--border-color); color:var(--text-main);">H�y</button>
+            <button onclick="submitEditWebUser()" class="btn-primary">L�u thay �i</button>
           </div>
         </div>
       </div>
