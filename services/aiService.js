@@ -11,9 +11,13 @@ const userContexts = new Map();
 function extractLocationFallback(text) {
   const lowerText = text.toLowerCase();
   
-  // 1. Quét chuỗi dạng 1m3, 10m2, 12m5
+  // 1. Quét chuỗi dạng 1m3, 10m2, 12m5 (thêm chữ Lớp vào nếu chưa có)
   const match1 = lowerText.match(/\b\d{1,2}m\d{1,2}\b/i);
-  if (match1) return match1[0];
+  if (match1) {
+    const before = lowerText.substring(0, lowerText.indexOf(match1[0])).trim();
+    const hasPrefix = /(lớp|phòng)\s*$/.test(before);
+    return hasPrefix ? (before.match(/(lớp|phòng)\s*$/)[0].trim() + ' ' + match1[0]) : ('Lớp ' + match1[0].toUpperCase());
+  }
   
   // 2. Quét "tầng xxx", "khu xxx"
   const match3 = lowerText.match(/(?:tầng|khu)\s+([a-z0-9]+)/i);
