@@ -148,7 +148,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         'Authorization': 'Bearer ' + AI_API_KEY
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
+        model: 'llama-3.1-8b-instant',
         messages: messages,
         max_tokens: 256,
         temperature: 0.2
