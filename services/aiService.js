@@ -40,6 +40,35 @@ function extractLocationFallback(text) {
   return null;
 }
 
+
+let activeGroqModel = null;
+
+async function getGroqModel() {
+  if (activeGroqModel) return activeGroqModel;
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/models', {
+      headers: { 'Authorization': 'Bearer ' + AI_API_KEY }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      const models = data.data.map(m => m.id);
+      // Prefer some common models, fallback to the first one available
+      const preferred = ['llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'];
+      for (const p of preferred) {
+        if (models.includes(p)) {
+          activeGroqModel = p;
+          return p;
+        }
+      }
+      activeGroqModel = models[0];
+      return models[0];
+    }
+  } catch (err) {
+    console.error('Failed to fetch models list from Groq', err);
+  }
+  return 'mixtral-8x7b-32768'; // Ultimate fallback
+}
+
 async function analyzeWithAI(text, senderName, senderId) {
   if (!AI_API_KEY) return { type: 'TICKET', location: extractLocationFallback(text) || "Không xác định" };
   
@@ -148,7 +177,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         'Authorization': 'Bearer ' + AI_API_KEY
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: await getGroqModel(),
         messages: messages,
         max_tokens: 256,
         temperature: 0.2
