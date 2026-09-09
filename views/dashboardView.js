@@ -210,6 +210,13 @@ async function getDashboardHtml(user) {
             box.appendChild(btns);
             overlay.appendChild(box);
             document.body.appendChild(overlay);
+
+            // Enter = xác nhận, Escape = hủy
+            const _keyHandler = (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); overlay.remove(); document.removeEventListener('keydown', _keyHandler); if (onConfirm) onConfirm(); }
+                if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', _keyHandler); }
+            };
+            document.addEventListener('keydown', _keyHandler);
         }
 
         if (localStorage.getItem('theme') === 'dark') {
@@ -951,7 +958,17 @@ async function getDashboardHtml(user) {
               }
           }
 
-          function cancelReject(ticketId) {
+          document.addEventListener('keydown', function _globalEscHandler(e) {
+            if (e.key === 'Escape') {
+                // Close any open reject input boxes
+                document.querySelectorAll('[id^="rejectInput_"]').forEach(input => {
+                    const match = input.id.match(/rejectInput_(d+)/);
+                    if (match) cancelReject(parseInt(match[1]));
+                });
+            }
+        });
+
+        function cancelReject(ticketId) {
               // Force re-render bằng cách reset cache, rồi fetch lại
               lastRenderedHtml = '';
               fetchAndRenderRows();
