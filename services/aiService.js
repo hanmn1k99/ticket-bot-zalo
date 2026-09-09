@@ -53,7 +53,7 @@ async function getGroqModel() {
       const data = await response.json();
       const models = data.data.map(m => m.id);
       // Prefer some common models, fallback to the first one available
-      const preferred = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'];
+      const preferred = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'qwen/qwen3.6-27b', 'qwen3.8-27b', 'qwen3.6-27b', 'llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it', 'mixtral-8x7b-32768'];
       const chatModels = models.filter(m => !m.includes('whisper'));
       for (const p of preferred) {
         if (models.includes(p)) {
