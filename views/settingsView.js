@@ -820,7 +820,7 @@ async function getSettingsHtml(user) {
               <img src="/assets/favicon.png?v=${Date.now()}" id="preview-favicon" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/64'">
               <div>
                 <input type="file" id="upload-favicon" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'favicon')">
-                <button type="button" onclick="document.getElementById('upload-favicon').click()" style="width:100%">Tải lên Favicon</button>
+                <button type="button" class="btn-primary" onclick="document.getElementById('upload-favicon').click()" style="width:100%; margin-top:8px;"><ion-icon name="cloud-upload-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Tải lên Favicon</button>
               </div>
             </div>
 
@@ -829,7 +829,7 @@ async function getSettingsHtml(user) {
               <img src="/assets/logo.png?v=${Date.now()}" id="preview-logo" style="width: 120px; height: 64px; object-fit: contain; margin-bottom: 15px; border-radius: 8px; border: 1px dashed var(--border-color); padding: 5px;" onerror="this.src='https://via.placeholder.com/120x64'">
               <div>
                 <input type="file" id="upload-logo" accept="image/*" style="display:none" onchange="previewAndUpload(this, 'logo')">
-                <button type="button" onclick="document.getElementById('upload-logo').click()" style="width:100%">Tải lên Logo</button>
+                <button type="button" class="btn-primary" onclick="document.getElementById('upload-logo').click()" style="width:100%; margin-top:8px;"><ion-icon name="cloud-upload-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>Tải lên Logo</button>
               </div>
             </div>
           </div>
@@ -903,7 +903,7 @@ ${systemPromptPreview}
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <button onclick="closeEditUserModal()" style="background:var(--border-color); color:var(--text-main);">Hủy</button>
+            <button onclick="closeEditUserModal()" style="padding:10px 20px; border-radius:8px; border:none; font-weight:600; cursor:pointer; background:#64748b; color:white;">Hủy</button>
             <button onclick="submitEditWebUser()" class="btn-primary">Lưu thay đổi</button>
           </div>
         </div>
