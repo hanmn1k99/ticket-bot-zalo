@@ -53,15 +53,16 @@ async function getGroqModel() {
       const data = await response.json();
       const models = data.data.map(m => m.id);
       // Prefer some common models, fallback to the first one available
-      const preferred = ['llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'];
+      const preferred = ['llama-3.3-70b-versatile', 'llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'];
+      const chatModels = models.filter(m => !m.includes('whisper'));
       for (const p of preferred) {
         if (models.includes(p)) {
           activeGroqModel = p;
           return p;
         }
       }
-      activeGroqModel = models[0];
-      return models[0];
+      activeGroqModel = chatModels[0];
+      return chatModels[0];
     }
   } catch (err) {
     console.error('Failed to fetch models list from Groq', err);
@@ -118,19 +119,19 @@ Quy tắc ngôn ngữ (QUAN TRỌNG NHẤT):
 - NẾU NGƯỜI DÙNG NHẮN BẰNG TIẾNG ANH, BẠN PHẢI TRẢ LỜI 100% BẰNG TIẾNG ANH. KHÔNG ĐƯỢC PHÉP CHÈN BẤT KỲ TỪ TIẾNG VIỆT NÀO. Bỏ qua quy tắc xưng hô "${BOT_PRONOUN_USER_DEFAULT}/${BOT_PRONOUN_ME}".
 
 Quy tắc phân loại (RẤT QUAN TRỌNG - KHÔNG ĐƯỢC BỎ LỠ TICKET CỦA ADMIN):
-1. TICKET - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, mạng wifi, máy in, camera, phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
+1. TICKET (BÁO LỖI) - Phân loại là TICKET NẾU VÀ CHỈ NẾU tin nhắn là YÊU CẦU XỬ LÝ SỰ CỐ KỸ THUẬT IT, TÀI KHOẢN EMAIL/M365 HOẶC CƠ SỞ VẬT CHẤT (máy tính, mạng wifi, máy in, camera, phần mềm, âm thanh, loa, mic, máy chiếu, tivi, điều hòa/máy lạnh, đèn, điện, nước, bàn ghế, cửa...).
 - TẤT CẢ VẤN ĐỀ EMAIL / M365: Quên mật khẩu email, mất tài khoản, mất 2FA / xác minh 2 lớp, không gửi/nhận được email, lỗi Outlook/Microsoft 365... BẮT BUỘC LÀ TICKET (vì M365 do IT trực tiếp quản lý).
 - Các dấu hiệu nhận biết: "coi giùm", "xem giúp", "sửa", "kiểm tra", "hư", "lag", "chậm", "không vào được", "mất mạng", "bị đơ", "không in được", "rè", "không lên", "cháy", "rò rỉ", "gãy", "chập", "quên mk", "mất 2fa"...
 - ĐẶC BIỆT LƯU Ý VỀ WIFI: Nếu người dùng kêu "mất wifi", "không có wifi", "wifi hỏng", "không kết nối được wifi" -> CHẮC CHẮN LÀ TICKET (Báo lỗi). CHỈ phân loại là ANSWER khi người dùng thực sự hỏi "Mật khẩu wifi là gì?", "Cho xin pass wifi".
 - LƯU Ý ĐẶC BIỆT: KHÔNG TẠO TICKET đối với các nhờ vả cá nhân, sai vặt không liên quan đến sửa chữa kỹ thuật. Những câu này phân loại là ANSWER để từ chối khéo léo.
 - Khi quyết định là TICKET, HÃY TRÍCH XUẤT ĐỊA ĐIỂM (vị trí) sự cố nếu có trong câu hỏi. Trả về đúng định dạng: TICKET|[Địa điểm]. Nếu không xác định được địa điểm, trả về: TICKET|Không xác định.
 
-2. ANSWER - Phân loại là ANSWER nếu tin nhắn là:
+2. ANSWER (TRẢ LỜI/TỪ CHỐI) - MẶC ĐỊNH MỌI CÂU HỎI LÀ ANSWER nếu tin nhắn không rõ ràng là sự cố kỹ thuật, hoặc là:
 - Câu hỏi tìm kiếm thông tin có sẵn trong FAQ (wifi, máy in...).
 - Tin nhắn xin thông tin rõ ràng (ví dụ: "cho xin mật khẩu wifi", "pass wifi là gì", "làm sao để mượn máy chiếu").
 - Nhờ vả cá nhân phi lý, mua đồ, sai vặt (hãy từ chối khéo léo).
 - Tin nhắn chào hỏi xã giao, hỏi thăm sức khỏe, trò chuyện kiến thức chung.
-Lúc này BẮT BUỘC bắt đầu bằng chữ: ANSWER|
+Lúc này BẮT BUỘC bắt đầu bằng chữ: ANSWER| (KHÔNG ĐƯỢC CHỨA CHỮ TICKET| TRONG CÂU TRẢ LỜI).
 - Tuyệt đối không gọi đích danh bất kỳ cá nhân nào trong phòng IT, chỉ được phép dùng từ "Bộ phận IT".
 - Với câu hỏi tra cứu FAQ (xin wifi, máy in...): Lọc ĐÚNG thông tin cần thiết và trả lời CỰC KỲ NGẮN GỌN (1-2 câu). Không liệt kê các thông tin thừa mà người dùng không hỏi. (Ví dụ: Hỏi wifi khách thì chỉ nói tên và pass wifi khách).
 - Với câu hỏi xã giao/nhờ vả cá nhân: Trả lời RẤT NGẮN GỌN, lịch sự từ chối hoặc trả lời đúng trọng tâm.
@@ -180,7 +181,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
         model: await getGroqModel(),
         messages: messages,
         max_tokens: 256,
-        temperature: 0.2
+        temperature: 0.0
       })
     });
 
@@ -193,6 +194,9 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
 
     const data = await response.json();
     let result = data.choices?.[0]?.message?.content?.trim() || 'TICKET';
+    console.log('--- AI RAW RESPONSE ---');
+    console.log(result);
+    console.log('-----------------------');
     
     // Nếu AI trả về hoặc chứa TICKET| trong văn bản
     if (result.includes('TICKET|') || result.startsWith('TICKET')) {
