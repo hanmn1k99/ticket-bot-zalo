@@ -578,7 +578,10 @@ async function getSettingsHtml(user) {
               padding-bottom: 2px;
           }
           .tab-btn {
-              padding: 12px 20px;
+              flex: 1;
+              text-align: center;
+              white-space: nowrap;
+              padding: 12px 10px;
               border: none;
               background: transparent;
               color: var(--text-main);
