@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const router = express.Router();
@@ -11,7 +11,9 @@ router.get('/settings', checkAuth, async (req, res) => {
   if (req.user.role !== 'SUPER_ADMIN') return res.redirect('/report');
   const html = await getSettingsHtml(req.user);
   if (!html) return res.redirect('/report');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
+
 });
 
 // POST /api/settings/faq

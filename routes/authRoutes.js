@@ -9,8 +9,10 @@ const { getLoginHtml, getSetupHtml, getForgotPasswordHtml } = require('../views/
 
 // GET /login HTML
 router.get('/login', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(getLoginHtml());
 });
+
 
 // POST /login
 router.post('/login', async (req, res) => {
@@ -37,6 +39,7 @@ router.post('/login', async (req, res) => {
 router.get('/setup', async (req, res) => {
   const users = await db.getUsers();
   if (users.length > 0) return res.redirect('/login');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(getSetupHtml());
 });
 
@@ -61,6 +64,7 @@ router.post('/api/auth/setup', async (req, res) => {
 
 // GET /forgot-password
 router.get('/forgot-password', (req, res) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(getForgotPasswordHtml());
 });
 
