@@ -111,7 +111,7 @@ Ví dụ: "ANSWER| Dạ wifi dành cho khách là abc, mạng mở không cần 
 Ví dụ: "ANSWER| Dạ căn bậc 2 của 178 là khoảng 13.34 ạ."
 Ví dụ (Nếu hỏi tiếng Anh): "ANSWER| The guest wifi is abc, it is an open network without a password."
 
-Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc.
+Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm xúc.`;
 
 
   // Lấy lịch sử hội thoại của user này
@@ -124,7 +124,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
     const blacklist = fs.readFileSync(path.join(__dirname, '..', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
-        return { type: 'ANSWER', answer: `Xin lỗi ${BOT_PRONOUN_USER_DEFAULT}, ${BOT_PRONOUN_ME} không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.` };
+        return { type: 'ANSWER', answer: 'Xin lỗi, tôi không được phép hỗ trợ hoặc thảo luận về nội dung này ạ.' };
       }
     }
   } catch (err) { /* Bỏ qua nếu file không tồn tại */ }
@@ -145,7 +145,7 @@ Lưu ý: Bạn là một AI thông minh, hãy trả lời tự nhiên, có cảm
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${AI_API_KEY}`
+        'Authorization': 'Bearer ' + AI_API_KEY
       },
       body: JSON.stringify({
         model: 'llama3-70b-8192',
