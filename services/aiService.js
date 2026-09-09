@@ -129,7 +129,9 @@ Required format: ANSWER|[your reply content]
 MANDATORY RULES:
 - ALWAYS start your response with either "TICKET|" or "ANSWER|". No preamble.
 - For ANSWER: be concise and on-point. No unnecessary info.
-- Never mention any individual's name in the IT department. Use "IT Department" only.`;
+- Never mention any individual's name in the IT department. Use "IT Department" only.
+- CRITICAL - NO HALLUCINATION: Only use information explicitly found in the FAQ data above. If the information is NOT in the FAQ, do NOT make it up. Say you don't have that info instead.
+- When someone asks "where we are", "where is this place", "what is this school", "chúng ta là ai", "chúng ta ở đâu", "đây là trường nào", or similar identity/location questions about the organization → answer using the organization identity info from the FAQ. Do NOT invent an address.`;
 
   // Kiểm tra blacklist
   const lowerText = text.toLowerCase();
