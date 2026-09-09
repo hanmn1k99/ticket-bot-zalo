@@ -15,11 +15,7 @@ function extractLocationFallback(text) {
   const match1 = lowerText.match(/\b\d{1,2}m\d{1,2}\b/i);
   if (match1) return match1[0];
   
-  // 2. Quét "lớp xxx", "phòng xxx"
-  const match2 = lowerText.match(/(?:lớp|phòng)\s+([a-z0-9\-.]+)/i);
-  if (match2) return match2[0];
-  
-  // 3. Quét "tầng xxx", "khu xxx"
+  // 2. Quét "tầng xxx", "khu xxx"
   const match3 = lowerText.match(/(?:tầng|khu)\s+([a-z0-9]+)/i);
   if (match3) {
       const idx = lowerText.indexOf(match3[0]);
@@ -33,7 +29,7 @@ function extractLocationFallback(text) {
       return match3[0];
   }
   
-  // 4. Các phòng đặc biệt khác
+  // 3. Các phòng đặc biệt khác
   const match4 = lowerText.match(/(thư viện|hội trường|nhà xe|phòng y tế|sân trường|nhà đa năng|phòng lab|căn tin|bảo vệ|nhà vệ sinh|wc|toilet)/i);
   if (match4) return match4[0];
   
@@ -152,13 +148,16 @@ QUY TẮC XƯNG HÔ VÀ ĐỊNH DẠNG (BẮT BUỘC):
       const parts = ticketStr.split('|');
       
         let loc = parts.length > 1 ? parts[1].trim().split('\n')[0] : "";
-        const fallback = extractLocationFallback(text);
         
-        // Luôn ưu tiên Regex Fallback vì nó chính xác với rule của trường hơn AI
-        if (fallback) {
-            loc = fallback;
-        } else if (!loc || loc.toLowerCase().includes('không') || loc.toLowerCase().includes('chưa') || loc.toLowerCase().includes('none') || loc === 'TICKET') {
-            loc = "Không xác định";
+        // NẾU AI TRẢ VỀ RỖNG HOẶC "KHÔNG XÁC ĐỊNH", TA MỚI DÙNG REGEX ĐỂ CỨU VÃN
+        // Tuyệt đối không ghi đè nếu AI đã nhận diện đúng vị trí (như "Phòng Hiệu trưởng")
+        if (!loc || loc.toLowerCase().includes('không') || loc.toLowerCase().includes('chưa') || loc === 'TICKET') {
+            const fallback = extractLocationFallback(text);
+            if (fallback) {
+                loc = fallback;
+            } else {
+                loc = "Không xác định";
+            }
         }
         
         return { type: 'TICKET', location: loc };
