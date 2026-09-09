@@ -301,7 +301,7 @@ router.post('/webhook', async (req, res) => {
       let ticketId, replyText;
       if (firstSpace === -1) {
         ticketId = parseInt(params.replace('#', ''), 10);
-        replyText = 'Lý do không được cung cấp';
+        replyText = '';
       } else {
         ticketId = parseInt(params.substring(0, firstSpace).replace('#', ''), 10);
         replyText = params.substring(firstSpace + 1).trim();
@@ -310,6 +310,16 @@ router.post('/webhook', async (req, res) => {
       if (isNaN(ticketId)) {
         await sendZaloMessage(chatId, "⚠️ Cú pháp sai. Vui lòng nhập: /tuchoi [Mã sự cố] [Lý do]");
         return;
+      }
+      
+      const _isSuper = await isSuperAdmin(senderId);
+      if (!replyText) {
+        if (_isSuper) {
+          replyText = 'Không có lý do cụ thể';
+        } else {
+          await sendZaloMessage(chatId, "⚠️ Bắt buộc phải nhập lý do khi từ chối sự cố. Cú pháp: /tuchoi [Mã] [Lý do]");
+          return;
+        }
       }
       
       const reqTicket = await db.getRequest(ticketId);
@@ -581,7 +591,16 @@ router.post('/webhook', async (req, res) => {
         const isReject = cleanText.toLowerCase().startsWith('từ chối') || cleanText.toLowerCase().startsWith('tu choi') || cleanText.toLowerCase().startsWith('reject');
         
         if (isReject) {
-          const reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim() || 'Không có lý do cụ thể';
+          let reason = cleanText.replace(/^(từ chối|tu choi|reject)\s*/i, '').trim();
+          const _isSuper = await isSuperAdmin(senderId);
+          if (!reason) {
+            if (_isSuper) {
+              reason = 'Không có lý do cụ thể';
+            } else {
+              await sendZaloMessage(chatId, "⚠️ Vận hành viên bắt buộc phải nhập lý do khi từ chối sự cố. (Ví dụ: Từ chối Máy hỏng quá nặng)");
+              return;
+            }
+          }
           await db.updateRequestStatus(targetTicketId, 'Từ chối', senderId, itName);
           await db.updateRequest(targetTicketId, reason, Date.now());
           
