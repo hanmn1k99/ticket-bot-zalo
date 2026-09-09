@@ -65,9 +65,16 @@ router.post('/api/tickets/resolve', checkAuth, async (req, res) => {
 
 // ENDPOINT: Từ chối sự cố
 router.post('/api/tickets/reject', checkAuth, async (req, res) => {
-  const { id, replyText } = req.body;
-  if (!id || !replyText) {
-    return res.status(400).json({ error: 'Thiếu thông tin (ID hoặc Lý do từ chối).' });
+  let { id, replyText } = req.body;
+  if (!id) {
+    return res.status(400).json({ error: 'Thiếu ID sự cố.' });
+  }
+  if (!replyText) {
+    if (req.user && req.user.role === 'SUPER_ADMIN') {
+      replyText = 'Không có lý do cụ thể';
+    } else {
+      return res.status(400).json({ error: 'Bắt buộc phải nhập lý do khi thay đổi trạng thái sự cố.' });
+    }
   }
 
   const existingReq = await db.getRequest(id);

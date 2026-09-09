@@ -983,11 +983,7 @@ async function getDashboardHtml(user) {
           async function submitReject(ticketId) {
               const input = document.getElementById('rejectInput_' + ticketId);
               const reason = input ? input.value.trim() : '';
-              if (!reason) {
-                  showAlert('Vui lòng nhập lý do thay đổi trạng thái!');
-                  if (input) input.focus();
-                  return;
-              }
+              // Backend sẽ kiểm tra quyền - Super Admin được phép không nhập lý do
 
               const btn = input.nextElementSibling;
               const originalBtnText = btn.textContent;
