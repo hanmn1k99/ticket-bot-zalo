@@ -573,8 +573,8 @@ async function getSettingsHtml(user) {
               gap: 8px;
               margin-bottom: 24px;
               border-bottom: 2px solid var(--border-color);
-              overflow-x: hidden;
-                flex-wrap: wrap;
+              overflow-x: auto;
+                white-space: nowrap;
               padding-bottom: 2px;
           }
           .tab-btn {
@@ -660,12 +660,12 @@ async function getSettingsHtml(user) {
       
       <!-- TAB NAVIGATION -->
       <div class="tabs-nav">
-          <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
-          <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
-          <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
-          <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
-          <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
-          <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
+          <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Xưng hô</button>
+          <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Dữ liệu (FAQ)</button>
+          <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Tài khoản</button>
+          <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Nhóm Zalo</button>
+          <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện</button>
+          <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI</button>
         </div>
 
               <!-- TAB 1: VĂN PHONG & XƯNG HÔ -->
