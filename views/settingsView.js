@@ -573,7 +573,8 @@ async function getSettingsHtml(user) {
               gap: 8px;
               margin-bottom: 24px;
               border-bottom: 2px solid var(--border-color);
-              overflow-x: auto;
+              overflow-x: hidden;
+                flex-wrap: wrap;
               padding-bottom: 2px;
           }
           .tab-btn {
@@ -659,55 +660,56 @@ async function getSettingsHtml(user) {
       
       <!-- TAB NAVIGATION -->
       <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
-        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
-        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
-        <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
-        <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
-        <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
-      </div>
-
-      <!-- TAB 1: VĂN PHONG & XƯNG HÔ -->
-      <div id="tab-tone" class="tab-pane active">
-        <div class="card">
-          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Văn phong &amp; Xưng hô</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">Tùy chỉnh xưng hô, tên đơn vị và môi trường hoạt động trực tiếp trên Web (thay thế cho file .env).</p>
-          
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Tên đơn vị / Tổ chức</label>
-              <input type="text" id="cfg_bot_org_name" value="${BOT_ORG_NAME}" placeholder="VD: trường Meyschool, Công ty ABC" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Vai trò Người dùng</label>
-              <input type="text" id="cfg_bot_user_role" value="${BOT_USER_ROLE}" placeholder="VD: Giáo viên, Nhân viên" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">AI tự xưng là</label>
-              <input type="text" id="cfg_bot_pronoun_me" value="${BOT_PRONOUN_ME}" placeholder="VD: Em, Mình" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng Nam</label>
-              <input type="text" id="cfg_bot_pronoun_user_male" value="${BOT_PRONOUN_USER_MALE}" placeholder="VD: Thầy, Anh" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng Nữ</label>
-              <input type="text" id="cfg_bot_pronoun_user_female" value="${BOT_PRONOUN_USER_FEMALE}" placeholder="VD: Cô, Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-            <div>
-              <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi Mặc định / Chung</label>
-              <input type="text" id="cfg_bot_pronoun_user_default" value="${BOT_PRONOUN_USER_DEFAULT}" placeholder="VD: Thầy/Cô, Anh/Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-            </div>
-          </div>
-          <div style="margin-bottom: 20px;">
-            <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Môi trường hoạt động</label>
-            <input type="text" id="cfg_bot_environment" value="${BOT_ENVIRONMENT}" placeholder="VD: MÔI TRƯỜNG GIÁO DỤC (trường học)" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
-          </div>
-          <button class="btn-primary" onclick="saveBotConfig()">Lưu Cấu Hình Văn Phong</button>
+          <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
+          <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
+          <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
+          <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
+          <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
+          <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
         </div>
-      </div>
 
-      <!-- TAB 2: HUẤN LUYỆN AI (FAQ) -->
+              <!-- TAB 1: VĂN PHONG & XƯNG HÔ -->
+        <div id="tab-tone" class="tab-pane active">
+          <div class="card">
+            <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Cấu hình Văn phong & Xưng hô</h3>
+            <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">Tùy chỉnh xưng hô, tên đơn vị và môi trường.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Tên tổ chức</label>
+                <input type="text" id="cfg_bot_org_name" value="${BOT_ORG_NAME}" placeholder="VD: trường Meyschool, Công ty ABC" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Đối tượng hỗ trợ</label>
+                <input type="text" id="cfg_bot_user_role" value="${BOT_USER_ROLE}" placeholder="VD: Giáo viên, Nhân viên" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">AI xưng hô</label>
+                <input type="text" id="cfg_bot_pronoun_me" value="${BOT_PRONOUN_ME}" placeholder="VD: Em, Mình" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng (Nam)</label>
+                <input type="text" id="cfg_bot_pronoun_user_male" value="${BOT_PRONOUN_USER_MALE}" placeholder="VD: Thầy, Anh" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi người dùng (Nữ)</label>
+                <input type="text" id="cfg_bot_pronoun_user_female" value="${BOT_PRONOUN_USER_FEMALE}" placeholder="VD: Cô, Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+              <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Gọi chung</label>
+                <input type="text" id="cfg_bot_pronoun_user_default" value="${BOT_PRONOUN_USER_DEFAULT}" placeholder="VD: Thầy/Cô, Anh/Chị" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+              </div>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:8px;">Môi trường</label>
+                <input type="text" id="cfg_bot_environment" value="${BOT_ENVIRONMENT}" placeholder="VD: MÔI TRƯỜNG GIÁO DỤC (trường học)" style="width:100%; box-sizing:border-box; padding:10px 14px; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; outline:none;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='var(--border-color)'">
+            </div>
+
+            <button class="btn-primary" onclick="saveBotConfig()" style="padding:12px 24px;"><ion-icon name="save-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Lưu Cấu Hình</button>
+          </div>
+        </div>
+
+        <!-- TAB 2: HUẤN LUYỆN AI (FAQ) -->
       <div id="tab-faq" class="tab-pane">
         <div class="card">
           <h3><ion-icon name="library-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Huấn luyện AI (Nội dung FAQ)</h3>
