@@ -706,9 +706,9 @@ Lưu �: B�n l� m�t AI th�ng minh, h�y tr� l�i t� nhi�n, c�
       
       <!-- TAB NAVIGATION -->
       <div class="tabs-nav">
-        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Vn phong & X�ng h�</button>
-        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Hu�n luy�n AI (FAQ)</button>
-        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & T�i kho�n</button>
+        <button class="tab-btn active" data-tab="tab-tone" onclick="switchTab('tab-tone', this)"><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Văn phong & Xưng hô</button>
+        <button class="tab-btn" data-tab="tab-faq" onclick="switchTab('tab-faq', this)"><ion-icon name="library-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Huấn luyện AI (FAQ)</button>
+        <button class="tab-btn" data-tab="tab-accounts" onclick="switchTab('tab-accounts', this)"><ion-icon name="people-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Admin & Tài khoản</button>
         <button class="tab-btn" data-tab="tab-groups" onclick="switchTab('tab-groups', this)"><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quản lý Nhóm</button>
         <button class="tab-btn" data-tab="tab-ui" onclick="switchTab('tab-ui', this)"><ion-icon name="color-palette-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Giao diện (UI)</button>
         <button class="tab-btn" data-tab="tab-prompt" onclick="switchTab('tab-prompt', this)"><ion-icon name="search-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon> Quy tắc AI (Chỉ xem)</button>
@@ -717,7 +717,7 @@ Lưu �: B�n l� m�t AI th�ng minh, h�y tr� l�i t� nhi�n, c�
       <!-- TAB 1: VN PHONG & X�NG H� -->
       <div id="tab-tone" class="tab-pane active">
         <div class="card">
-          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> C�u h�nh Vn phong & X�ng h� AI</h3>
+          <h3><ion-icon name="chatbubbles-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> C�u h�nh Văn phong &amp; Xưng hô</h3>
           <p style="font-size:14px; opacity:0.8; margin-top: 0px; margin-bottom: 20px;">T�y ch�nh x�ng h�, t�n �n v� v� m�i tr��ng ho�t �ng tr�c ti�p tr�n Web (thay th� cho file .env).</p>
           
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 20px;">
@@ -845,7 +845,7 @@ Lưu �: B�n l� m�t AI th�ng minh, h�y tr� l�i t� nhi�n, c�
       <div id="tab-groups" class="tab-pane">
         <div class="card">
           <h3><ion-icon name="megaphone-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon> Nhóm nhận thông báo Zalo</h3>
-          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Danh sách các nhóm Zalo đã cài đặt để nhận thông báo sự cố (Broadcast)..</p>
+          <p style="font-size:14px; opacity:0.8; margin-top:0px; margin-bottom:16px;">Danh sách các nhóm Zalo đã cài đặt để nhận thông báo sự cố (Broadcast).</p>
           <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
             ${groupRows}
           </div>
