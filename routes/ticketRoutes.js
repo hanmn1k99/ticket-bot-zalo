@@ -6,6 +6,20 @@ const { sendZaloMessage, sendToAdmins } = require('../services/zaloService');
 const { renderTableRows } = require('../views/dashboardView');
 const { getBotConfig } = require('../services/botConfigService');
 
+// ENDPOINT: Lấy danh sách nhóm Zalo đã kết nối
+router.get('/api/groups', checkAuth, async (req, res) => {
+  try {
+    const groupIds = await db.getAllGroups();
+    const groups = await Promise.all(groupIds.map(async id => ({
+      id,
+      name: await db.getGroupName(id) || id
+    })));
+    return res.json({ groups });
+  } catch(e) {
+    return res.json({ groups: [] });
+  }
+});
+
 function scheduleTestDeletion(ticketId, content) {
   if (content && content.startsWith('[TEST]')) {
     setTimeout(() => {
@@ -182,6 +196,64 @@ router.post('/api/tickets/clean', checkAuth, async (req, res) => {
 router.get('/api/tickets/rows', checkAuth, async (req, res) => {
   const html = await renderTableRows();
   return res.json({ success: true, html: html });
+});
+
+
+// ENDPOINT: Tạo Ticket thủ công từ IT
+router.post('/api/tickets/create', checkAuth, async (req, res) => {
+  const { senderName, content, location, groupId } = req.body;
+  if (!senderName || !content) {
+    return res.status(400).json({ error: 'Thiếu thông tin: Tên người báo và Nội dung sự cố là bắt buộc.' });
+  }
+
+  const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
+  const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
+  const timestamp = Date.now();
+
+  const d = new Date(timestamp);
+  const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });
+  const dateStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' });
+
+  // Lấy tên nhóm được chọn (nếu có)
+  let groupName = 'Tạo thủ công';
+  if (groupId) {
+    groupName = await db.getGroupName(groupId) || groupId;
+  }
+
+  const newId = await db.addRequest(
+    timestamp,
+    senderName,
+    'manual_' + timestamp,
+    groupId || ('manual_' + timestamp),
+    groupName,
+    content,
+    location || 'Không xác định'
+  );
+
+  const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
+🏫 Nguồn: Tạo thủ công bởi ${itName}
+📍 Vị trí: ${location || 'Không xác định'}
+🕒 Thời gian: ${timeStr} - ${dateStr}
+📌 Chi tiết sự cố:
+${content}
+------------------------------
+👨‍💻 Đội ngũ IT vui lòng tiếp nhận!`;
+
+  // Gửi cho tất cả Admin
+  const admins = await db.getAdmins();
+  for (const admin of admins) {
+    await sendZaloMessage(admin.id, adminMessage);
+  }
+
+  // Gửi thêm vào nhóm được chọn (nếu có và nhóm đó chưa được gửi qua admin)
+  if (groupId) {
+    await sendZaloMessage(groupId, adminMessage);
+  }
+
+  const rows = await renderTableRows();
+  return res.json({ success: true, id: newId, rows });
 });
 
 module.exports = router;

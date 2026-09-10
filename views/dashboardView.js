@@ -661,7 +661,46 @@ async function getDashboardHtml(user) {
                       <option value="">-- Tất cả người báo --</option>
                   </select>
                   <input type="text" id="searchInput" placeholder="Tìm kiếm tự do..." style="flex:2; min-width:220px;">
+                  <button onclick="openCreateTicketModal()" class="btn-primary" style="white-space:nowrap; display:flex; align-items:center; gap:6px; font-size:13px; padding:9px 16px; border-radius:8px;">
+                    <ion-icon name="add-circle-outline" style="font-size:16px;"></ion-icon> Tạo ticket
+                  </button>
               </div>
+          </div>
+
+          <!-- Modal Tạo Ticket Thủ Công -->
+          <div id="createTicketModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+            <div style="background:var(--card-bg,#fff); color:var(--text-main,#222); border-radius:16px; padding:32px; width:100%; max-width:480px; box-shadow:0 20px 40px rgba(0,0,0,0.15); border:1px solid var(--border-color,#e2e8f0); margin:16px;">
+              <h3 style="margin:0 0 6px; font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                <ion-icon name="create-outline" style="font-size:22px; color:#2563eb;"></ion-icon> Tạo ticket thủ công
+              </h3>
+              <p style="margin:0 0 20px; font-size:13px; color:var(--text-sub,#64748b);">Ghi lại sự cố từ Thầy/Cô liên hệ trực tiếp qua điện thoại hoặc gặp mặt.</p>
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div>
+                  <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Tên người báo <span style="color:#ef4444;">*</span></label>
+                  <input type="text" id="ct_senderName" placeholder="VD: Nguyễn Văn A" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);" onkeydown="if(event.key==='Enter')document.getElementById('ct_location').focus()">
+                </div>
+                <div>
+                  <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Vị trí / Địa điểm</label>
+                  <input type="text" id="ct_location" placeholder="VD: Lớp 10A1, Phòng máy tính" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);" onkeydown="if(event.key==='Enter')document.getElementById('ct_content').focus()">
+                </div>
+                <div>
+                  <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Nội dung sự cố <span style="color:#ef4444;">*</span></label>
+                  <textarea id="ct_content" rows="3" placeholder="Mô tả chi tiết sự cố..." style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222); resize:vertical;"></textarea>
+                </div>
+                <div>
+                  <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Thông báo đến nhóm Zalo</label>
+                  <select id="ct_group" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);">
+                    <option value="">-- Không thông báo nhóm --</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex; gap:10px; margin-top:24px; justify-content:flex-end;">
+                <button onclick="closeCreateTicketModal()" style="padding:10px 20px; background:var(--btn-secondary-bg,#f1f5f9); color:var(--text-main,#222); border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-weight:600; cursor:pointer; font-size:14px;">Hủy</button>
+                <button onclick="submitCreateTicket()" id="ct_submitBtn" class="btn-primary" style="padding:10px 24px; border-radius:10px; font-size:14px; display:flex; align-items:center; gap:6px;">
+                  <ion-icon name="checkmark-circle-outline" style="font-size:16px;"></ion-icon> Tạo ticket
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="table-wrapper" id="pdf-content">
@@ -910,6 +949,84 @@ async function getDashboardHtml(user) {
               } catch (e) {}
           }
           setInterval(fetchAndRenderRows, 2000);
+
+          // ==========================================
+          // Tạo Ticket Thủ Công
+          // ==========================================
+          async function openCreateTicketModal() {
+            try {
+              const res = await fetch('/api/groups');
+              if (res.ok) {
+                const data = await res.json();
+                const sel = document.getElementById('ct_group');
+                sel.innerHTML = '<option value="">-- Không thông báo nhóm --</option>';
+                if (data.groups && data.groups.length > 0) {
+                  data.groups.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.name || g.id;
+                    sel.appendChild(opt);
+                  });
+                  if (data.groups.length === 1) sel.value = data.groups[0].id;
+                }
+              }
+            } catch(e) {}
+            const modal = document.getElementById('createTicketModal');
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('ct_senderName').focus(), 50);
+          }
+
+          function closeCreateTicketModal() {
+            document.getElementById('createTicketModal').style.display = 'none';
+            ['ct_senderName','ct_location','ct_content'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+            const sel = document.getElementById('ct_group');
+            if(sel) sel.selectedIndex = 0;
+          }
+
+          async function submitCreateTicket() {
+            const senderName = document.getElementById('ct_senderName').value.trim();
+            const location = document.getElementById('ct_location').value.trim();
+            const content = document.getElementById('ct_content').value.trim();
+            const groupId = document.getElementById('ct_group').value;
+
+            if (!senderName) { showAlert('Vui lòng nhập tên người báo sự cố!'); document.getElementById('ct_senderName').focus(); return; }
+            if (!content) { showAlert('Vui lòng nhập nội dung sự cố!'); document.getElementById('ct_content').focus(); return; }
+
+            const btn = document.getElementById('ct_submitBtn');
+            const origHtml = btn.innerHTML;
+            btn.textContent = 'Đang tạo...';
+            btn.disabled = true;
+
+            try {
+              const res = await fetch('/api/tickets/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ senderName, content, location, groupId })
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                closeCreateTicketModal();
+                if (data.rows) { document.querySelector('#reportTable tbody').innerHTML = data.rows; filterData(); }
+                showAlert('Ticket #' + data.id + ' đã được tạo thành công!', true);
+              } else {
+                showAlert('Lỗi: ' + (data.error || 'Không thể tạo ticket.'));
+              }
+            } catch(e) {
+              showAlert('Lỗi kết nối máy chủ.');
+            } finally {
+              btn.innerHTML = origHtml;
+              btn.disabled = false;
+            }
+          }
+
+          // Escape closes modal, Enter submits from textarea via Ctrl+Enter
+          document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('createTicketModal');
+            if (modal && modal.style.display === 'flex') {
+              if (e.key === 'Escape') closeCreateTicketModal();
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitCreateTicket();
+            }
+          });
 
           // Hàm Xóa Sự cố (Thủ công)
           function deleteTicket(ticketId) {
