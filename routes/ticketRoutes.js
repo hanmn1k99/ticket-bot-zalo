@@ -233,7 +233,6 @@ router.post('/api/tickets/create', checkAuth, async (req, res) => {
   const adminMessage = `🔔 YÊU CẦU HỖ TRỢ MỚI! [#${newId}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
-🏫 Nguồn: Tạo thủ công bởi ${itName}
 📍 Vị trí: ${location || 'Không xác định'}
 🕒 Thời gian: ${timeStr} - ${dateStr}
 📌 Chi tiết sự cố:
