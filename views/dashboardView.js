@@ -669,33 +669,33 @@ async function getDashboardHtml(user) {
 
           <!-- Modal Tạo Ticket Thủ Công -->
           <div id="createTicketModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
-            <div style="background:var(--card-bg,#fff); color:var(--text-main,#222); border-radius:16px; padding:32px; width:100%; max-width:480px; box-shadow:0 20px 40px rgba(0,0,0,0.15); border:1px solid var(--border-color,#e2e8f0); margin:16px;">
+            <div style="background:var(--card-bg); color:var(--text-main); border-radius:16px; padding:32px; width:100%; max-width:480px; box-shadow:0 20px 40px rgba(0,0,0,0.15); border:1px solid var(--border-color); margin:16px;">
               <h3 style="margin:0 0 6px; font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
                 <ion-icon name="create-outline" style="font-size:22px; color:#2563eb;"></ion-icon> Tạo ticket thủ công
               </h3>
-              <p style="margin:0 0 20px; font-size:13px; color:var(--text-sub,#64748b);">Ghi lại sự cố từ Thầy/Cô liên hệ trực tiếp qua điện thoại hoặc gặp mặt.</p>
+              <p style="margin:0 0 20px; font-size:13px; color:var(--text-muted);">Ghi lại sự cố từ Thầy/Cô liên hệ trực tiếp qua điện thoại hoặc gặp mặt.</p>
               <div style="display:flex; flex-direction:column; gap:14px;">
                 <div>
                   <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Tên người báo <span style="color:#ef4444;">*</span></label>
-                  <input type="text" id="ct_senderName" placeholder="VD: Nguyễn Văn A" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);" onkeydown="if(event.key==='Enter')document.getElementById('ct_location').focus()">
+                  <input type="text" id="ct_senderName" placeholder="VD: Nguyễn Văn A" style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--bg-color); color:var(--text-main);" onkeydown="if(event.key==='Enter')document.getElementById('ct_location').focus()">
                 </div>
                 <div>
                   <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Vị trí / Địa điểm</label>
-                  <input type="text" id="ct_location" placeholder="VD: Lớp 10A1, Phòng máy tính" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);" onkeydown="if(event.key==='Enter')document.getElementById('ct_content').focus()">
+                  <input type="text" id="ct_location" placeholder="VD: Lớp 10A1, Phòng máy tính" style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--bg-color); color:var(--text-main);" onkeydown="if(event.key==='Enter')document.getElementById('ct_content').focus()">
                 </div>
                 <div>
                   <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Nội dung sự cố <span style="color:#ef4444;">*</span></label>
-                  <textarea id="ct_content" rows="3" placeholder="Mô tả chi tiết sự cố..." style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222); resize:vertical;"></textarea>
+                  <textarea id="ct_content" rows="3" placeholder="Mô tả chi tiết sự cố..." style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--bg-color); color:var(--text-main); resize:vertical;"></textarea>
                 </div>
                 <div>
                   <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">Thông báo đến nhóm Zalo</label>
-                  <select id="ct_group" style="width:100%; padding:10px 14px; border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--input-bg,#f8fafc); color:var(--text-main,#222);">
+                  <select id="ct_group" style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; font-size:14px; box-sizing:border-box; background:var(--bg-color); color:var(--text-main);">
                     <option value="">-- Không thông báo nhóm --</option>
                   </select>
                 </div>
               </div>
               <div style="display:flex; gap:10px; margin-top:24px; justify-content:flex-end;">
-                <button onclick="closeCreateTicketModal()" style="padding:10px 20px; background:var(--btn-secondary-bg,#f1f5f9); color:var(--text-main,#222); border:1px solid var(--border-color,#e2e8f0); border-radius:10px; font-weight:600; cursor:pointer; font-size:14px;">Hủy</button>
+                <button onclick="closeCreateTicketModal()" style="padding:10px 20px; background:var(--btn-secondary-bg); color:var(--btn-secondary-text); border:1px solid var(--btn-secondary-border); border-radius:10px; font-weight:600; cursor:pointer; font-size:14px;">Hủy</button>
                 <button onclick="submitCreateTicket()" id="ct_submitBtn" class="btn-primary" style="padding:10px 24px; border-radius:10px; font-size:14px; display:flex; align-items:center; gap:6px;">
                   <ion-icon name="checkmark-circle-outline" style="font-size:16px;"></ion-icon> Tạo ticket
                 </button>
