@@ -53,6 +53,19 @@ router.post('/api/settings/group/edit', checkAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// POST /api/settings/group/ping
+router.post('/api/settings/group/ping', checkAuth, async (req, res) => {
+  const { groupId } = req.body;
+  if (!groupId) return res.status(400).json({ success: false });
+  try {
+    const { sendZaloMessage } = require('../services/zaloService');
+    const success = await sendZaloMessage(groupId, '🔔 Kiểm tra kết nối từ Hệ thống quản lý IT.');
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false });
+  }
+});
+
 // POST /api/settings/group/delete
 router.post('/api/settings/group/delete', checkAuth, async (req, res) => {
   const { groupId } = req.body;
