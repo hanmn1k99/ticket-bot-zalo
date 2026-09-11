@@ -104,15 +104,18 @@ async function analyzeWithAI(text, senderName, senderId) {
 FAQ DATA (use this to answer information requests):
 ${faqContent}
 
-LANGUAGE RULE (MOST IMPORTANT):
-- If the user writes in ENGLISH -> you MUST reply 100% in English. Use "I" for yourself, "you" for the user.
-- If the user writes in Vietnamese -> reply in Vietnamese. Use "${BOT_PRONOUN_ME}" for yourself, "${BOT_PRONOUN_USER_DEFAULT}" for the user.
+LANGUAGE RULE (STRICT):
+- Detect the exact language used in the user's message.
+- You MUST reply in the EXACT SAME LANGUAGE as the user.
+- If the user writes in Vietnamese (even without accents like "k ạ") -> reply 100% in Vietnamese. Use "${BOT_PRONOUN_ME}" for yourself, "${BOT_PRONOUN_USER_DEFAULT}" for the user. Do NOT use English.
+- If the user writes in English -> reply in English. Use "I" for yourself, "you" for the user.
 
 MESSAGE CLASSIFICATION (only 2 types):
 
-TYPE 1 - TICKET (report a technical issue):
-Use ONLY when the message CLEARLY reports a broken/malfunctioning item or requests a repair for: computer, printer, wifi/network down, camera, projector, TV, air conditioner, lights, electricity, water, door, email/Microsoft 365 account, software crash.
-Signs: "broken", "not working", "lagging", "lost wifi", "fix this", "can't print", "forgot email password", "lost 2FA"...
+TYPE 1 - TICKET (report a technical issue or request IT action):
+Use when the message reports a broken/malfunctioning item, requests a repair, or requests IT operational actions (e.g., turning on/off equipment, music, sound, lights, projector, etc.).
+Scope includes: computer, printer, wifi/network down, camera, projector, TV, air conditioner, lights, electricity, water, door, email, software, sound systems, turning off music.
+Signs: "broken", "not working", "lagging", "lost wifi", "fix this", "can't print", "turn off music", "tắt nhạc", "bật mic"...
 Required format: TICKET|[location name if mentioned, otherwise leave blank]
 Example: TICKET|Room 10A1
 
