@@ -1,4 +1,4 @@
-﻿name: CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,6 +6,35 @@ on:
       - main
 
 jobs:
+  notify_start:
+    name: Discord Start Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord on Start
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          ACTOR: ${{ github.actor }}
+          REPO: ${{ github.repository }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg username "$REPO (CI/CD)" \
+            --arg avatar_url "https://api.minhhan.net/assets/favicon.png" \
+            --arg title "🚀 Đang bắt đầu cập nhật..." \
+            --arg repo "$REPO" \
+            --arg msg "$COMMIT_MSG" \
+            --arg actor "$ACTOR" \
+            '{
+              username: $username,
+              avatar_url: $avatar_url,
+              embeds: [{
+                title: $title,
+                description: "Dự án: **\( $repo )**\nThực hiện bởi: **\( $actor )**\nNội dung: **\( $msg )**",
+                color: 3447003
+              }]
+            }')
+            
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" ${{ secrets.DISCORD_WEBHOOK_URL }}
+
   ci:
     name: Continuous Integration
     runs-on: ubuntu-latest
@@ -81,6 +110,7 @@ jobs:
           # Safely construct JSON payload using jq string interpolation
           PAYLOAD=$(jq -n \
             --arg username "$REPO (CI/CD)" \
+            --arg avatar_url "https://api.minhhan.net/assets/favicon.png" \
             --arg title "$EMOJI Trạng thái Deploy" \
             --arg repo "$REPO" \
             --arg status "$OVERALL_STATUS" \
@@ -89,6 +119,7 @@ jobs:
             --argjson color "$COLOR" \
             '{
               username: $username,
+              avatar_url: $avatar_url,
               embeds: [{
                 title: $title,
                 description: "Dự án: **\( $repo )**\nKết quả: **\( $status )**\nNội dung: **\( $msg )**\nThực hiện bởi: **\( $actor )**",
