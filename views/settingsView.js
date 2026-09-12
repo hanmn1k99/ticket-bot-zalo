@@ -101,6 +101,14 @@ async function getSettingsHtml(user) {
           box.appendChild(btns);
           overlay.appendChild(box);
           document.body.appendChild(overlay);
+
+          // Enter = xác nhận, Escape = hủy
+          const _keyHandler = (e) => {
+              if (e.key === 'Enter') { e.preventDefault(); overlay.remove(); document.removeEventListener('keydown', _keyHandler); onConfirm(); }
+              if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', _keyHandler); }
+          };
+          document.addEventListener('keydown', _keyHandler);
+
         }
 
         if (localStorage.getItem('theme') === 'dark') {
