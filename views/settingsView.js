@@ -245,13 +245,14 @@ async function getSettingsHtml(user) {
         }
 
 
-        function showCustomConfirm(msg, onConfirm) {
+function showCustomConfirm(msg, onConfirm) {
           let btn = window.event ? (window.event.currentTarget || window.event.target) : null;
           if (btn && btn.tagName !== 'BUTTON' && btn.closest) btn = btn.closest('button');
           if (btn && btn.tagName === 'BUTTON') {
               if (btn.dataset.confirming === 'true') {
                   btn.innerHTML = btn.dataset.originalHtml;
                   btn.style.background = btn.dataset.originalBg;
+                  btn.style.color = btn.dataset.originalColor;
                   btn.dataset.confirming = 'false';
                   onConfirm();
                   return;
@@ -260,15 +261,23 @@ async function getSettingsHtml(user) {
               btn.dataset.confirming = 'true';
               btn.dataset.originalHtml = btn.innerHTML;
               btn.dataset.originalBg = btn.style.background;
+              btn.dataset.originalColor = btn.style.color;
               
-              btn.innerText = 'Xác nhận?';
-              btn.style.background = '#991b1b';
+              if (btn.innerHTML.includes('<ion-icon') && !btn.innerText.trim()) {
+                  btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px;"></ion-icon>';
+              } else {
+                  btn.innerHTML = '<ion-icon name="checkmark-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon>Xác nhận';
+              }
+              
+              btn.style.background = '#ef4444'; // Đỏ chóe
+              btn.style.color = '#fff';
               
               setTimeout(() => {
                   if (btn.dataset.confirming === 'true') {
                       btn.dataset.confirming = 'false';
                       btn.innerHTML = btn.dataset.originalHtml;
                       btn.style.background = btn.dataset.originalBg;
+                      btn.style.color = btn.dataset.originalColor;
                   }
               }, 3000);
               return;

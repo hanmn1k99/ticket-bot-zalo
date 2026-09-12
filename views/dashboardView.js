@@ -149,14 +149,15 @@ async function getDashboardHtml(user) {
         }
 
 
-        function showConfirm(msg, onConfirm) {
+function showConfirm(msg, onConfirm) {
             let btn = window.event ? (window.event.currentTarget || window.event.target) : null;
             if (btn && btn.tagName !== 'BUTTON' && btn.closest) btn = btn.closest('button');
             if (btn && btn.tagName === 'BUTTON') {
                 if (btn.dataset.confirming === 'true') {
                     // It's already confirming, this is the second click
-                    btn.innerText = btn.dataset.originalText;
+                    btn.innerHTML = btn.dataset.originalHtml;
                     btn.style.background = btn.dataset.originalBg;
+                    btn.style.color = btn.dataset.originalColor;
                     btn.dataset.confirming = 'false';
                     onConfirm();
                     return;
@@ -164,18 +165,28 @@ async function getDashboardHtml(user) {
                 
                 // First click
                 btn.dataset.confirming = 'true';
-                btn.dataset.originalText = btn.innerText;
+                btn.dataset.originalHtml = btn.innerHTML;
                 btn.dataset.originalBg = btn.style.background;
+                btn.dataset.originalColor = btn.style.color;
                 
-                btn.innerText = 'Chắc chắn?';
-                btn.style.background = '#991b1b'; // Darker red
+                // If the button only has an icon (like the trash can)
+                if (btn.innerHTML.includes('<ion-icon') && !btn.innerText.trim()) {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px;"></ion-icon>';
+                    btn.style.background = '#ef4444'; // Red background
+                    btn.style.color = '#fff'; // White icon
+                } else {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon>Xác nhận';
+                    btn.style.background = '#ef4444'; // Red background
+                    btn.style.color = '#fff';
+                }
                 
                 // Cancel after 3 seconds
                 setTimeout(() => {
                     if (btn.dataset.confirming === 'true') {
                         btn.dataset.confirming = 'false';
-                        btn.innerText = btn.dataset.originalText;
+                        btn.innerHTML = btn.dataset.originalHtml;
                         btn.style.background = btn.dataset.originalBg;
+                        btn.style.color = btn.dataset.originalColor;
                     }
                 }, 3000);
                 return;
