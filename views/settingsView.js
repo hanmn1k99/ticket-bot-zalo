@@ -244,8 +244,38 @@ async function getSettingsHtml(user) {
           });
         }
 
+
         function showCustomConfirm(msg, onConfirm) {
+          let btn = window.event ? (window.event.currentTarget || window.event.target) : null;
+          if (btn && btn.tagName !== 'BUTTON' && btn.closest) btn = btn.closest('button');
+          if (btn && btn.tagName === 'BUTTON') {
+              if (btn.dataset.confirming === 'true') {
+                  btn.innerHTML = btn.dataset.originalHtml;
+                  btn.style.background = btn.dataset.originalBg;
+                  btn.dataset.confirming = 'false';
+                  onConfirm();
+                  return;
+              }
+              
+              btn.dataset.confirming = 'true';
+              btn.dataset.originalHtml = btn.innerHTML;
+              btn.dataset.originalBg = btn.style.background;
+              
+              btn.innerText = 'Xác nhận?';
+              btn.style.background = '#991b1b';
+              
+              setTimeout(() => {
+                  if (btn.dataset.confirming === 'true') {
+                      btn.dataset.confirming = 'false';
+                      btn.innerHTML = btn.dataset.originalHtml;
+                      btn.style.background = btn.dataset.originalBg;
+                  }
+              }, 3000);
+              return;
+          }
+
           const overlay = document.createElement('div');
+
           overlay.style.position = 'fixed';
           overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
           overlay.style.background = 'rgba(0,0,0,0.5)';

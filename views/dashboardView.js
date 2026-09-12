@@ -148,8 +148,42 @@ async function getDashboardHtml(user) {
           document.body.appendChild(overlay);
         }
 
+
         function showConfirm(msg, onConfirm) {
+            let btn = window.event ? (window.event.currentTarget || window.event.target) : null;
+            if (btn && btn.tagName !== 'BUTTON' && btn.closest) btn = btn.closest('button');
+            if (btn && btn.tagName === 'BUTTON') {
+                if (btn.dataset.confirming === 'true') {
+                    // It's already confirming, this is the second click
+                    btn.innerText = btn.dataset.originalText;
+                    btn.style.background = btn.dataset.originalBg;
+                    btn.dataset.confirming = 'false';
+                    onConfirm();
+                    return;
+                }
+                
+                // First click
+                btn.dataset.confirming = 'true';
+                btn.dataset.originalText = btn.innerText;
+                btn.dataset.originalBg = btn.style.background;
+                
+                btn.innerText = 'Chắc chắn?';
+                btn.style.background = '#991b1b'; // Darker red
+                
+                // Cancel after 3 seconds
+                setTimeout(() => {
+                    if (btn.dataset.confirming === 'true') {
+                        btn.dataset.confirming = 'false';
+                        btn.innerText = btn.dataset.originalText;
+                        btn.style.background = btn.dataset.originalBg;
+                    }
+                }, 3000);
+                return;
+            }
+            
+            // Fallback to old modal if no button triggered it
             const overlay = document.createElement('div');
+
             overlay.style.position = 'fixed';
             overlay.style.top = '0'; overlay.style.left = '0'; overlay.style.width = '100%'; overlay.style.height = '100%';
             overlay.style.background = 'rgba(0,0,0,0.5)';
