@@ -32,7 +32,7 @@ async function getSettingsHtml(user) {
            <span style="font-family: monospace; font-size: 13px; color: #64748b; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color);" title="${groupId}">ID: ${String(groupId).substring(0,4)}****${String(groupId).slice(-3)}</span>
            <div style="display: flex; gap: 8px;">
              <button onclick="updateGroup('${groupId}')" style="background:#3b82f6; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Lưu</button>
-             <button onclick="deleteGroup('${groupId}')" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Xóa</button>
+             <button onclick="deleteGroup('${groupId}', this)" class="btn-inline-confirm" style="background:#ef4444; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:500; font-size:12px; transition:0.2s;">Xóa</button>
            </div>
          </div>
          <input type="text" id="gname_${groupId}" value="${name}" placeholder="Tên nhóm (VD: Tổ Toán)" style="width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--card-bg); color:var(--text-main); font-size:15px; box-sizing: border-box;">
@@ -229,8 +229,8 @@ async function getSettingsHtml(user) {
           }
         }
 
-        async function deleteGroup(groupId) {
-          showCustomConfirm('Bạn có chắc chắn muốn gỡ nhóm này khỏi danh sách nhận thông báo?', async () => {
+        async function deleteGroup(groupId, btn) {
+          inlineConfirmAction(btn, async () => {
             const res = await fetch('/api/settings/group/delete', {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
@@ -242,6 +242,33 @@ async function getSettingsHtml(user) {
               showAlert('Lỗi khi xóa nhóm');
             }
           });
+        }
+
+        
+        function inlineConfirmAction(btn, callback) {
+            if (!btn) {
+                // If this wasn't called by a button, fallback to the old confirm (or just run callback)
+                return callback();
+            }
+            if (btn.classList.contains('confirming')) {
+                btn.classList.remove('confirming');
+                btn.innerHTML = btn.dataset.originalHtml;
+                callback();
+            } else {
+                btn.classList.add('confirming');
+                btn.dataset.originalHtml = btn.innerHTML;
+                if (btn.innerHTML.includes('<ion-icon') && !btn.innerText.trim()) {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px; color:#fff;"></ion-icon>';
+                } else {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon>Xác nhận';
+                }
+                setTimeout(() => {
+                    if (btn.classList.contains('confirming')) {
+                        btn.classList.remove('confirming');
+                        btn.innerHTML = btn.dataset.originalHtml;
+                    }
+                }, 3000);
+            }
         }
 
         function showCustomConfirm(msg, onConfirm) {
@@ -371,8 +398,8 @@ async function getSettingsHtml(user) {
            }
         }
 
-        async function rejectAdmin(id) {
-           showCustomConfirm('Bạn có chắc chắn muốn từ chối yêu cầu này?', async () => {
+        async function rejectAdmin(id, btn) {
+           inlineConfirmAction(btn, async () => {
              const res = await fetch('/api/admins/reject', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
@@ -387,8 +414,8 @@ async function getSettingsHtml(user) {
            });
         }
 
-        async function revokeAdmin(id) {
-           showCustomConfirm('Bạn có chắc chắn muốn gỡ quyền Admin của tài khoản này?', async () => {
+        async function revokeAdmin(id, btn) {
+           inlineConfirmAction(btn, async () => {
              const res = await fetch('/api/admins/remove', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
@@ -513,8 +540,8 @@ async function getSettingsHtml(user) {
           }
         }
 
-        async function deleteWebUser(username) {
-           showCustomConfirm('Bạn có chắc muốn xóa tài khoản [' + username + ']? Hành động này không thể hoàn tác.', async () => {
+        async function deleteWebUser(username, btn) {
+           inlineConfirmAction(btn, async () => {
              const res = await fetch('/api/users/delete', {
                method: 'POST',
                headers: {'Content-Type': 'application/json'},
@@ -679,7 +706,15 @@ async function getSettingsHtml(user) {
           textarea:focus {
               border-color: #2563eb;
           }
-      </style>
+      
+        .btn-inline-confirm {
+            transition: all 0.2s;
+        }
+        .btn-inline-confirm.confirming {
+            background: #ef4444 !important;
+            color: #fff !important;
+        }
+</style>
     </head>
     <body>
       <div class="header" style="display:flex; justify-content:space-between; align-items:center;">

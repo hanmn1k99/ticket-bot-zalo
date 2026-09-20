@@ -40,7 +40,7 @@ async function renderTableRows() {
          adminReplyCell = `
            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                <span>${replyText}</span>
-               <button onclick="deleteTicket(${r.id})" title="Xóa sự cố này" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='none'">
+               <button onclick="deleteTicket(${r.id}, this)" title="Xóa sự cố này" class="btn-inline-delete">
                    <ion-icon name="trash" style="font-size:16px;"></ion-icon>
                </button>
            </div>
@@ -146,6 +146,33 @@ async function getDashboardHtml(user) {
           box.appendChild(btns);
           overlay.appendChild(box);
           document.body.appendChild(overlay);
+        }
+
+        
+        function inlineConfirmAction(btn, callback) {
+            if (!btn) {
+                // If this wasn't called by a button, fallback to the old confirm (or just run callback)
+                return callback();
+            }
+            if (btn.classList.contains('confirming')) {
+                btn.classList.remove('confirming');
+                btn.innerHTML = btn.dataset.originalHtml;
+                callback();
+            } else {
+                btn.classList.add('confirming');
+                btn.dataset.originalHtml = btn.innerHTML;
+                if (btn.innerHTML.includes('<ion-icon') && !btn.innerText.trim()) {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px; color:#fff;"></ion-icon>';
+                } else {
+                    btn.innerHTML = '<ion-icon name="checkmark-outline" style="vertical-align:middle; margin-right:4px;"></ion-icon>Xác nhận';
+                }
+                setTimeout(() => {
+                    if (btn.classList.contains('confirming')) {
+                        btn.classList.remove('confirming');
+                        btn.innerHTML = btn.dataset.originalHtml;
+                    }
+                }, 3000);
+            }
         }
 
         function showConfirm(msg, onConfirm) {
@@ -591,7 +618,35 @@ async function getDashboardHtml(user) {
               td button { display: none !important; }
               td div[id^="actionBox_"] input { display: none !important; }
           }
-      </style>
+      
+        .btn-inline-delete {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-inline-delete:hover:not(.confirming) {
+            background: #fee2e2;
+        }
+        .btn-inline-delete.confirming {
+            background: #ef4444 !important;
+            color: #fff !important;
+        }
+
+        .btn-inline-confirm {
+            transition: all 0.2s;
+        }
+        .btn-inline-confirm.confirming {
+            background: #ef4444 !important;
+            color: #fff !important;
+        }
+</style>
   </head>
   <body>
       <div class="container">
@@ -1029,8 +1084,26 @@ async function getDashboardHtml(user) {
           });
 
           // Hàm Xóa Sự cố (Thủ công)
-          function deleteTicket(ticketId) {
-              showConfirm('Bạn có chắc chắn muốn xóa sự cố #' + ticketId + ' không? Hành động này không thể hoàn tác!', async () => {
+          function deleteTicket(ticketId, btn) {
+              if (btn) {
+                  if (btn.classList.contains('confirming')) {
+                      btn.classList.remove('confirming');
+                      btn.innerHTML = btn.dataset.originalHtml;
+                  } else {
+                      btn.classList.add('confirming');
+                      btn.dataset.originalHtml = btn.innerHTML;
+                      btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px;"></ion-icon>';
+                      setTimeout(() => {
+                          if (btn.classList.contains('confirming')) {
+                              btn.classList.remove('confirming');
+                              btn.innerHTML = btn.dataset.originalHtml;
+                          }
+                      }, 3000);
+                      return;
+                  }
+              }
+
+              (async () => {
                   try {
                       const response = await fetch('/api/tickets/' + ticketId, {
                           method: 'DELETE'
