@@ -680,7 +680,7 @@ router.post('/webhook', async (req, res) => {
       if (!requestContent) requestContent = "(Không có nội dung)";
 
             const allReqsContext = await db.getAllRequests();
-      const pendingReqs = allReqsContext.filter(r => r.senderId === senderId && (r.status === 'Đang chờ' || r.status === 'Đang xử lý'));
+      const pendingReqs = allReqsContext.filter(r => r.sender_id === senderId && (r.status === 'Đang chờ' || r.status === 'Đang xử lý'));
       let openTicketsContext = '';
       if (pendingReqs.length > 0) {
           openTicketsContext = "CURRENT OPEN TICKETS FOR THIS USER:\n" + pendingReqs.map(r => "- Ticket #" + r.id + ": " + r.content).join('\n');
@@ -691,7 +691,7 @@ router.post('/webhook', async (req, res) => {
 
       if (aiResult.type === 'CANCEL') {
         const allReqs = await db.getAllRequests();
-        const pendingReq = [...allReqs].reverse().find(r => r.senderId === senderId && r.chatId === chatId && r.status === 'Đang chờ');
+        const pendingReq = [...allReqs].reverse().find(r => r.sender_id === senderId && r.chat_id === chatId && r.status === 'Đang chờ');
         
         if (pendingReq) {
           // Update status to Hủy
