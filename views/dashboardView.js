@@ -1119,7 +1119,7 @@ async function getDashboardHtml(user) {
                   } catch (error) {
                       showAlert('Lỗi kết nối');
                   }
-              });
+              })();
           }
 
           // Hàm Nhận yêu cầu
