@@ -726,7 +726,7 @@ router.post('/webhook', async (req, res) => {
         
         if (pendingReq) {
           // Update status to Hủy
-          await db.updateRequestStatus(pendingReq.id, 'Hủy', 'Bot', 'Hệ thống AI');
+          await db.updateRequestStatus(pendingReq.id, 'Hủy', 'Bot', 'Hệ thống AI', 'Hủy bởi người dùng');
           
           // Send thank you message to user
           await sendZaloMessage(chatId, aiResult.answer || "Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.");
