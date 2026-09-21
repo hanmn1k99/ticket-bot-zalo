@@ -1085,20 +1085,51 @@ async function getDashboardHtml(user) {
             }
           });
 
+          // Hàm hiển thị Toast thông báo nhỏ góc màn hình
+          function showToast(msg, isSuccess = true) {
+              const toast = document.createElement('div');
+              toast.style.cssText = `
+                  position: fixed; bottom: 24px; right: 24px; z-index: 99999;
+                  background: ${isSuccess ? '#10b981' : '#ef4444'};
+                  color: white; padding: 12px 20px; border-radius: 10px;
+                  font-size: 14px; font-weight: 500;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                  display: flex; align-items: center; gap: 8px;
+                  animation: slideIn 0.3s ease;
+                  max-width: 320px;
+              `;
+              toast.innerHTML = (isSuccess ? '✅ ' : '❌ ') + msg;
+              document.body.appendChild(toast);
+              setTimeout(() => {
+                  toast.style.opacity = '0';
+                  toast.style.transition = 'opacity 0.4s ease';
+                  setTimeout(() => toast.remove(), 400);
+              }, 3000);
+          }
+
           // Hàm Xóa Sự cố (Thủ công)
           function deleteTicket(ticketId, btn) {
               if (btn) {
                   if (btn.classList.contains('confirming')) {
+                      // Lần 2: Xác nhận → Xóa luôn
                       btn.classList.remove('confirming');
                       btn.innerHTML = btn.dataset.originalHtml;
                   } else {
+                      // Lần 1: Chuyển đỏ + text Xác nhận?
                       btn.classList.add('confirming');
                       btn.dataset.originalHtml = btn.innerHTML;
-                      btn.innerHTML = '<ion-icon name="checkmark-outline" style="font-size:16px;"></ion-icon>';
+                      btn.style.background = '#ef4444';
+                      btn.style.color = 'white';
+                      btn.style.borderRadius = '6px';
+                      btn.style.padding = '2px 8px';
+                      btn.style.fontSize = '12px';
+                      btn.style.fontWeight = '600';
+                      btn.innerHTML = 'Xác nhận?';
                       setTimeout(() => {
                           if (btn.classList.contains('confirming')) {
                               btn.classList.remove('confirming');
                               btn.innerHTML = btn.dataset.originalHtml;
+                              btn.style.cssText = '';
                           }
                       }, 3000);
                       return;
@@ -1112,12 +1143,13 @@ async function getDashboardHtml(user) {
                       });
                       const data = await response.json();
                       if (response.ok && data.success) {
+                          showToast('Đã xóa sự cố #' + ticketId);
                           fetchAndRenderRows();
                       } else {
-                          showAlert(data.error || 'Lỗi hệ thống');
+                          showToast(data.error || 'Lỗi hệ thống', false);
                       }
                   } catch (error) {
-                      showAlert('Lỗi kết nối');
+                      showToast('Lỗi kết nối', false);
                   }
               })();
           }
