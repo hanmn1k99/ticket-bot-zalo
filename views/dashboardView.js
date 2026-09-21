@@ -1105,7 +1105,7 @@ async function getDashboardHtml(user) {
               toast.style.alignItems = 'center';
               toast.style.gap = '8px';
               toast.style.maxWidth = '320px';
-              toast.innerHTML = (ok ? '✅ ' : '❌ ') + msg;
+              toast.innerHTML = '<ion-icon name="' + (ok ? 'checkmark-circle' : 'close-circle') + '" style="font-size:18px;"></ion-icon> ' + msg;
               document.body.appendChild(toast);
               setTimeout(function() {
                   toast.style.opacity = '0';
