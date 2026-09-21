@@ -19,7 +19,7 @@ function extractLocationFallback(text) {
   }
 
   // 2. Quét "tầng xxx", "khu xxx"
-  const match3 = lowerText.match(/(?:tầng|khu)\s+([a-z0-9]+)/i);
+  const match3 = lowerText.match(/(?:tầng|khu)\s+([^\s,\.]+)/i);
   if (match3) {
     const idx = lowerText.indexOf(match3[0]);
     const before = lowerText.substring(0, idx).trim();
@@ -43,10 +43,14 @@ let activeGroqModel = null;
 async function getGroqModel() {
   if (activeGroqModel) return activeGroqModel;
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/models', {
+    const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        signal: controller.signal,
       headers: { 'Authorization': 'Bearer ' + AI_API_KEY }
     });
-    if (response.ok) {
+    clearTimeout(timeoutId);
+      if (response.ok) {
       const data = await response.json();
       const models = data.data.map(m => m.id);
       const chatModels = models.filter(m => !m.includes('whisper') && !m.includes('orpheus') && !m.includes('safety'));
@@ -165,7 +169,10 @@ MANDATORY RULES:
 
   try {
     const model = await getGroqModel();
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        signal: controller.signal,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -179,7 +186,8 @@ MANDATORY RULES:
       })
     });
 
-    if (!response.ok) {
+    clearTimeout(timeoutId);
+      if (!response.ok) {
       const errText = await response.text();
       console.error('AI API Error HTTP', response.status, ':', errText);
       activeGroqModel = null; // Reset để lần sau thử model khác
