@@ -732,13 +732,12 @@ router.post('/webhook', async (req, res) => {
           await sendZaloMessage(chatId, aiResult.answer || "Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.");
           
           // Send notification to admins
-          const adminMsg = `🚫 YÊU CẦU ĐÃ BỊ HỦY BỞI NGƯỜI DÙNG [#${pendingReq.id}]
+          const adminMsg = `🚫 NGƯỜI DÙNG ĐÃ TỰ HỦY YÊU CẦU! [#${pendingReq.id}]
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 📌 Sự cố: ${pendingReq.content}
-🕒 Thời gian: ${timeStr} - ${dateStr}
 ------------------------------
-Người dùng báo đã tự xử lý xong hoặc không cần hỗ trợ nữa.`;
+⚠️ Trạng thái: Đã tự xử lý xong`;
           const admins = await db.getAdmins();
           for (const admin of admins) {
             await sendZaloMessage(admin.id, adminMsg);
