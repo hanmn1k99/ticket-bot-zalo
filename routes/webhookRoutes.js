@@ -679,8 +679,15 @@ router.post('/webhook', async (req, res) => {
       requestContent = requestContent.replace(/^@\s*/, '').replace(/@\s*$/, '').trim();
       if (!requestContent) requestContent = "(Không có nội dung)";
 
+            const allReqsContext = await db.getAllRequests();
+      const pendingReqs = allReqsContext.filter(r => r.senderId === senderId && (r.status === 'Đang chờ' || r.status === 'Đang xử lý'));
+      let openTicketsContext = '';
+      if (pendingReqs.length > 0) {
+          openTicketsContext = "CURRENT OPEN TICKETS FOR THIS USER:\n" + pendingReqs.map(r => "- Ticket #" + r.id + ": " + r.content).join('\n');
+      }
+
       // Analyze with AI
-      const aiResult = await analyzeWithAI(requestContent, senderName, senderId);
+      const aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
 
       if (aiResult.type === 'CANCEL') {
         const allReqs = await db.getAllRequests();

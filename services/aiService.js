@@ -78,7 +78,7 @@ async function getGroqModel() {
   return 'openai/gpt-oss-20b';
 }
 
-async function analyzeWithAI(text, senderName, senderId) {
+async function analyzeWithAI(text, senderName, senderId, openTicketsContext = "") {
   if (!AI_API_KEY) return { type: 'TICKET', location: extractLocationFallback(text) || 'Không xác định' };
 
   const botConfig = await getBotConfig();
@@ -139,7 +139,9 @@ MANDATORY RULES:
 - For ANSWER: be concise and on-point. No unnecessary info.
 - Never mention any individual's name in the IT department. Use "IT Department" only.
 - CRITICAL - NO HALLUCINATION: Only use information explicitly found in the FAQ data above. If the information is NOT in the FAQ, do NOT make it up. Say you don't have that info instead.
-- When someone asks "where we are", "where is this place", "what is this school", "chúng ta là ai", "chúng ta ở đâu", "đây là trường nào", or similar identity/location questions about the organization → answer using the organization identity info from the FAQ. Do NOT invent an address.`;
+- When someone asks "where we are", "where is this place", "what is this school", "chúng ta là ai", "chúng ta ở đâu", "đây là trường nào", or similar identity/location questions about the organization → answer using the organization identity info from the FAQ. Do NOT invent an address.
+
+${openTicketsContext ? openTicketsContext : ''}`;
 
   // Kiểm tra blacklist
   const lowerText = text.toLowerCase();
