@@ -1086,24 +1086,31 @@ async function getDashboardHtml(user) {
           });
 
           // Hàm hiển thị Toast thông báo nhỏ góc màn hình
-          function showToast(msg, isSuccess = true) {
-              const toast = document.createElement('div');
-              toast.style.cssText = `
-                  position: fixed; bottom: 24px; right: 24px; z-index: 99999;
-                  background: ${isSuccess ? '#10b981' : '#ef4444'};
-                  color: white; padding: 12px 20px; border-radius: 10px;
-                  font-size: 14px; font-weight: 500;
-                  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                  display: flex; align-items: center; gap: 8px;
-                  animation: slideIn 0.3s ease;
-                  max-width: 320px;
-              `;
-              toast.innerHTML = (isSuccess ? '✅ ' : '❌ ') + msg;
+          function showToast(msg, isSuccess) {
+              var ok = isSuccess !== false;
+              var bg = ok ? '#10b981' : '#ef4444';
+              var toast = document.createElement('div');
+              toast.style.position = 'fixed';
+              toast.style.bottom = '24px';
+              toast.style.right = '24px';
+              toast.style.zIndex = '99999';
+              toast.style.background = bg;
+              toast.style.color = 'white';
+              toast.style.padding = '12px 20px';
+              toast.style.borderRadius = '10px';
+              toast.style.fontSize = '14px';
+              toast.style.fontWeight = '500';
+              toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              toast.style.display = 'flex';
+              toast.style.alignItems = 'center';
+              toast.style.gap = '8px';
+              toast.style.maxWidth = '320px';
+              toast.innerHTML = (ok ? '✅ ' : '❌ ') + msg;
               document.body.appendChild(toast);
-              setTimeout(() => {
+              setTimeout(function() {
                   toast.style.opacity = '0';
                   toast.style.transition = 'opacity 0.4s ease';
-                  setTimeout(() => toast.remove(), 400);
+                  setTimeout(function() { toast.remove(); }, 400);
               }, 3000);
           }
 
