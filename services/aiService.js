@@ -99,7 +99,9 @@ async function analyzeWithAI(text, senderName, senderId, openTicketsContext = ""
     }
   }
 
+  console.log('[AI] openTicketsContext =', openTicketsContext ? 'YES' : 'EMPTY');
   const systemPrompt = `You are an IT support bot for ${BOT_ORG_NAME}. The user's name is: ${senderName}.
+${openTicketsContext ? '\n' + openTicketsContext + '\n(If the user asks to cancel, they are referring to these tickets)' : ''}
 
 FAQ DATA (use this to answer information requests):
 ${faqContent}
@@ -139,9 +141,7 @@ MANDATORY RULES:
 - For ANSWER: be concise and on-point. No unnecessary info.
 - Never mention any individual's name in the IT department. Use "IT Department" only.
 - CRITICAL - NO HALLUCINATION: Only use information explicitly found in the FAQ data above. If the information is NOT in the FAQ, do NOT make it up. Say you don't have that info instead.
-- When someone asks "where we are", "where is this place", "what is this school", "chúng ta là ai", "chúng ta ở đâu", "đây là trường nào", or similar identity/location questions about the organization → answer using the organization identity info from the FAQ. Do NOT invent an address.
-
-${openTicketsContext ? openTicketsContext : ''}`;
+- When someone asks "where we are", "where is this place", "what is this school", "chúng ta là ai", "chúng ta ở đâu", "đây là trường nào", or similar identity/location questions about the organization → answer using the organization identity info from the FAQ. Do NOT invent an address.`;
 
   // Kiểm tra blacklist
   const lowerText = text.toLowerCase();
