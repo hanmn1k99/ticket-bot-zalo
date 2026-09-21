@@ -1005,7 +1005,7 @@ async function getDashboardHtml(user) {
                   }
               } catch (e) {}
           }
-          setInterval(fetchAndRenderRows, 2000);
+          setInterval(fetchAndRenderRows, 10000);
 
           // ==========================================
           // Tạo Ticket Thủ Công
