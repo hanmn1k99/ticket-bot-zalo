@@ -692,7 +692,12 @@ router.post('/webhook', async (req, res) => {
       const lowerReq = requestContent.toLowerCase().normalize('NFC');
       const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
       // Nếu có keyword hủy VÀ đang có ticket chờ
+      
+      console.log('>>> DEBUG: requestContent =', requestContent);
+      console.log('>>> DEBUG: lowerReq =', lowerReq);
       const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
+      console.log('>>> DEBUG: isCancelIntent =', isCancelIntent);
+
       
       if (isCancelIntent) {
           aiResult.type = 'CANCEL';
@@ -705,7 +710,6 @@ router.post('/webhook', async (req, res) => {
 
       if (aiResult.type === 'CANCEL') {
         const allReqs = await db.getAllRequests();
-        // Use the same robust filter here!
         const pendingReq = [...allReqs].reverse().find(r => r.sender_id === senderId && r.chat_id === chatId && r.status !== 'Đã xong' && r.status !== 'Từ chối' && r.status !== 'Hủy');
         
         if (pendingReq) {
