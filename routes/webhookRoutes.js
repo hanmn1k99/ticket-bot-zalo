@@ -708,13 +708,13 @@ router.post('/webhook', async (req, res) => {
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 📍 Vị trí: ${r.location || 'Không xác định'}
 ------------------------------
-😊 Cảm ơn ${BOT_PRONOUN_USER_DEFAULT} đã thông báo, chúc ${BOT_PRONOUN_USER_DEFAULT} một ngày làm việc hiệu quả!`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}!`;
           } else {
               aiResult.answer = `⚠️ THÔNG BÁO TỪ HỆ THỐNG
 ------------------------------
 👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
 ------------------------------
-😊 Cảm ơn ${BOT_PRONOUN_USER_DEFAULT}! Hiện tại ${BOT_PRONOUN_USER_DEFAULT} không có yêu cầu nào đang chờ xử lý.`;
+😊 Xin cảm ơn ${BOT_PRONOUN_USER_DEFAULT}! Hiện tại không có yêu cầu nào đang chờ.`;
           }
       } else {
           aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
