@@ -18,6 +18,8 @@ async function renderTableRows() {
        statusBadge = '<span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="checkmark-circle" style="font-size:14px; color:#166534;"></ion-icon> Đã xong</span>';
      } else if (r.status === 'Từ chối') {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#ffedd5; color:#c2410c; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="close-circle" style="font-size:14px; color:#c2410c;"></ion-icon> Từ chối</span>`;
+     } else if (r.status === 'Hủy') {
+       statusBadge = `<span id="statusBadge_${r.id}" style="background:#f1f5f9; color:#64748b; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="ban" style="font-size:14px; color:#64748b;"></ion-icon> Hủy</span>`;
      } else if (r.status === 'Đang xử lý') {
        statusBadge = `<span id="statusBadge_${r.id}" style="background:#fef08a; color:#854d0e; padding:4px 10px; border-radius:9999px; font-weight:600; font-size:12px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;"><ion-icon name="construct" style="font-size:14px; color:#854d0e;"></ion-icon> Đang xử lý</span>`;
      } else {
@@ -25,7 +27,7 @@ async function renderTableRows() {
      }
 
      let timeHtml = `<div style="font-size:13px; white-space:nowrap; display:flex; align-items:center; gap:4px;"><ion-icon name="time-outline" style="font-size:14px; color:var(--text-muted);"></ion-icon> ${time} <span style="color:var(--text-muted); font-size:12px;">${day}/${month}</span></div>`;
-     if ((r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') && r.completed_at) {
+     if ((r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Hủy' || r.status === 'Đã thay đổi') && r.completed_at) {
        const cd = new Date(r.completed_at);
        const cday = String(cd.getDate()).padStart(2, '0');
        const cmonth = String(cd.getMonth() + 1).padStart(2, '0');
@@ -35,7 +37,7 @@ async function renderTableRows() {
        
      let adminReplyCell = '';
      const handlerName = r.assignee_name || '-';
-       if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Đã thay đổi') {
+       if (r.status === 'Đã xong' || r.status === 'Từ chối' || r.status === 'Hủy' || r.status === 'Đã thay đổi') {
          const replyText = r.admin_reply ? r.admin_reply : '<i style="color:#94a3b8">Không có nội dung</i>';
          adminReplyCell = `
            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">

@@ -682,6 +682,37 @@ router.post('/webhook', async (req, res) => {
       // Analyze with AI
       const aiResult = await analyzeWithAI(requestContent, senderName, senderId);
 
+      if (aiResult.type === 'CANCEL') {
+        const allReqs = await db.getAllRequests();
+        const pendingReq = [...allReqs].reverse().find(r => r.senderId === senderId && r.chatId === chatId && r.status === 'Đang chờ');
+        
+        if (pendingReq) {
+          // Update status to Hủy
+          await db.updateRequestStatus(pendingReq.id, 'Hủy', 'Bot', 'Hệ thống AI');
+          
+          // Send thank you message to user
+          await sendZaloMessage(chatId, aiResult.answer || "Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.");
+          
+          // Send notification to admins
+          const adminMsg = `🚫 YÊU CẦU ĐÃ BỊ HỦY BỞI NGƯỜI DÙNG [#${pendingReq.id}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
+📌 Sự cố: ${pendingReq.content}
+🕒 Thời gian: ${timeStr} - ${dateStr}
+------------------------------
+Người dùng báo đã tự xử lý xong hoặc không cần hỗ trợ nữa.`;
+          const admins = await db.getAdmins();
+          for (const admin of admins) {
+            await sendZaloMessage(admin.id, adminMsg);
+          }
+          return;
+        } else {
+          // Trả lời như bình thường nếu không có ticket
+          await sendZaloMessage(chatId, aiResult.answer || "Cảm ơn bạn! Hiện tại bạn không có yêu cầu nào đang chờ xử lý.");
+          return;
+        }
+      }
+
       if (aiResult.type === 'ANSWER') {
         // Reply to user directly
         await sendZaloMessage(chatId, aiResult.answer);
