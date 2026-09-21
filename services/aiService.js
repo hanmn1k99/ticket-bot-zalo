@@ -194,7 +194,7 @@ MANDATORY RULES:
     console.log('-----------------------');
 
     if (!result) {
-      return { type: 'ANSWER', answer: 'Xin lỗi, tôi chưa có thông tin để trả lời câu hỏi này ạ.' };
+      return { type: 'TICKET', location: extractLocationFallback(text) || 'Không xác định' };
     }
 
     if (result.includes('CANCEL|') || result.startsWith('CANCEL')) {
