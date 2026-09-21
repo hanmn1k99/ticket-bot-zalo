@@ -690,7 +690,7 @@ router.post('/webhook', async (req, res) => {
       let aiResult = { type: 'ANSWER', answer: '', location: '' };
       
       const lowerReq = requestContent.toLowerCase().normalize('NFC');
-      const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
+      const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'xong roi', 'xong r', 'đã xử lý', 'không cần', 'bỏ qua', 'ok rồi', 'ok r'];
       // Nếu có keyword hủy VÀ đang có ticket chờ
       
       console.log('>>> DEBUG: requestContent =', requestContent);
