@@ -689,7 +689,7 @@ router.post('/webhook', async (req, res) => {
       // Bắt keywords hủy thủ công để đảm bảo 100% ăn ngay không cần chờ AI
       let aiResult = { type: 'ANSWER', answer: '', location: '' };
       
-      const lowerReq = requestContent.toLowerCase();
+      const lowerReq = requestContent.toLowerCase().normalize('NFC');
       const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
       // Nếu có keyword hủy VÀ đang có ticket chờ
       const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
