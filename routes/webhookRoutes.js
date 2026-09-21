@@ -686,8 +686,20 @@ router.post('/webhook', async (req, res) => {
           openTicketsContext = "CURRENT OPEN TICKETS FOR THIS USER:\n" + pendingReqs.map(r => "- Ticket #" + r.id + ": " + r.content).join('\n');
       }
 
-      // Analyze with AI
-      const aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
+      // Bắt keywords hủy thủ công để đảm bảo 100% ăn ngay không cần chờ AI
+      let aiResult = { type: 'ANSWER', answer: '', location: '' };
+      
+      const lowerReq = requestContent.toLowerCase();
+      const cancelKeywords = ['hủy', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
+      // Nếu có keyword hủy VÀ đang có ticket chờ
+      const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
+      
+      if (isCancelIntent && pendingReqs.length > 0) {
+          aiResult.type = 'CANCEL';
+          aiResult.answer = 'Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.';
+      } else {
+          aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
+      }
 
       if (aiResult.type === 'CANCEL') {
         const allReqs = await db.getAllRequests();
