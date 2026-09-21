@@ -701,9 +701,21 @@ router.post('/webhook', async (req, res) => {
       
       if (isCancelIntent) {
           aiResult.type = 'CANCEL';
-          aiResult.answer = pendingReqs.length > 0 
-              ? 'Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.'
-              : 'Cảm ơn bạn! Hiện tại bạn không có yêu cầu nào đang chờ xử lý.';
+          if (pendingReqs.length > 0) {
+              const r = pendingReqs[pendingReqs.length - 1]; // Lấy ticket mới nhất
+              aiResult.answer = `🚫 YÊU CẦU ĐÃ ĐƯỢC HỦY THÀNH CÔNG! [#${r.id}]
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
+📍 Vị trí: ${r.location || 'Không xác định'}
+------------------------------
+😊 Cảm ơn ${BOT_PRONOUN_USER_DEFAULT} đã thông báo, chúc ${BOT_PRONOUN_USER_DEFAULT} một ngày làm việc hiệu quả!`;
+          } else {
+              aiResult.answer = `⚠️ THÔNG BÁO TỪ HỆ THỐNG
+------------------------------
+👤 ${BOT_PRONOUN_USER_DEFAULT}: ${senderName}
+------------------------------
+😊 Cảm ơn ${BOT_PRONOUN_USER_DEFAULT}! Hiện tại ${BOT_PRONOUN_USER_DEFAULT} không có yêu cầu nào đang chờ xử lý.`;
+          }
       } else {
           aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
       }
