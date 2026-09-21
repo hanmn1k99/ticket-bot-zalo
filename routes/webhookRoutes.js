@@ -690,7 +690,7 @@ router.post('/webhook', async (req, res) => {
       let aiResult = { type: 'ANSWER', answer: '', location: '' };
       
       const lowerReq = requestContent.toLowerCase();
-      const cancelKeywords = ['hủy', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
+      const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
       // Nếu có keyword hủy VÀ đang có ticket chờ
       const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
       
