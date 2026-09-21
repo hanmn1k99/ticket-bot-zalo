@@ -680,7 +680,7 @@ router.post('/webhook', async (req, res) => {
       if (!requestContent) requestContent = "(Không có nội dung)";
 
             const allReqsContext = await db.getAllRequests();
-      const pendingReqs = allReqsContext.filter(r => r.sender_id === senderId && (r.status === 'Đang chờ' || r.status === 'Đang xử lý'));
+      const pendingReqs = allReqsContext.filter(r => r.sender_id === senderId && r.status !== 'Đã xong' && r.status !== 'Từ chối' && r.status !== 'Hủy');
       let openTicketsContext = '';
       if (pendingReqs.length > 0) {
           openTicketsContext = "CURRENT OPEN TICKETS FOR THIS USER:\n" + pendingReqs.map(r => "- Ticket #" + r.id + ": " + r.content).join('\n');
@@ -694,16 +694,19 @@ router.post('/webhook', async (req, res) => {
       // Nếu có keyword hủy VÀ đang có ticket chờ
       const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
       
-      if (isCancelIntent && pendingReqs.length > 0) {
+      if (isCancelIntent) {
           aiResult.type = 'CANCEL';
-          aiResult.answer = 'Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.';
+          aiResult.answer = pendingReqs.length > 0 
+              ? 'Cảm ơn bạn! Yêu cầu của bạn đã được hủy thành công.'
+              : 'Cảm ơn bạn! Hiện tại bạn không có yêu cầu nào đang chờ xử lý.';
       } else {
           aiResult = await analyzeWithAI(requestContent, senderName, senderId, openTicketsContext);
       }
 
       if (aiResult.type === 'CANCEL') {
         const allReqs = await db.getAllRequests();
-        const pendingReq = [...allReqs].reverse().find(r => r.sender_id === senderId && r.chat_id === chatId && r.status === 'Đang chờ');
+        // Use the same robust filter here!
+        const pendingReq = [...allReqs].reverse().find(r => r.sender_id === senderId && r.chat_id === chatId && r.status !== 'Đã xong' && r.status !== 'Từ chối' && r.status !== 'Hủy');
         
         if (pendingReq) {
           // Update status to Hủy
