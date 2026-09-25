@@ -19,7 +19,7 @@ function extractLocationFallback(text) {
   }
 
   // 2. Quét "tầng xxx", "khu xxx"
-  const match3 = lowerText.match(/(?:tầng|khu)\s+([^\s,\.]+)/i);
+  const match3 = lowerText.match(/(?:tầng|khu)\s+([^\s,.]+)/i);
   if (match3) {
     const idx = lowerText.indexOf(match3[0]);
     const before = lowerText.substring(0, idx).trim();
