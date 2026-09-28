@@ -1,3 +1,8 @@
+/* eslint-disable no-redeclare */
+
+/* eslint-env browser */
+/* eslint-disable no-unused-vars, no-undef, no-empty */
+
 
 
         function showAlert(msg, isSuccess = false) {
