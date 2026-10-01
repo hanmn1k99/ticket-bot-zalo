@@ -1,5 +1,5 @@
 ﻿const cron = require('node-cron');
-const db = require('./database');
+const db = require('../config/database');
 
 function setupCronJobs(sendToAdmins) {
   // 1. Notify Admin on the last day of the month at 17:00 (Vietnam Time)

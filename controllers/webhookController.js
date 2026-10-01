@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../config/database');
 const { WEBHOOK_SECRET_TOKEN, BOT_NAME, PUBLIC_URL } = require('../config/constants');
 const { sendZaloMessage, isAdmin, isSuperAdmin, getWebDisplayNameForZalo } = require('../services/zaloService');
 const { analyzeWithAI } = require('../services/aiService');

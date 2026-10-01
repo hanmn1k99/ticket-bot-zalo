@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const db = require('../database');
+const db = require('../config/database');
 const { AI_API_KEY } = require('../config/constants');
 const { getBotConfig } = require('./botConfigService');
 
@@ -96,7 +96,7 @@ async function analyzeWithAI(text, senderName, senderId, openTicketsContext = ""
   let faqContent = await db.getSetting('faq_content');
   if (!faqContent) {
     try {
-      faqContent = fs.readFileSync(path.join(__dirname, '..', 'faq.txt'), 'utf8');
+      faqContent = fs.readFileSync(path.join(__dirname, '..', 'data', 'faq.txt'), 'utf8');
       await db.setSetting('faq_content', faqContent);
     } catch (err) {
       faqContent = '- Chưa có dữ liệu FAQ.';
@@ -150,7 +150,7 @@ MANDATORY RULES:
   // Kiểm tra blacklist
   const lowerText = text.toLowerCase();
   try {
-    const blacklist = fs.readFileSync(path.join(__dirname, '..', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
+    const blacklist = fs.readFileSync(path.join(__dirname, '..', 'data', 'blacklist_keywords.txt'), 'utf8').split('\n').map(w => w.trim().toLowerCase()).filter(w => w);
     for (const word of blacklist) {
       if (lowerText.includes(word)) {
         return { type: 'ANSWER', answer: 'Xin lỗi, tôi không được phép hỗ trợ nội dung này ạ.' };

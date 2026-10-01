@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const db = require('../config/database');
 const { checkAuth } = require('../middleware/authMiddleware');
 const { sendZaloMessage } = require('../services/zaloService');
 

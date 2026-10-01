@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'database.json');
+const dbPath = path.join(__dirname, '..', 'data', 'database.json');
 
 console.log('⚠️ ĐANG TIẾN HÀNH KHÔI PHỤC CÀI ĐẶT GỐC (FACTORY RESET)...');
 

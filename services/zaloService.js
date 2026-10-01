@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../config/database');
 const { BOT_TOKEN } = require('../config/constants');
 
 // Helper to send message via Zalo API

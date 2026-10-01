@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const router = express.Router();
-const db = require('../database');
+const db = require('../config/database');
 const { checkAuth } = require('../middleware/authMiddleware');
 const { getSettingsHtml } = require('../views/settingsView');
 

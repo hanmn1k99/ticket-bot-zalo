@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const db = require('../database');
+const db = require('../config/database');
 
 async function renderTableRows() {
   const requests = await db.getAllRequests();
@@ -90,7 +90,7 @@ async function getDashboardHtml(user) {
   const siteFooter = await db.getSetting('site_footer') || 'minhhan.net';
   let printTemplateHtml = '';
   try {
-      printTemplateHtml = fs.readFileSync(path.join(__dirname, '..', 'print_template.html'), 'utf8');
+      printTemplateHtml = fs.readFileSync(path.join(__dirname, '..', 'views', 'print_template.html'), 'utf8');
   } catch(e) { /* ignore */ }
   
   const htmlContent = `

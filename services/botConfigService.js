@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../config/database');
 
 async function getBotConfig() {
   const orgName = await db.getSetting('bot_org_name') || 'trường Meyschool';

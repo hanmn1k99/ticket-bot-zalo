@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const db = require('../database');
+const db = require('../config/database');
 const { JWT_SECRET } = require('../config/constants');
 const { getLoginHtml, getSetupHtml, getForgotPasswordHtml } = require('../views/authViews');
 

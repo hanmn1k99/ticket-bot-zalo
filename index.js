@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const cookieParser = require('cookie-parser');
-const setupCronJobs = require('./cronjobs');
+const setupCronJobs = require('./services/cronjobs');
 const { PORT } = require('./config/constants');
 const { sendToAdmins } = require('./services/zaloService');
 const { checkAuth } = require('./middleware/authMiddleware');
@@ -51,8 +51,6 @@ setupCronJobs(sendToAdmins);
 app.get('/', (req, res) => {
   res.redirect('/report');
 });
-app.get('/manifest.json', (req, res) => res.sendFile(path.join(__dirname, 'manifest.json')));
-app.get('/sw.js', (req, res) => res.sendFile(path.join(__dirname, 'sw.js')));
 
 // Dashboard Route
 app.get('/report', checkAuth, async (req, res) => {

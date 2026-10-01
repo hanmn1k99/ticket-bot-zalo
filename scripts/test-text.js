@@ -1,0 +1,11 @@
+const text = '@Bot Meyschool - IT hủy';
+const BOT_NAME = '@Bot';
+let requestContent = text.replace(new RegExp(`@?${BOT_NAME}`, 'gi'), '').replace(/@?Bot/gi, '').trim();
+requestContent = requestContent.replace(/^@\s*/, '').replace(/@\s*$/, '').trim();
+if (!requestContent) requestContent = '(Không có nội dung)';
+console.log('requestContent:', requestContent);
+const lowerReq = requestContent.toLowerCase().normalize('NFC');
+console.log('lowerReq:', lowerReq);
+const cancelKeywords = ['hủy', 'huỷ', 'huy', 'xong rồi', 'đã xử lý', 'không cần', 'bỏ qua'];
+const isCancelIntent = cancelKeywords.some(kw => lowerReq.includes(kw));
+console.log('isCancelIntent:', isCancelIntent);
