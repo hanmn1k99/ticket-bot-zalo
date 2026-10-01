@@ -207,7 +207,6 @@ router.post('/api/tickets/create', checkAuth, async (req, res) => {
   }
 
   const { BOT_PRONOUN_USER_DEFAULT } = await getBotConfig();
-  const itName = (req.user && req.user.displayName && req.user.displayName.trim()) ? req.user.displayName.trim() : 'Bộ phận IT';
   const timestamp = Date.now();
 
   const d = new Date(timestamp);

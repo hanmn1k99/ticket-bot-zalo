@@ -59,7 +59,7 @@ router.post('/api/settings/group/ping', checkAuth, async (req, res) => {
   if (!groupId) return res.status(400).json({ success: false });
   try {
     const { sendZaloMessage } = require('../services/zaloService');
-    const success = await sendZaloMessage(groupId, '🔔 Kiểm tra kết nối từ Hệ thống quản lý IT.');
+    await sendZaloMessage(groupId, '🔔 Kiểm tra kết nối từ Hệ thống quản lý IT.');
     res.json({ success: true });
   } catch (err) {
     res.json({ success: false });
