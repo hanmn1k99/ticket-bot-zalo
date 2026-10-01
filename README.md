@@ -47,23 +47,15 @@ Hệ thống được thiết kế theo mô hình **Modular**, phân tách rõ r
 
 ```bash
 ticket-bot-zalo/
-├── config/             # Cấu hình hằng số (constants)
-├── database/           # Dữ liệu JSON (database.json)
+├── config/             # Cấu hình Database & hằng số
+├── controllers/        # Xử lý Logic Controller (Webhook, API)
+├── data/               # Dữ liệu JSON (database.json) & các file text (faq, từ khóa)
 ├── middleware/         # Xác thực bảo mật JWT, phân quyền Auth
-├── routes/             # Định tuyến API
-│   ├── authRoutes.js     # Xác thực tài khoản Web
-│   ├── ticketRoutes.js   # API quản lý vòng đời sự cố (Tickets)
-│   ├── adminRoutes.js    # Quản lý quyền Zalo Admin
-│   ├── settingRoutes.js  # Cấu hình tính năng & FAQ
-│   └── webhookRoutes.js  # Cổng tiếp nhận sự kiện Zalo OA
-├── services/           # Xử lý Logic cốt lõi
-│   ├── aiService.js      # Giao tiếp API Llama / AI Prompt
-│   ├── zaloService.js    # Gửi tin nhắn & API Zalo OA
-│   └── botConfigService.js # Nạp cấu hình tự động
-├── views/              # Render HTML cho Frontend
-│   ├── dashboardView.js  # Giao diện Bảng tin
-│   └── settingsView.js   # Giao diện Cài đặt
-├── cronjobs.js         # Các tác vụ chạy ngầm định kỳ
+├── public/             # Tài nguyên tĩnh Client-side (CSS, JS, Service Worker)
+├── routes/             # Định tuyến API (Auth, Ticket, Admin, Setting, Webhook)
+├── scripts/            # Các công cụ script bảo trì & reset hệ thống
+├── services/           # Xử lý Logic cốt lõi (AI, Zalo OA, Cronjobs)
+├── views/              # Render HTML cho Frontend (Dashboard, Settings, In ấn)
 └── index.js            # Entry point khởi chạy máy chủ
 ```
 
