@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const db = require('../database');
+const db = require('../config/database');
 const { JWT_SECRET } = require('../config/constants');
 
 async function checkAuth(req, res, next) {
